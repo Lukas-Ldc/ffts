@@ -1,0 +1,20 @@
+form {
+    text-align: center;
+    margin: 5em;
+}
+
+form div {
+    margin: 2em;
+}
+
+form .form-floating {
+    max-width: 500px;
+    text-align: center;
+    margin: 1em auto;
+}
+
+.alert-danger {
+    max-width: 270px;
+    margin: auto;
+    text-align: center;
+}
