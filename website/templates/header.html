@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	{% load static %}
+	<title>FFTS - {{ page|title }}</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" type="image/jpg" href="{% static 'website/img/favicon.ico' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'website/bootstrap/bootstrap.min.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'website/css/general.css' %}">
+	{% with 'website/css/'|add:page|add:'.css' as css_page %}
+	<link rel="stylesheet" type="text/css" href="{% static css_page %}">
+	{% endwith %}
+	{% with 'website/js/'|add:page|add:'.js' as js_page %}
+	<script type="text/javascript" src="{% static js_page %}"></script>
+	{% endwith %}
+	<script src="{% static 'website/bootstrap/bootstrap.bundle.min.js' %}"></script>
+
+</head>
+
+<body class="container-xxl">

@@ -1,0 +1,14 @@
+@font-face {
+    font-family: 'MyFont';
+    src: url(fonts/Quicksand-Regular.ttf) format('truetype');
+}
+
+html body * {
+    font-family: 'MyFont', sans-serif;
+    font-weight: 350;
+    user-select: text;
+}
+
+html body {
+    background-color: #EEE;
+}
