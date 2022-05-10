@@ -1,0 +1,24 @@
+table {
+    margin-top: 2em;
+}
+
+table tr th {
+    font-weight: 1000;   
+}
+
+#admin {
+    color: black;
+    text-decoration: none;
+}
+
+#accounts-manager {
+    margin-top: 2em;
+}
+
+#accounts-manager button {
+    margin-right: 1em;
+}
+
+a {
+    text-decoration: none;
+}

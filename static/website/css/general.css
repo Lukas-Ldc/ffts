@@ -11,4 +11,44 @@ html body * {
 
 html body {
     background-color: #EEE;
+    margin: 2em auto;
+}
+
+.global-b {
+    position: fixed;
+    margin: 1em;
+}
+
+.global-b a {
+    padding: 0.5em;
+    color: black;
+}
+
+#global-t-left {
+    top: 14px;
+    left: 5px;
+}
+
+#global-t-right {
+    top: 14px;
+    right: 5px;
+}
+
+#global-b-left {
+    bottom: 14px;
+    left: 5px;
+}
+
+#global-b-right {
+    bottom: 14px;
+    right: 5px;
+}
+
+@media (max-width: 1500px) {
+    html body {
+        margin: 4em auto;
+    }
+    .global-b {
+        margin: 0.5em;
+    }
 }

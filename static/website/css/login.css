@@ -1,3 +1,7 @@
+html body .global-b {
+    display: none;
+}
+
 form {
     text-align: center;
     margin: 5em;

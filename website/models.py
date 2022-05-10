@@ -5,9 +5,10 @@ class Account(models.Model):
     unique = models.CharField(max_length=200, primary_key=True)
     name = models.CharField(max_length=50)
     type = models.CharField(max_length=50, null=True, blank=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, to_field='username', on_delete=models.CASCADE)
     group = models.CharField(max_length=50, null=True, blank=True)
     unit = models.CharField(max_length=15, null=True, blank=True)
+    gmt = models.DecimalField(max_digits=2, decimal_places=0, null=True, blank=True)
     comment = models.CharField(max_length=255, null=True, blank=True)
 
     def save(self, *args, **kwargs):

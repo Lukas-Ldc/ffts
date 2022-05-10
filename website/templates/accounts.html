@@ -1,4 +1,216 @@
 {% include "header.html" %}
 {% load static %}
 
+<!-- Admin Page Link & Title --->
+<h1>
+    {% if staff %}
+    <a id="admin" href="{% url 'admin:index' %}" target="_blank">
+       <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-menu-button-wide-fill" viewBox="0 0 16 16">
+            <path d="M1.5 0A1.5 1.5 0 0 0 0 1.5v2A1.5 1.5 0 0 0 1.5 5h13A1.5 1.5 0 0 0 16 3.5v-2A1.5 1.5 0 0 0 14.5 0h-13zm1 2h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1 0-1zm9.927.427A.25.25 0 0 1 12.604 2h.792a.25.25 0 0 1 .177.427l-.396.396a.25.25 0 0 1-.354 0l-.396-.396zM0 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V8zm1 3v2a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2H1zm14-1V8a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v2h14zM2 8.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0 4a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5z"/>
+        </svg> -
+    </a>
+    {% endif %}
+    Accounts of {{user}}
+</h1>
+
+<!-- Acconts Buttons (content at end of page) -->
+<div id="accounts-manager">
+    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#addModal">
+        Add an Account
+    </button>
+    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modifyModal">
+        Modify an Account
+    </button>
+    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#deleteModal">
+        Delete an Account
+    </button>
+</div>
+
+<!-- Accounts List -->
+<table class="table">
+{% for g in groups %}
+
+    <thead>
+        <tr>
+            <th scope="col">{{ g.group }}</th> 
+            <th scope="col">Name</th>
+            <th scope="col">Type</th>
+            <th scope="col">Unit</th>
+            <th scope="col">GMT</th>
+            <th scope="col">Transactions</th>
+            <th scope="col">Transfers</th>
+        </tr>
+    </thead>
+
+    <tbody>
+    {% with g.group as last_group %}
+        {% for a in accounts %}
+            {% if last_group == a.group %}
+            <tr>
+                <th scope="row">-</th>
+                <td>
+                    <a href="{% url 'website-account' name=a.unique %}" data-bs-toggle="tooltip" title="{{ a.comment }}">{{ a.name }}</a>
+                </td>
+                <td>{{ a.type }}</td>
+                <td>{{ a.unit }}</td>
+                <td>{{ a.gmt }}</td>
+                <td>
+                    <a href="{% url 'website-transactions' account=a.unique %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-plus-slash-minus" viewBox="0 0 16 16">
+                            <path d="m1.854 14.854 13-13a.5.5 0 0 0-.708-.708l-13 13a.5.5 0 0 0 .708.708ZM4 1a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 4 1Zm5 11a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5A.5.5 0 0 1 9 12Z"/>
+                        </svg>
+                    </a>
+                </td>
+                <td>
+                    <a href="{% url 'website-transfers' account=a.unique %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-shuffle" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M0 3.5A.5.5 0 0 1 .5 3H1c2.202 0 3.827 1.24 4.874 2.418.49.552.865 1.102 1.126 1.532.26-.43.636-.98 1.126-1.532C9.173 4.24 10.798 3 13 3v1c-1.798 0-3.173 1.01-4.126 2.082A9.624 9.624 0 0 0 7.556 8a9.624 9.624 0 0 0 1.317 1.918C9.828 10.99 11.204 12 13 12v1c-2.202 0-3.827-1.24-4.874-2.418A10.595 10.595 0 0 1 7 9.05c-.26.43-.636.98-1.126 1.532C4.827 11.76 3.202 13 1 13H.5a.5.5 0 0 1 0-1H1c1.798 0 3.173-1.01 4.126-2.082A9.624 9.624 0 0 0 6.444 8a9.624 9.624 0 0 0-1.317-1.918C4.172 5.01 2.796 4 1 4H.5a.5.5 0 0 1-.5-.5z"/>
+                            <path d="M13 5.466V1.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384l-2.36 1.966a.25.25 0 0 1-.41-.192zm0 9v-3.932a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384l-2.36 1.966a.25.25 0 0 1-.41-.192z"/>
+                        </svg>
+                    </a>
+                </td>
+            </tr>
+            {% endif %}
+        {% endfor %}
+    {% endwith %}
+    </tbody>
+
+{% endfor %}
+</table>
+
+<!-- Modals from Clinking on Buttons -->
+<datalist id="accountsList">
+    {% for a in accounts %}
+        <option value="{{a.name}}">
+    {% endfor %}
+</datalist>
+
+<datalist id="groupsList">
+    {% for g in groups %}
+        <option value="{{g.group}}">
+    {% endfor %}
+</datalist>
+
+<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addModalLabel">Add an account</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'website-accounts' %}" method="POST">
+                <div class="modal-body">
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="floatingInput" name="name" required autocomplete="off">
+                            <label for="floatingInput">Name *</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <select class="form-select" id="floatingSelect" name="type" required>
+                                {% for t in types %}
+                                    <option value="{{t.name}}">{{t.name}}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="floatingSelect">Type *</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="floatingInput" name="group" list="groupsList" autocomplete="off">
+                            <label for="floatingInput">Group</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="floatingInput" name="unit">
+                            <label for="floatingInput">Unit *</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="number" class="form-control" id="floatingInput" name="gmt">
+                            <label for="floatingInput">GMT *</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="floatingInput" name="comment" autocomplete="off">
+                            <label for="floatingInput">Comment</label>
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary" name="add_account">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modifyModal" tabindex="-1" aria-labelledby="modifyModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modifyModalLabel">Modify an account</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'website-accounts' %}" method="POST">
+                <div class="modal-body">
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="floatingInput" name="name" required list="accountsList" autocomplete="off">
+                            <label for="floatingInput">Name of the account *</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <select class="form-select" id="floatingSelect" name="type">
+                              <option value="" selected></option>
+                                {% for t in types %}
+                                    <option value="{{t.name}}">{{t.name}}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="floatingSelect">Change the type</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="floatingInput" name="group" list="groupsList" autocomplete="off">
+                            <label for="floatingInput">Change the group</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="floatingInput" name="unit">
+                            <label for="floatingInput">Change the unit</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="number" class="form-control" id="floatingInput" name="gmt">
+                            <label for="floatingInput">Change the GMT</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="floatingInput" name="comment" autocomplete="off">
+                            <label for="floatingInput">Change the comment</label>
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary" name="modify_account">Modify</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Delete an account</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'website-accounts' %}" method="POST">
+                <div class="modal-body">
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="floatingInput" name="name" required list="accountsList" autocomplete="off">
+                            <label for="floatingInput">Name of the account *</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="password" class="form-control" id="floatingInput" name="pass" required>
+                            <label for="floatingInput">Your password *</label>
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary" name="delete_account">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 {% include "footer.html" %}
