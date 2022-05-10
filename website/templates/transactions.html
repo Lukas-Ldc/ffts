@@ -1,4 +1,226 @@
 {% include "header.html" %}
 {% load static %}
 
+<!-- Admin Page Link & Title --->
+<h1>Transactions from {{account_.name}}</h1>
+
+<!-- Acconts Buttons (content at end of page) -->
+<div id="transactions-manager">
+    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#addModal">
+        Add a Transaction
+    </button>
+    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modifyModal">
+        Modify a Transaction
+    </button>
+    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#deleteModal">
+        Delete a Transaction
+    </button>
+</div>
+
+<!-- Transactions List --->
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">ID</th> 
+            <th scope="col">Market</th>
+            <th scope="col">Type</th>
+            <th scope="col">Date</th>
+            <th scope="col">Input</th>
+            <th scope="col">Output</th>
+            <th scope="col">Amount In</th>
+            <th scope="col">Amount Out</th>
+            <th scope="col">Price</th>
+            <th scope="col">Fee</th>
+            <th scope="col">Fee Type</th>
+            <th scope="col">Comment</th>
+        </tr>
+    </thead>
+
+    <tbody>
+    {% for t in transactions %}
+        <tr>
+            <th scope="row">{{ t.id }}</th>
+            <td>{{ t.market }}</td>
+            <td>{{ t.type }}</td>
+            <td>{{ t.date }}</td>
+            <td>{{ t.input }}</td>
+            <td>{{ t.output }}</td>
+            <td>{{ t.amountIn.normalize }}</td>
+            <td>{{ t.amountOut.normalize }}</td>
+            <td>{{ t.price.normalize }}</td>
+            <td>{{ t.fee.normalize }}</td>
+            <td>{{ t.feeType }}</td>
+            <td>{{ t.comment }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<!-- Modals from Clinking on Buttons -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addModalLabel">Add an transaction</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'website-transactions' account=account %}" method="POST">
+                <div class="modal-body">
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="floatingInput" name="market">
+                            <label for="floatingInput">Market</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <select class="form-select" id="floatingSelect" name="type" required>
+                                {% for t in types %}
+                                    <option value="{{t.name}}">{{t.name}}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="floatingSelect">Type *</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="datetime-local" class="form-control" id="floatingInput" name="date" required>
+                            <label for="floatingInput">Date *</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="floatingInput" name="input" required>
+                            <label for="floatingInput">Input *</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="floatingInput" name="output" required>
+                            <label for="floatingInput">Output *</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="number" step="0.000000000000001" class="form-control" id="floatingInput" name="amountin" required>
+                            <label for="floatingInput">Amount In *</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="number" step="0.000000000000001" class="form-control" id="floatingInput" name="amountout" required>
+                            <label for="floatingInput">Amount Out *</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="number" step="0.000000000000001" class="form-control" id="floatingInput" name="price">
+                            <label for="floatingInput">Price</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="number" step="0.000000000000001" class="form-control" id="floatingInput" name="fee">
+                            <label for="floatingInput">Fee</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="floatingInput" name="feetype">
+                            <label for="floatingInput">Fee Type</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="floatingInput" name="comment" autocomplete="off">
+                            <label for="floatingInput">Comment</label>
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary" name="add_transaction">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modifyModal" tabindex="-1" aria-labelledby="modifyModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modifyModalLabel">Modify an transaction</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'website-transactions' account=account %}" method="POST">
+                <div class="modal-body">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="floatingInput" name="id" required autocomplete="off">
+                        <label for="floatingInput">ID *</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="floatingInput" name="market">
+                        <label for="floatingInput">Market</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <select class="form-select" id="floatingSelect" name="type">
+                            <option value=""></option>
+                            {% for t in types %}
+                                <option value="{{t.name}}">{{t.name}}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="floatingSelect">Type</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="datetime-local" class="form-control" id="floatingInput" name="date">
+                        <label for="floatingInput">Date</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="floatingInput" name="input">
+                        <label for="floatingInput">Input</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="floatingInput" name="output">
+                        <label for="floatingInput">Output</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="number" step="0.000000000000001" class="form-control" id="floatingInput" name="amountin">
+                        <label for="floatingInput">Amount In</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="number" step="0.000000000000001" class="form-control" id="floatingInput" name="amountout">
+                        <label for="floatingInput">Amount Out</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="number" step="0.000000000000001" class="form-control" id="floatingInput" name="price">
+                        <label for="floatingInput">Price</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="number" step="0.000000000000001" class="form-control" id="floatingInput" name="fee">
+                        <label for="floatingInput">Fee</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="floatingInput" name="feetype">
+                        <label for="floatingInput">Fee Type</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="floatingInput" name="comment" autocomplete="off">
+                        <label for="floatingInput">Comment</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary" name="modify_transaction">Modify</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Delete a transaction</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'website-transactions' account=account %}" method="POST">
+                <div class="modal-body">
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="floatingInput" name="id" required autocomplete="off">
+                            <label for="floatingInput">ID *</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="password" class="form-control" id="floatingInput" name="pass" required>
+                            <label for="floatingInput">Your password *</label>
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary" name="delete_transaction">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 {% include "footer.html" %}

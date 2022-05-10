@@ -1,0 +1,15 @@
+table {
+    margin-top: 2em;
+}
+
+table tr th {
+    font-weight: 1000;   
+}
+
+#transactions-manager {
+    margin-top: 2em;
+}
+
+#transactions-manager button {
+    margin-right: 1em;
+}

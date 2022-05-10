@@ -10,7 +10,7 @@ class Transfer_Interface(admin.ModelAdmin):
     search_fields = ['source','destination','date','unit','comment']
 
 class Transaction_Interface(admin.ModelAdmin):
-    list_display = ['account','market','type','date','input','output','amountIn','amountOut','multiplier','fee','feeType','comment']
+    list_display = ['account','market','type','date','input','output','amountIn','amountOut','price','fee','feeType','comment']
     search_fields = ['account','market','type','date','input','output','comment']
 
 class Standard_Interface(admin.ModelAdmin):

@@ -1,4 +1,3 @@
-from requests import request
 import website.views.functions.authentication as auth
 from django.shortcuts import render, redirect
 from website.models import Account, Standard
@@ -30,7 +29,7 @@ def accounts_view(request):
 
     user_Accounts = Account.objects.all().filter(user__exact=request.user.username).order_by('group','name')
     user_Acc_Groups = user_Accounts.values('group').order_by('group').distinct()
-    acc_Types = Standard.objects.all().filter(type__exact='AccountType')
+    acc_Types = Standard.objects.all().filter(type__exact='AccountType').order_by('name')
 
     context = {
         'page': 'accounts',
