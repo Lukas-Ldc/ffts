@@ -1,4 +1,192 @@
 {% include "header.html" %}
 {% load static %}
 
+<!-- Admin Page Link & Title --->
+<h1>Transfers from {{account_.name}}</h1>
+
+<!-- Acconts Buttons (content at end of page) -->
+<div id="transfers-manager">
+    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#addModal">
+        Add a Transfer
+    </button>
+    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modifyModal">
+        Modify a Transfer
+    </button>
+    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#deleteModal">
+        Delete a Transfer
+    </button>
+</div>
+
+<!-- TransacTransferstions List --->
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">ID</th> 
+            <th scope="col">Source</th>
+            <th scope="col">Destination</th>
+            <th scope="col">Date</th>
+            <th scope="col">Unit</th>
+            <th scope="col">Amount</th>
+            <th scope="col">Fee</th>
+            <th scope="col">Fee Type</th>
+            <th scope="col">Comment</th>
+        </tr>
+    </thead>
+
+    <tbody>
+    {% for t in transfers %}
+        <tr>
+            <th scope="row">{{ t.id }}</th>
+            <td>{{ t.source|cut:"Account object" }}</td>
+            <td>{{ t.destination|cut:"Account object" }}</td>
+            <td>{{ t.date }}</td>
+            <td>{{ t.unit }}</td>
+            <td>{{ t.amount.normalize }}</td>
+            <td>{{ t.fee.normalize }}</td>
+            <td>{{ t.feeType }}</td>
+            <td>{{ t.comment }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<!-- Modals from Clinking on Buttons -->
+<datalist id="accountsList">
+    {% for a in accounts %}
+        <option value="{{a.unique}}">
+    {% endfor %}
+</datalist>
+<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addModalLabel">Add an transfer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'website-transfers' account=account %}" method="POST">
+                <div class="modal-body">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="floatingInput" name="source" autocomplete="off" required list="accountsList">
+                        <label for="floatingInput">Source *</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="floatingInput" name="destination" autocomplete="off" required list="accountsList">
+                        <label for="floatingInput">Destination *</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="datetime-local" class="form-control" id="floatingInput" name="date" required value="0000-00-00 00:00">
+                        <label for="floatingInput">Date *</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="floatingInput" name="unit" required>
+                        <label for="floatingInput">Unit *</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="number" step="0.000000000000001" class="form-control" id="floatingInput" name="amount" required>
+                        <label for="floatingInput">Amount *</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="number" step="0.000000000000001" class="form-control" id="floatingInput" name="fee">
+                        <label for="floatingInput">Fee</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="floatingInput" name="feetype">
+                        <label for="floatingInput">Fee Type</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="floatingInput" name="comment" autocomplete="off">
+                        <label for="floatingInput">Comment</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary" name="add_transfer">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modifyModal" tabindex="-1" aria-labelledby="modifyModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modifyModalLabel">Modify an transfer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'website-transfers' account=account %}" method="POST">
+                <div class="modal-body">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="floatingInput" name="id" required autocomplete="off">
+                        <label for="floatingInput">ID *</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="floatingInput" name="source" autocomplete="off" required list="accountsList">
+                        <label for="floatingInput">Source</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="floatingInput" name="destination" autocomplete="off" required list="accountsList">
+                        <label for="floatingInput">Destination</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="datetime-local" class="form-control" id="floatingInput" name="date" required>
+                        <label for="floatingInput">Date</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="floatingInput" name="unit" required>
+                        <label for="floatingInput">Unit</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="number" step="0.000000000000001" class="form-control" id="floatingInput" name="amount" required>
+                        <label for="floatingInput">Amount</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="number" step="0.000000000000001" class="form-control" id="floatingInput" name="fee">
+                        <label for="floatingInput">Fee</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="floatingInput" name="feetype">
+                        <label for="floatingInput">Fee Type</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="floatingInput" name="comment" autocomplete="off">
+                        <label for="floatingInput">Comment</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary" name="modify_transfer">Modify</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Delete a transfer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'website-transfers' account=account %}" method="POST">
+                <div class="modal-body">
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="floatingInput" name="id" required autocomplete="off">
+                            <label for="floatingInput">ID *</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="password" class="form-control" id="floatingInput" name="pass" required>
+                            <label for="floatingInput">Your password *</label>
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary" name="delete_transfer">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 {% include "footer.html" %}
