@@ -32,7 +32,8 @@ def transfers_view(request, account):
 
             if "delete_transfer" in request.POST:
                 if authenticate(request, username=request.user.username, password=request.POST['pass']):
-                    Transfer.objects.all().filter(Q(id__exact=request.POST['id']), Q(source__exact=account) | Q(destination__exact=account)).delete()
+                    for id in str(request.POST['id']).split(','):
+                        Transfer.objects.all().filter(Q(id__exact=id), Q(source__exact=account) | Q(destination__exact=account)).delete()
 
         the_account = Account.objects.all().get(user__exact=request.user, unique__exact=account)
         transfers = Transfer.objects.all().filter(Q(source__exact=account) | Q(destination__exact=account)).order_by('-date')

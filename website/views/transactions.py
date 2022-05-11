@@ -33,7 +33,8 @@ def transactions_view(request, account):
 
             if "delete_transaction" in request.POST:
                 if authenticate(request, username=request.user.username, password=request.POST['pass']):
-                    Transaction.objects.all().filter(id__exact=request.POST['id'], account__exact=account).delete()
+                    for id in str(request.POST['id']).split(','):
+                        Transaction.objects.all().filter(id__exact=id, account__exact=account).delete()
 
         the_account = Account.objects.all().get(user__exact=request.user, unique__exact=account)
         transactions = Transaction.objects.all().filter(account__exact=account).order_by('-date')

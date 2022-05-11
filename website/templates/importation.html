@@ -1,4 +1,78 @@
 {% include "header.html" %}
 {% load static %}
 
+<h1>Importations for {{account.name}}</h1>
+
+<div class="accordion" id="accordion">
+
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="h1">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c1" aria-expanded="true" aria-controls="c1">
+                Basic Comma Separated Values (CSV)
+            </button>
+        </h2>
+        <div id="c1" class="accordion-collapse collapse" aria-labelledby="h1" data-bs-parent="#accordion">
+            <div class="accordion-body">
+                <form action="{% url 'website-importation' account=account.unique %}" method="POST" enctype="multipart/form-data">
+                    <div class="form-floating mb-3">
+                        <select class="form-select" id="floatingSelect" name="type" required>
+                            <option value="Transactions">Transactions</option>
+                            <option value="Transfers">Transfers</option>
+                        </select>
+                        <label for="floatingSelect">Type</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <select class="form-select" id="floatingSelect" name="feeunit" required>
+                            <option value="Input">Input (Transactions, Transfers)</option>
+                            <option value="Output">Output (Transactions)</option>
+                            <option value="Account">Account (Transactions, Transfers)</option>
+                        </select>
+                        <label for="floatingSelect">Fee Unit</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <select class="form-select" id="floatingSelect" name="feecalcul" required>
+                            <option value="Inside">Inside</option>
+                            <option value="Outside">Outside</option>
+                        </select>
+                        <label for="floatingSelect">Fee Calcul</label>
+                    </div>
+                    <em>The CSV file must be prepared in a special way for the import. Take a look at the documentation !</em>
+                    <div class="form-floating mb-3">
+                        <input type="file" name="file" required>
+                    </div>
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary" name="import_csv">Import</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="h2">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c2" aria-expanded="true" aria-controls="c2">
+                Binance
+            </button>
+        </h2>
+        <div id="c2" class="accordion-collapse collapse" aria-labelledby="h2" data-bs-parent="#accordion">
+            <div class="accordion-body">
+                <em>In progress</em>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="h3">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c3" aria-expanded="true" aria-controls="c3">
+                Gate.io
+            </button>
+        </h2>
+        <div id="c3" class="accordion-collapse collapse" aria-labelledby="h3" data-bs-parent="#accordion">
+            <div class="accordion-body">
+                <em>In progress</em>
+            </div>
+        </div>
+    </div>
+
+</div>
+
 {% include "footer.html" %}
