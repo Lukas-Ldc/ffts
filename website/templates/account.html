@@ -1,4 +1,106 @@
 {% include "header.html" %}
 {% load static %}
 
+<!-- Admin Page Link & Title --->
+<h1>Account {{account.name}}</h1>
+
+<!-- Acconts Buttons (content at end of page) -->
+<div id="redirection">
+    <a href="{% url 'website-transactions' account=account.unique %}"><button type="button" class="btn btn-outline-secondary">Transactions</button></a>
+    <a href="{% url 'website-transfers' account=account.unique %}"><button type="button" class="btn btn-outline-secondary">Transfers</button></a>
+    <a href="{% url 'website-importation' account=account.unique %}"><button type="button" class="btn btn-outline-secondary">Import into {{account.name}}</button></a>
+</div>
+
+<!-- List --->
+<h3>Assets Overview</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Unit</th> 
+            <th scope="col">Amount</th>
+            <th scope="col">Performance in {{account.unit}}</th>
+            <th scope="col">Average Buy/Sold Price in {{account.unit}} </th>
+        </tr>
+    </thead>
+
+    <tbody>
+    {% for o in overview %}
+        <tr>
+            <td>{{o.0}}</td>
+            <td>{{o.1.normalize}}</td>
+            <td>{{o.2.normalize|floatformat:2}} %</td>
+            <td>{{o.3.normalize|floatformat:2}} / {{o.4.normalize|floatformat:2}}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<!-- List --->
+<h3>Transactions Overview</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Unit</th> 
+            <th scope="col">Volume In</th>
+            <th scope="col">Volume Out</th>
+            <th scope="col">Fee Volume</th>
+        </tr>
+    </thead>
+
+    <tbody>
+    {% for t in transactions %}
+        <tr>
+            <td>{{t.0}}</td>
+            <td>{{t.1.normalize}}</td>
+            <td>{{t.2.normalize}}</td>
+            <td>{{t.3.normalize}}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<!-- List --->
+<h3>Transfers Overview</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Unit</th> 
+            <th scope="col">Direction</th>
+            <th scope="col">Amount</th>
+            <th scope="col">Fee</th>
+        </tr>
+    </thead>
+
+    <tbody>
+    {% for t in transfers %}
+        <tr>
+            <td>{{t.0}}</td>
+            <td>{{t.1}}</td>
+            <td>{{t.2.normalize}}</td>
+            <td>{{t.3.normalize}} {{t.0}}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<!-- List --->
+<h3>Fees Overview</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Unit</th> 
+            <th scope="col">Fees</th>
+        </tr>
+    </thead>
+
+    <tbody>
+    {% for f in fees %}
+        <tr>
+            <td>{{f.0}}</td>
+            <td>{{f.1.normalize}}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
 {% include "footer.html" %}

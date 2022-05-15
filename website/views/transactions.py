@@ -37,7 +37,7 @@ def transactions_view(request, account):
                         Transaction.objects.all().filter(id__exact=id, account__exact=account).delete()
 
         the_account = Account.objects.all().get(user__exact=request.user, unique__exact=account)
-        transactions = Transaction.objects.all().filter(account__exact=account).order_by('-date')
+        transactions = Transaction.objects.all().filter(account__exact=account).order_by('-date','type','input','output')
         tr_types = Standard.objects.all().filter(type__exact='TransactionType').order_by('name')
 
         context = {

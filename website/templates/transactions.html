@@ -2,7 +2,7 @@
 {% load static %}
 
 <!-- Admin Page Link & Title --->
-<h1>Transactions from {{account_.name}}</h1>
+<h1>Transactions from <a href="{% url 'website-account' name=account_.unique %}">{{account_.name}}</a></h1>
 
 <!-- Acconts Buttons (content at end of page) -->
 <div id="transactions-manager">

@@ -1,7 +1,7 @@
 {% include "header.html" %}
 {% load static %}
 
-<h1>Importations for {{account.name}}</h1>
+<h1>Importations for <a href="{% url 'website-account' name=account.unique %}">{{account.name}}</a></h1>
 
 <div class="accordion" id="accordion">
 

@@ -18,7 +18,7 @@ class Account(models.Model):
 class Transfer(models.Model):
     source = models.ForeignKey(Account, to_field='unique', on_delete=models.CASCADE, related_name='source_account')
     destination = models.ForeignKey(Account, to_field='unique', on_delete=models.CASCADE, related_name='destination_account')
-    date = models.DateTimeField(null=True, blank=True)
+    date = models.DateTimeField()
     unit = models.CharField(max_length=15)
     amount = models.DecimalField(max_digits=30, decimal_places=15)
     fee = models.DecimalField(max_digits=30, decimal_places=15, null=True, blank=True)

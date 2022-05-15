@@ -1,0 +1,15 @@
+h3 {
+    margin: 1.5em 0 0.5em 0;
+}
+
+table tr th {
+    font-weight: 1000;   
+}
+
+#redirection {
+    margin-top: 2em;
+}
+
+#redirection button {
+    margin-right: 1em;
+}
