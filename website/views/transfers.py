@@ -1,8 +1,11 @@
+import csv, decimal
+from datetime import datetime
 import website.views.functions.authentication as auth
 from website.models import Transfer, Account
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate
 from django.db.models import Q
+from django.http import HttpResponse
 
 
 def transfers_view(request, account):
@@ -13,6 +16,17 @@ def transfers_view(request, account):
     if Account.objects.all().filter(user__exact=request.user, unique__exact=account).exists():
 
         if request.method == 'POST':
+
+            if "export" in request.POST:
+
+                date = datetime.now().strftime("%Y/%m/%d-%H-%M")
+                response = HttpResponse(content_type = 'text/csv', headers = {'Content-Disposition': 'attachment; filename=ffts_"' + str(account).replace(" ","_") + '_transactions_' + date + '.csv"'})
+                writer = csv.writer(response)
+                
+                for t in Transfer.objects.all().filter(Q(source__exact=account) | Q(destination__exact=account)).order_by('-date'):
+                    writer.writerow([exp_acc(t.source), exp_acc(t.destination), t.date, t.unit, exp_num(t.amount), exp_num(t.fee), t.feeType, t.comment])
+
+                return response
 
             if "add_transfer" in request.POST:
                 Transfer.objects.create(source=Account.objects.all().get(unique__exact=request.POST['source']), destination=Account.objects.all().get(unique__exact=request.POST['destination']), date=request.POST['date'], unit=request.POST['unit'], amount=request.POST['amount'], fee=request.POST['fee'], feeType=request.POST['feetype'], comment=request.POST['comment'])
@@ -50,3 +64,9 @@ def transfers_view(request, account):
 
     else:
         return redirect('website-accounts')
+
+def exp_acc(a):
+    return str(a).replace("Account object (","")[:-1]
+
+def exp_num(n):
+    return n.quantize(decimal.Decimal(1)) if n == n.to_integral() else n.normalize()

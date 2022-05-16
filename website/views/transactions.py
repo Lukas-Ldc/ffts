@@ -1,7 +1,10 @@
+import csv, decimal
+from datetime import datetime
 import website.views.functions.authentication as auth
 from django.shortcuts import render, redirect
 from website.models import Transaction, Account, Standard
 from django.contrib.auth import authenticate
+from django.http import HttpResponse
 
 def transactions_view(request, account):
 
@@ -11,6 +14,17 @@ def transactions_view(request, account):
     if Account.objects.all().filter(user__exact=request.user, unique__exact=account).exists():
 
         if request.method == 'POST':
+
+            if "export" in request.POST:
+
+                date = datetime.now().strftime("%Y/%m/%d-%H-%M")
+                response = HttpResponse(content_type = 'text/csv', headers = {'Content-Disposition': 'attachment; filename=ffts_"' + str(account).replace(" ","_") + '_transactions_' + date + '.csv"'})
+                writer = csv.writer(response)
+                
+                for t in Transaction.objects.all().filter(account__exact=account).order_by('-date'):
+                    writer.writerow([exp_acc(t.account), t.market, t.type, t.date, t.input, t.output, exp_num(t.amountIn), exp_num(t.amountOut), exp_num(t.price), exp_num(t.fee), t.feeType, t.comment])
+
+                return response
 
             if "add_transaction" in request.POST and trans_type_checker(request.POST['type']):
                 Transaction.objects.create(account=Account.objects.all().get(user__exact=request.user, unique__exact=account), market=request.POST['market'], type=request.POST['type'], date=request.POST['date'], input=request.POST['input'], output=request.POST['output'], amountIn=request.POST['amountin'], amountOut=request.POST['amountout'], price=request.POST['price'], fee=request.POST['fee'], feeType=request.POST['feetype'], comment=request.POST['comment'])
@@ -58,3 +72,9 @@ def trans_type_checker(t):
         return True
     else:
         return False
+
+def exp_acc(a):
+    return str(a).replace("Account object (","")[:-1]
+
+def exp_num(n):
+    return n.quantize(decimal.Decimal(1)) if n == n.to_integral() else n.normalize()
