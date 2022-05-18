@@ -8,7 +8,7 @@
     <div class="accordion-item">
         <h2 class="accordion-header" id="h1">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c1" aria-expanded="true" aria-controls="c1">
-                Basic Comma Separated Values (CSV)
+                FFTS / Basic CSV
             </button>
         </h2>
         <div id="c1" class="accordion-collapse collapse" aria-labelledby="h1" data-bs-parent="#accordion">
@@ -63,10 +63,78 @@
     <div class="accordion-item">
         <h2 class="accordion-header" id="h3">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c3" aria-expanded="true" aria-controls="c3">
-                Gate.io
+                Degiro
             </button>
         </h2>
         <div id="c3" class="accordion-collapse collapse" aria-labelledby="h3" data-bs-parent="#accordion">
+            <div class="accordion-body">
+                <form action="{% url 'website-importation' account=account.unique %}" method="POST" enctype="multipart/form-data">
+                    <div class="form-floating mb-3">
+                        <select class="form-select" id="floatingSelect" name="type" onchange="degiro(event)" required>
+                            <option value="Transactions">Transactions</option>
+                            <option value="Transfers">Transfers</option>
+                        </select>
+                        <label for="floatingSelect">Type</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <select class="form-select" id="floatingSelect" name="tr_type" required>
+                            {% for t in tr_types %}
+                                <option value="{{t.name}}">{{t.name}}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="floatingSelect">Transaction Type (Change operations for Transfers)</label>
+                    </div>
+                    <div class="form-floating mb-3 degiroTf">
+                        <select class="form-select" id="floatingSelect" name="ac_type" required>
+                            {% for a in accounts %}
+                                <option value="{{a.unique}}">{{a.name}}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="floatingSelect">Bank Account</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <select class="form-select" id="floatingSelect" name="feeunit" required>
+                            <option value="Account">Account</option>
+                        </select>
+                        <label for="floatingSelect">Fee Unit</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <select class="form-select" id="floatingSelect" name="feecalcul" required>
+                            <option value="Outside">Outside</option>
+                        </select>
+                        <label for="floatingSelect">Fee Calcul</label>
+                    </div>
+                    <em>For Degiro, the "Transactions.csv" file only can be imported. (Do not modify it except if you know what you are doing.)</em>
+                    <div class="form-floating mb-3">
+                        <input type="file" name="file" required>
+                    </div>
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary" name="import_degiro">Import</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="h4">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c4" aria-expanded="true" aria-controls="c4">
+                Gate.io
+            </button>
+        </h2>
+        <div id="c4" class="accordion-collapse collapse" aria-labelledby="h4" data-bs-parent="#accordion">
+            <div class="accordion-body">
+                <em>In progress</em>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="h5">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c5" aria-expanded="true" aria-controls="c5">
+                InteractiveBrokers
+            </button>
+        </h2>
+        <div id="c5" class="accordion-collapse collapse" aria-labelledby="h5" data-bs-parent="#accordion">
             <div class="accordion-body">
                 <em>In progress</em>
             </div>

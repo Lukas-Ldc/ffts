@@ -6,3 +6,7 @@ a {
 .accordion {
     margin: 3em auto;
 }
+
+.degiroTf {
+    display: none;
+}
