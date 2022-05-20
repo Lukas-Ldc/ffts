@@ -110,6 +110,6 @@ def dateGaver(d):
 
 def opp(n):
     try:
-        return 1 / n
+        return round(1 / n, 4)
     except:
         return 0

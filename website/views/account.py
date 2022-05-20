@@ -1,3 +1,4 @@
+import logging
 import website.views.functions.authentication as auth
 from django.shortcuts import render, redirect
 from website.models import Transfer, Transaction, Account
@@ -17,39 +18,57 @@ def account_view(request, name):
         #Assets Overview
         overv_transa = []
         overv_calc = []
+        transa_unit = transactions.filter(Q(input__exact = "fakeQuery") | Q(output__exact = "fakeQuery"))
 
         #--Transactions part
-        transa_usdt = transactions.filter(Q(input__exact = account.unit) | Q(output__exact = account.unit))
-        for u in unitFinder(True, transa_usdt):
+        for u in str(account.unit).split(","):
+            transa_unit = transa_unit | transactions.filter(Q(input__exact = u) | Q(output__exact = u))
+        
+        for u in unitFinder(True, transa_unit):
             temp = []
-            #UNIT TOTALIN TOTALOUT USDTIN USDTOUT FEE
-            for i in [u, 0, 0, 0, 0, 0]:
+            if u not in str(account.unit).split(","):
+                for t in transa_unit.filter(Q(input__exact = u) | Q(output__exact = u)):
+                    if t.input == u:
+                        v = t.output
+                    elif t.output == u:
+                        v = t.input
+            else:
+                v = u
+            #UNIT ACCUNIT TOTALIN TOTALOUT UNITIN UNITOUT FEE FEEUNIT
+            for i in [u, v, 0, 0, 0, 0, 0, 0]:
                 temp.append(i)
             overv_transa.append(temp)
         
-        for tr in transa_usdt:
+        for tr in transa_unit:
             feeCalc = feeCalculator(True, tr, account)
             for t in overv_transa:
                 if t[0] == tr.input:
-                    t[1] = t[1] + feeCalc[0]
-                    t[3] = t[3] + feeCalc[1]
-                    t[5] = t[5] + feeCalc[2]
+                    t[2] = t[2] + feeCalc[0]
+                    t[4] = t[4] + feeCalc[1]
+                    t[6] = t[6] + feeCalc[2]
+                    t[7] = t[7] + feeCalc[2] + feeCalc[3]
                 if t[0] == tr.output:
-                    t[2] = t[2] + feeCalc[1]
-                    t[4] = t[4] + feeCalc[0]
-                    t[5] = t[5] + feeCalc[3]
+                    t[3] = t[3] + feeCalc[1]
+                    t[5] = t[5] + feeCalc[0]
+                    t[6] = t[6] + feeCalc[3]
+                    t[7] = t[7] + feeCalc[2] + feeCalc[3]
+                if t[0] == ft_clean(tr.feeType)[0]:
+                    t[7] = t[7] + feeCalc[4]
 
         for t in overv_transa:
-            amount = t[2] - t[1] - t[5]
-            try: avg_for_in = t[3] / t[1]
-            except: avg_for_in = t[3]
-            try: avg_for_out = t[4] / t[2]
-            except: avg_for_out = t[4]
-            try: perf = (t[3] / t[4]) * 100 - 100
+            amount = t[3] - t[2] - t[6]
+            pf_ls = t[4] - t[5] - t[7]
+            try: avg_for_in = t[4] / t[2]
+            except: avg_for_in = t[4]
+            try: avg_for_out = t[5] / t[3]
+            except: avg_for_out = t[5]
+            try: perf = (t[4] / t[5]) * 100 - 100
             except: perf = 0
-            if t[0] == account.unit: perf = avg_for_out = avg_for_in = 0
+            if t[0] in str(account.unit).split(","): 
+                perf = avg_for_out = avg_for_in = 0
+                pf_ls = t[3] - t[2] - t[7]
             temp = []
-            for a in [t[0], amount, perf, avg_for_out, avg_for_in]:
+            for a in [t[0], amount, perf, pf_ls, avg_for_out, avg_for_in, t[1]]:
                 temp.append(a)
             overv_calc.append(temp)
 
@@ -57,9 +76,9 @@ def account_view(request, name):
         for tr in transfers:
             for t in overv_calc:
                 if tr.unit == t[0]:
-                    if tr.source == account.unique:
+                    if ac_clean(tr.source) == account.unique:
                         t[1] = t[1] - tr.amount
-                    else:
+                    elif ac_clean(tr.destination) == account.unique:
                         t[1] = t[1] + tr.amount
 
         #Transactions Overview
@@ -80,6 +99,8 @@ def account_view(request, name):
                 if t[0] == tr.output:
                     t[2] = t[2] + feeCalc[1]
                     t[3] = t[3] + feeCalc[3]
+                if t[0] == ft_clean(tr.feeType)[0]:
+                    t[3] = t[3] + feeCalc[4]
 
         #Transfers Overview
         transf_calc_temp = []
@@ -128,6 +149,8 @@ def account_view(request, name):
                     t[1] = t[1] + feeCalc[2]
                 if t[0] == tr.output:
                     t[1] = t[1] + feeCalc[3]
+                if t[0] == ft_clean(tr.feeType)[0]:
+                    t[1] = t[1] + feeCalc[4]
         
         for tr in transfers:
             feeCalc = feeCalculator(False, tr, account)
@@ -175,16 +198,18 @@ def feeCalculator(isTransa, info, acc):
     if isTransa:
         if fT[1] == "-":
             if fT[0] == info.input:
-                return [info.amountIn - info.fee, info.amountOut, info.fee, 0]
+                return [info.amountIn - info.fee, info.amountOut, info.fee, 0, 0]
             elif fT[0] == info.output:
-                return [info.amountIn, info.amountOut - info.fee, 0, info.fee]
+                return [info.amountIn, info.amountOut - info.fee, 0, info.fee, 0]
         else:
-            if fT[0] == info.input or fT[0] is None and acc.unit == info.input:
-                return [info.amountIn, info.amountOut, info.fee, 0]
-            elif fT[0] == info.output or fT[0] is None and acc.unit == info.output:
-                return [info.amountIn, info.amountOut, 0, info.fee]
+            if fT[0] == info.input or fT[0] is None and info.input in str(acc.unit).split(","):
+                return [info.amountIn, info.amountOut, info.fee, 0, 0]
+            elif fT[0] == info.output or fT[0] is None and info.output in str(acc.unit).split(","):
+                return [info.amountIn, info.amountOut, 0, info.fee, 0]
+            elif fT[0] in str(acc.unit).split(","):
+                return [info.amountIn, info.amountOut, 0, 0, info.fee]
             else:
-                return [info.amountIn, info.amountOut, 0, 0]
+                return [info.amountIn, info.amountOut, 0, 0, 0]
     else:
         if fT[1] == "-" and fT[0] == info.unit:
             return [info.amount - info.fee, info.fee]
