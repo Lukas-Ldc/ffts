@@ -136,7 +136,48 @@
         </h2>
         <div id="c5" class="accordion-collapse collapse" aria-labelledby="h5" data-bs-parent="#accordion">
             <div class="accordion-body">
-                <em>In progress</em>
+                <form action="{% url 'website-importation' account=account.unique %}" method="POST" enctype="multipart/form-data">
+                    <div class="form-floating mb-3">
+                        <select class="form-select" id="floatingSelect" name="type" required>
+                            <option value="TT">Transactions + Transfers</option>
+                        </select>
+                        <label for="floatingSelect">Type</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <select class="form-select" id="floatingSelect" name="tr_type" required>
+                            {% for t in tr_types %}
+                                <option value="{{t.name}}">{{t.name}}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="floatingSelect">Transaction Type</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <select class="form-select" id="floatingSelect" name="ac_type" required>
+                            {% for a in accounts %}
+                                <option value="{{a.unique}}">{{a.name}}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="floatingSelect">Bank Account</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <select class="form-select" id="floatingSelect" name="feeunit" required>
+                            <option value="Account">Account</option>
+                        </select>
+                        <label for="floatingSelect">Fee Unit</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <select class="form-select" id="floatingSelect" name="feecalcul" required>
+                            <option value="Outside">Outside</option>
+                        </select>
+                        <label for="floatingSelect">Fee Calcul</label>
+                    </div>
+                    <em>The CSV file must be the activity account in english for the period of time you want. You might have to add your first transfer manually.</em>
+                    <div class="form-floating mb-3">
+                        <input type="file" name="file" required>
+                    </div>
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary" name="import_ib">Import</button>
+                </form>
             </div>
         </div>
     </div>

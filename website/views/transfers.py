@@ -20,7 +20,7 @@ def transfers_view(request, account):
             if "export" in request.POST:
 
                 date = datetime.now().strftime("%Y/%m/%d-%H-%M")
-                response = HttpResponse(content_type = 'text/csv', headers = {'Content-Disposition': 'attachment; filename=ffts_"' + str(account).replace(" ","_") + '_transactions_' + date + '.csv"'})
+                response = HttpResponse(content_type = 'text/csv', headers = {'Content-Disposition': 'attachment; filename=ffts_"' + str(account).replace(" ","_") + '_transfers_' + date + '.csv"'})
                 writer = csv.writer(response)
                 
                 for t in Transfer.objects.all().filter(Q(source__exact=account) | Q(destination__exact=account)).order_by('-date'):

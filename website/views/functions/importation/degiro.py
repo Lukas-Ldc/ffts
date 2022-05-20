@@ -26,6 +26,7 @@ def degiro_importer(file, table, acc, trType, acType):
         elif table == "Transfers":
             change = False
             for column in csv.reader(io.StringIO(file.read().decode('UTF-8')), delimiter=','):
+
                 if column[5] == "DEPOSIT":
                     Transfer.objects.create(
                         source = Account.objects.all().get(unique__exact=acType),
@@ -37,6 +38,7 @@ def degiro_importer(file, table, acc, trType, acType):
                         feeType = "",
                         comment = "",
                     )
+
                 elif column[5] == "WITHDRAWAL":
                     Transfer.objects.create(
                         source = Account.objects.all().get(unique__exact=acc),
@@ -48,12 +50,14 @@ def degiro_importer(file, table, acc, trType, acType):
                         feeType = "",
                         comment = "",
                     )
+
                 elif column[5] == "CHANGE_IN":
                     if change:
                         last.output = column[7]
                         last.amountOut = floatGaver(column[8])
                         last.save()
                         change = False
+
                     else:
                         last = Transaction.objects.create(
                             account = Account.objects.all().get(unique__exact=acc),
@@ -70,12 +74,14 @@ def degiro_importer(file, table, acc, trType, acType):
                             comment = "",
                         )
                         change = True
+
                 elif column[5] == "CHANGE_OUT":
                     if change:
                         last.input = column[7]
                         last.amountIn = floatGaver(column[8])
                         last.save()
                         change = False
+                        
                     else:
                         last = Transaction.objects.create(
                             account = Account.objects.all().get(unique__exact=acc),

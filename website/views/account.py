@@ -38,7 +38,7 @@ def account_view(request, name):
             for i in [u, v, 0, 0, 0, 0, 0, 0]:
                 temp.append(i)
             overv_transa.append(temp)
-        
+     
         for tr in transa_unit:
             feeCalc = feeCalculator(True, tr, account)
             for t in overv_transa:
