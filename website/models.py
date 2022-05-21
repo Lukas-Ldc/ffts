@@ -42,6 +42,7 @@ class Transaction(models.Model):
 Standard_Types = [
     ('AccountType','AccountType'),
     ('TransactionType','TransactionType'),
+    ('MyGMTtime','MyGMTtime'),
 ]
 
 class Standard(models.Model):

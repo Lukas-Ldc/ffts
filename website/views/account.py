@@ -1,4 +1,3 @@
-import logging
 import website.views.functions.authentication as auth
 from django.shortcuts import render, redirect
 from website.models import Transfer, Transaction, Account

@@ -20,14 +20,36 @@ def transactions_view(request, account):
                 date = datetime.now().strftime("%Y/%m/%d-%H-%M")
                 response = HttpResponse(content_type = 'text/csv', headers = {'Content-Disposition': 'attachment; filename=ffts_"' + str(account).replace(" ","_") + '_transactions_' + date + '.csv"'})
                 writer = csv.writer(response)
+
+                gmt = str(Account.objects.all().get(user__exact=request.user, unique__exact=account).gmt)
+                if gmt[0] == "-" or gmt[0] == "+":
+                    if len(gmt) == 2:
+                        gmt = gmt[0] + "0" + gmt[1]
+                else:
+                    gmt = "+" + gmt
+                    if len(gmt) == 2:
+                        gmt = gmt[0] + "0" + gmt[1]
                 
                 for t in Transaction.objects.all().filter(account__exact=account).order_by('-date'):
-                    writer.writerow([exp_acc(t.account), t.market, t.type, t.date, t.input, t.output, exp_num(t.amountIn), exp_num(t.amountOut), exp_num(t.price), exp_num(t.fee), t.feeType, t.comment])
+                    writer.writerow([exp_acc(t.account), t.market, t.type, str(t.date).replace("+00:",gmt + ":"), t.input, t.output, exp_num(t.amountIn), exp_num(t.amountOut), exp_num(t.price), exp_num(t.fee), t.feeType, t.comment])
 
                 return response
 
             if "add_transaction" in request.POST and trans_type_checker(request.POST['type']):
-                Transaction.objects.create(account=Account.objects.all().get(user__exact=request.user, unique__exact=account), market=request.POST['market'], type=request.POST['type'], date=request.POST['date'], input=request.POST['input'], output=request.POST['output'], amountIn=request.POST['amountin'], amountOut=request.POST['amountout'], price=request.POST['price'], fee=request.POST['fee'], feeType=request.POST['feetype'], comment=request.POST['comment'])
+                Transaction.objects.create(
+                    account=Account.objects.all().get(user__exact=request.user, unique__exact=account), 
+                    market=request.POST['market'], 
+                    type=request.POST['type'], 
+                    date=request.POST['date'], 
+                    input=request.POST['input'], 
+                    output=request.POST['output'], 
+                    amountIn=request.POST['amountin'], 
+                    amountOut=request.POST['amountout'], 
+                    price=request.POST['price'], 
+                    fee=request.POST['fee'], 
+                    feeType=request.POST['feetype'], 
+                    comment=request.POST['comment']
+                )
 
             if "modify_transaction" in request.POST:
                 if Transaction.objects.all().filter(id__exact=request.POST['id'], account__exact=account).exists():
@@ -53,6 +75,20 @@ def transactions_view(request, account):
         the_account = Account.objects.all().get(user__exact=request.user, unique__exact=account)
         transactions = Transaction.objects.all().filter(account__exact=account).order_by('-date','type','input','output')
         tr_types = Standard.objects.all().filter(type__exact='TransactionType').order_by('name')
+
+        try: mygmt = int(Standard.objects.all().get(type__exact='MyGMTtime').name)
+        except: mygmt = 0
+        try: accgmt = int(the_account.gmt)
+        except: accgmt = 0
+        
+        for t in transactions:
+            if str(t.date)[11:19] != "00:00:00":
+                hour = int(str(t.date)[11:13])
+                newhour = hour + (mygmt - accgmt)
+                if newhour > 23: newhour = newhour - 24
+                if hour < 10: hour = str("0") + str(hour)
+                if newhour < 10: newhour = str("0") + str(newhour)
+                t.date = datetime.strptime(str(t.date)[:-6].replace(" " + str(hour) + ":", " " + str(newhour) + ":"), "%Y-%m-%d %H:%M:%S")
 
         context = {
             'page': 'transactions',

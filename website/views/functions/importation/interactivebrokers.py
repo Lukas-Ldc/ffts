@@ -1,5 +1,4 @@
 import csv, io
-import logging
 from website.models import Transaction, Transfer, Standard, Account
 
 def ib_importer(file, acc, trType, acType):
