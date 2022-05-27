@@ -2,7 +2,8 @@ import csv, io
 from datetime import datetime
 from website.models import Transaction, Transfer, Standard, Account
 
-def degiro_importer(file, table, acc, trType, acType):
+
+def degiro_importer(file, table, trType, acType, acc):
 
     if file.name.endswith('.csv'):
 

@@ -7,6 +7,6 @@ a {
     margin: 3em auto;
 }
 
-.degiroTf {
+.degiroTf, .binanceTf {
     display: none;
 }

@@ -7,3 +7,13 @@ function degiro(val) {
         document.querySelectorAll(".degiroTf").forEach(a=>a.style.display = "block");
     }
 }
+
+function binance(val) {
+    if (val.target.value === "CryptoDeposit" | val.target.value === "CryptoWithdrawal" | val.target.value === "FiatDeposit" | val.target.value === "FiatWithdrawal") {
+        document.querySelectorAll(".binanceTf").forEach(a=>a.style.display = "block");
+        document.querySelectorAll(".binanceTa").forEach(a=>a.style.display = "none");
+    } else {
+        document.querySelectorAll(".binanceTf").forEach(a=>a.style.display = "none");
+        document.querySelectorAll(".binanceTa").forEach(a=>a.style.display = "block");
+    }
+}

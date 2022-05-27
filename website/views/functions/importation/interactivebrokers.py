@@ -1,7 +1,8 @@
 import csv, io
 from website.models import Transaction, Transfer, Standard, Account
 
-def ib_importer(file, acc, trType, acType):
+
+def ib_importer(file, trType, acType, acc):
 
     if file.name.endswith('.csv'):
 
