@@ -80,7 +80,7 @@ def binance_importer(file, table, trType, acType, acc):
                         comment = column[4],
                     )
         
-        elif table == "Other":
+        elif table == "Other" or table == "OtherBnb":
             file_base = copy.deepcopy(file)
             for column in csv.reader(io.StringIO(file.read().decode('UTF-8')), delimiter=','):
 
@@ -101,20 +101,20 @@ def binance_importer(file, table, trType, acType, acc):
                             comment = column[3],
                         )
 
-                elif column[3] == "Small assets exchange BNB":
+                elif column[3] == "Small assets exchange BNB" and table == "OtherBnb":
                     Transaction.objects.create(
                             account = Account.objects.all().get(unique__exact=acc),
                             market = "",
                             type = typeChecker(trType),
                             date = column[1],
                             input = "#DUST#" if column[4] == "BNB" else column[4],
-                            output = "BNB" if column[4] == "BNB" else "BNB",
+                            output = "BNB",
                             amountIn = 0 if column[4] == "BNB" else noNegFloat(column[5]),
                             amountOut = noNegFloat(column[5]) if column[4] == "BNB" else 0,
                             price = 0,
                             fee = 0,
                             feeUnit = 0,
-                            comment = "Small Assets Exchange",
+                            comment = "SAE BNB",
                         )
 
                 elif column[3] == "POS savings purchase":
@@ -155,6 +155,38 @@ def binance_importer(file, table, trType, acType, acc):
                                     )
                             break
 
+    elif file.name.endswith('.html'):
+
+        if table == "BnbHtml":
+
+            for html in file:
+                
+                for line in str(html).split("css-1f50q6c"):
+
+                    try:
+                        temp_l = line.split("css-vurnku")[0]
+                        time = temp_l.split('<div data-type="table-min-row" class="css-1uzrl9p">')[1].split("</div>")[0]
+                        coin = temp_l.split('<div data-type="table-min-row" class="css-vjfjtb">')[1].split("</div>")[0]
+                        amount = temp_l.split('<div data-type="table-min-row" class="css-vjfjtb">')[2].split("</div>")[0]
+                        fee = temp_l.split('<div data-type="table-min-row" class="css-1dm9igw">')[1].split("</div>")[0]
+                        bnb = temp_l.split('<div data-type="table-min-row" class="css-1dm9igw">')[2].split("</div>")[0]
+
+                        Transaction.objects.create(
+                            account = Account.objects.all().get(unique__exact=acc),
+                            market = "",
+                            type = typeChecker(trType),
+                            date = time,
+                            input = coin,
+                            output = "BNB",
+                            amountIn = amount,
+                            amountOut = bnb,
+                            price = floatRemover(float(amount)/float(bnb)),
+                            fee = fee,
+                            feeUnit = "BNB",
+                            comment = "SAE BNB",
+                        )
+                    except: pass
+
 
 def floatGaver(f):
     if f is None or f == "":
@@ -172,6 +204,17 @@ def noNegFloat(f):
         else:
             return float(f)
 
+def floatRemover(f):
+    if f > 1000:
+        return round(f, 2)
+    elif f > 100:
+        return round(f, 4)
+    elif f > 10:
+        return round(f, 6)
+    elif f > 1:
+        return round(f, 8)
+    else:
+        return round(f, 10)
 
 #Removee numbers: 1.23456700001INCH -> INCH
 def unitGaver(f):
