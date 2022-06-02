@@ -33,7 +33,7 @@ def transfers_view(request, account):
                         gmt = gmt[0] + "0" + gmt[1]
                 
                 for t in Transfer.objects.all().filter(Q(source__exact=account) | Q(destination__exact=account)).order_by('-date'):
-                    writer.writerow([exp_acc(t.source), exp_acc(t.destination), str(t.date).replace("+00:",gmt + ":"), t.unit, exp_num(t.amount), exp_num(t.fee), t.feeType, t.comment])
+                    writer.writerow([exp_acc(t.source), exp_acc(t.destination), str(t.date).replace("+00:",gmt + ":"), t.unit, exp_num(t.amount), exp_num(t.fee), t.feeUnit, t.comment])
 
                 return response
 
@@ -45,7 +45,7 @@ def transfers_view(request, account):
                     unit=request.POST['unit'], 
                     amount=request.POST['amount'], 
                     fee=request.POST['fee'], 
-                    feeType=request.POST['feetype'], 
+                    feeUnit=request.POST['feeunit'], 
                     comment=request.POST['comment']
                 )
 
@@ -58,7 +58,7 @@ def transfers_view(request, account):
                     if len(request.POST['unit']) > 0: updated_transf.unit = request.POST['unit']
                     if len(request.POST['amount']) > 0: updated_transf.amount = request.POST['amount']
                     if len(request.POST['fee']) > 0: updated_transf.fee = request.POST['fee']
-                    if len(request.POST['feetype']) > 0: updated_transf.feeType = request.POST['feetype']
+                    if len(request.POST['feeunit']) > 0: updated_transf.feeUnit = request.POST['feeunit']
                     if len(request.POST['comment']) > 0: updated_transf.comment = request.POST['comment']
                     updated_transf.save()
 

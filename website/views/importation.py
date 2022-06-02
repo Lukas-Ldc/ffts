@@ -17,7 +17,7 @@ def importation_view(request, account):
         if request.POST:
 
             if "import_csv" in request.POST:
-                csv_importer(request.FILES['file'], request.POST['type'], request.POST['feeunit'], request.POST['feecalcul'], str(Account.objects.all().get(user__exact=request.user, unique__exact=account).unit).split(",")[0])
+                csv_importer(request.FILES['file'], request.POST['type'], request.POST['feeunit'], str(Account.objects.all().get(user__exact=request.user, unique__exact=account).unit).split(",")[0])
 
             if "import_binance" in request.POST:
                 binance_importer(request.FILES['file'], request.POST['type'], request.POST['tr_type'], request.POST['ac_type'], Account.objects.all().get(user__exact=request.user, unique__exact=account).unique)

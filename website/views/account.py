@@ -51,7 +51,7 @@ def account_view(request, name):
                     t[5] = t[5] + feeCalc[0]
                     t[6] = t[6] + feeCalc[3]
                     t[7] = t[7] + feeCalc[2] + feeCalc[3]
-                if t[0] == ft_clean(tr.feeType)[0]:
+                if t[0] == tr.feeUnit:
                     t[7] = t[7] + feeCalc[4]
 
         for t in overv_transa:
@@ -79,6 +79,8 @@ def account_view(request, name):
                         t[1] = t[1] - tr.amount
                     elif ac_clean(tr.destination) == account.unique:
                         t[1] = t[1] + tr.amount
+                if tr.feeUnit == t[0] and ac_clean(tr.source) == account.unique:
+                    t[1] = t[1] - tr.fee
 
         #Transactions Overview
         transa_calc = []
@@ -98,7 +100,7 @@ def account_view(request, name):
                 if t[0] == tr.output:
                     t[2] = t[2] + feeCalc[1]
                     t[3] = t[3] + feeCalc[3]
-                if t[0] == ft_clean(tr.feeType)[0]:
+                if t[0] == tr.feeUnit:
                     t[3] = t[3] + feeCalc[4]
 
         #Transfers Overview
@@ -148,7 +150,7 @@ def account_view(request, name):
                     t[1] = t[1] + feeCalc[2]
                 if t[0] == tr.output:
                     t[1] = t[1] + feeCalc[3]
-                if t[0] == ft_clean(tr.feeType)[0]:
+                if t[0] == tr.feeUnit:
                     t[1] = t[1] + feeCalc[4]
         
         for tr in transfers:
@@ -182,37 +184,19 @@ def ac_clean(a):
     return str(a)[:-1].replace("Account object (", "")
 
 
-def ft_clean(f):
-    if len(str(f).replace(" ", "")) > 0:
-        if f[0] == "-" or f[0] == "+":
-            return [f[1:],f[0]]
-        else:
-            return [f, None]
-    else:
-        return [None, None]
-
-
 def feeCalculator(isTransa, info, acc):
-    fT = ft_clean(info.feeType)
+    fT = info.feeUnit if len(info.feeUnit) > 0 else None
     if isTransa:
-        if fT[1] == "-":
-            if fT[0] == info.input:
-                return [info.amountIn - info.fee, info.amountOut, info.fee, 0, 0]
-            elif fT[0] == info.output:
-                return [info.amountIn, info.amountOut - info.fee, 0, info.fee, 0]
+        if fT == info.input or fT is None and info.input in str(acc.unit).split(","):
+            return [info.amountIn, info.amountOut, info.fee, 0, 0]
+        elif fT == info.output or fT is None and info.output in str(acc.unit).split(","):
+            return [info.amountIn, info.amountOut, 0, info.fee, 0]
+        elif fT in str(acc.unit).split(","):
+            return [info.amountIn, info.amountOut, 0, 0, info.fee]
         else:
-            if fT[0] == info.input or fT[0] is None and info.input in str(acc.unit).split(","):
-                return [info.amountIn, info.amountOut, info.fee, 0, 0]
-            elif fT[0] == info.output or fT[0] is None and info.output in str(acc.unit).split(","):
-                return [info.amountIn, info.amountOut, 0, info.fee, 0]
-            elif fT[0] in str(acc.unit).split(","):
-                return [info.amountIn, info.amountOut, 0, 0, info.fee]
-            else:
-                return [info.amountIn, info.amountOut, 0, 0, 0]
+            return [info.amountIn, info.amountOut, 0, 0, 0]
     else:
-        if fT[1] == "-" and fT[0] == info.unit:
-            return [info.amount - info.fee, info.fee]
-        elif fT[0] == info.unit or fT[0] is None and acc.unit == info.unit:
+        if fT == info.unit or fT is None and info.unit in str(acc.unit).split(","):
             return [info.amount, info.fee]
         else:
             return [info.amount, 0]

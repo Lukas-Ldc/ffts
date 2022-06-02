@@ -32,7 +32,7 @@ def binance_importer(file, table, trType, acType, acc):
                         amountOut = floatGaver( column[4]) if column[2] == "BUY" else floatGaver(column[5]),
                         price = floatGaver(column[3]),
                         fee = floatGaver(column[6]),
-                        feeType = "+" + column[7],
+                        feeUnit = column[7],
                         comment = "",
                     )
 
@@ -49,7 +49,7 @@ def binance_importer(file, table, trType, acType, acc):
                         amountOut = floatGaver( column[4]) if column[2] == "BUY" else floatGaver(column[5]),
                         price = floatGaver(column[3]),
                         fee = floatGaver(column[6]),
-                        feeType = "+" + unitGaver(column[6]),
+                        feeUnit = unitGaver(column[6]),
                         comment = "",
                     )
 
@@ -62,7 +62,7 @@ def binance_importer(file, table, trType, acType, acc):
                     unit = column[1],
                     amount = floatGaver(column[3]),
                     fee = floatGaver(column[4]),
-                    feeType = column[1],
+                    feeUnit = column[1],
                     comment = "Via " + column[2],
                 )
         
@@ -76,7 +76,7 @@ def binance_importer(file, table, trType, acType, acc):
                         unit = column[1],
                         amount = floatGaver(column[2]),
                         fee = floatGaver(column[6]),
-                        feeType = column[1],
+                        feeUnit = column[1],
                         comment = column[4],
                     )
         
@@ -97,7 +97,7 @@ def binance_importer(file, table, trType, acType, acc):
                             amountOut = float(column[5]),
                             price = 0,
                             fee = 0,
-                            feeType = 0,
+                            feeUnit = 0,
                             comment = column[3],
                         )
 
@@ -113,7 +113,7 @@ def binance_importer(file, table, trType, acType, acc):
                             amountOut = noNegFloat(column[5]) if column[4] == "BNB" else 0,
                             price = 0,
                             fee = 0,
-                            feeType = 0,
+                            feeUnit = 0,
                             comment = "Small Assets Exchange",
                         )
 
@@ -150,7 +150,7 @@ def binance_importer(file, table, trType, acType, acc):
                                         amountOut = noNegFloat(i[1]),
                                         price = 0,
                                         fee = 0,
-                                        feeType = 0,
+                                        feeUnit = 0,
                                         comment = "POS Interest",
                                     )
                             break

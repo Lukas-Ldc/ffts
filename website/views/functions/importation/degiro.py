@@ -20,7 +20,7 @@ def degiro_importer(file, table, trType, acType, acc):
                     amountOut = floatGaver( column[6]) if float(column[6]) > 0 else floatGaver(column[9]),
                     price = floatGaver(column[7]),
                     fee = floatGaver(column[14]),
-                    feeType = "+" + column[15] if len(column[15]) > 0 else "",
+                    feeUnit = column[15] if len(column[15]) > 0 else "",
                     comment = "",
                 )
 
@@ -36,7 +36,7 @@ def degiro_importer(file, table, trType, acType, acc):
                         unit = column[7],
                         amount = floatGaver(column[8]),
                         fee = 0,
-                        feeType = "",
+                        feeUnit = "",
                         comment = "",
                     )
 
@@ -48,7 +48,7 @@ def degiro_importer(file, table, trType, acType, acc):
                         unit = column[7],
                         amount = floatGaver(column[8]),
                         fee = 0,
-                        feeType = "",
+                        feeUnit = "",
                         comment = "",
                     )
 
@@ -71,7 +71,7 @@ def degiro_importer(file, table, trType, acType, acc):
                             amountOut = floatGaver(column[8]),
                             price = floatGaver(column[6]),
                             fee = 0,
-                            feeType = "",
+                            feeUnit = "",
                             comment = "",
                         )
                         change = True
@@ -95,7 +95,7 @@ def degiro_importer(file, table, trType, acType, acc):
                             amountOut = 0,
                             price = opp(floatGaver(column[6])),
                             fee = 0,
-                            feeType = "",
+                            feeUnit = "",
                             comment = "",
                         )
                         change = True

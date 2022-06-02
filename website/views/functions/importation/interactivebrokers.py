@@ -22,7 +22,7 @@ def ib_importer(file, trType, acType, acc):
                     amountOut = floatGaver(column[7],False) if floatGaver(column[7],True) > 0 else floatGaver(column[10],False),
                     price = floatGaver(column[8],False),
                     fee = floatGaver(column[11],False),
-                    feeType = "+" + forex_fee,
+                    feeUnit = forex_fee,
                     comment = column[3],
                 )
 
@@ -38,7 +38,7 @@ def ib_importer(file, trType, acType, acc):
                     amountOut = floatGaver(column[7],False) if floatGaver(column[7],True) > 0 else floatGaver(column[10],False),
                     price = floatGaver(column[8],False),
                     fee = floatGaver(column[11],False),
-                    feeType = "+" + column[4] if len(column[4]) > 0 else "",
+                    feeUnit = column[4] if len(column[4]) > 0 else "",
                     comment = column[3],
                 )
 
@@ -50,7 +50,7 @@ def ib_importer(file, trType, acType, acc):
                         unit = column[2],
                         amount = floatGaver(column[5],False),
                         fee = 0,
-                        feeType = "",
+                        feeUnit = "",
                         comment = column[4],
                     )
 
@@ -66,7 +66,7 @@ def ib_importer(file, trType, acType, acc):
                     amountOut = 0,
                     price = 0,
                     fee = floatGaver(column[9],False),
-                    feeType = "+" + column[3] if len(column[3]) > 0 else "",
+                    feeUnit = column[3] if len(column[3]) > 0 else "",
                     comment = column[6],
                 )
 

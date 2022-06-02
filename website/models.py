@@ -22,7 +22,7 @@ class Transfer(models.Model):
     unit = models.CharField(max_length=15)
     amount = models.DecimalField(max_digits=30, decimal_places=15)
     fee = models.DecimalField(max_digits=30, decimal_places=15, null=True, blank=True)
-    feeType = models.CharField(max_length=15, null=True, blank=True)
+    feeUnit = models.CharField(max_length=15, null=True, blank=True)
     comment = models.CharField(max_length=255, null=True, blank=True)
 
 class Transaction(models.Model):
@@ -36,7 +36,7 @@ class Transaction(models.Model):
     amountOut = models.DecimalField(max_digits=30, decimal_places=15)
     price = models.DecimalField(max_digits=30, decimal_places=15, null=True, blank=True)
     fee = models.DecimalField(max_digits=30, decimal_places=15, null=True, blank=True)
-    feeType = models.CharField(max_length=15, null=True, blank=True)
+    feeUnit = models.CharField(max_length=15, null=True, blank=True)
     comment = models.CharField(max_length=255, null=True, blank=True)
 
 Standard_Types = [

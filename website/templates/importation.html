@@ -23,11 +23,12 @@
                     </div>
                     <div class="form-floating mb-3">
                         <select class="form-select" id="floatingSelect" name="feeunit" required>
+                            <option value="None">Do Not Change</option>
                             <option value="Input">Input (Transactions, Transfers)</option>
                             <option value="Output">Output (Transactions)</option>
                             <option value="Account">Account (Transactions, Transfers)</option>
                         </select>
-                        <label for="floatingSelect">Fee Unit</label>
+                        <label for="floatingSelect">Fee Unit if Absent</label>
                     </div>
                     <div class="form-floating mb-3">
                         <select class="form-select" id="floatingSelect" name="feecalcul" required>

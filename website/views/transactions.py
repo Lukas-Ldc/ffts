@@ -31,7 +31,7 @@ def transactions_view(request, account):
                         gmt = gmt[0] + "0" + gmt[1]
                 
                 for t in Transaction.objects.all().filter(account__exact=account).order_by('-date'):
-                    writer.writerow([exp_acc(t.account), t.market, t.type, str(t.date).replace("+00:",gmt + ":"), t.input, t.output, exp_num(t.amountIn), exp_num(t.amountOut), exp_num(t.price), exp_num(t.fee), t.feeType, t.comment])
+                    writer.writerow([exp_acc(t.account), t.market, t.type, str(t.date).replace("+00:",gmt + ":"), t.input, t.output, exp_num(t.amountIn), exp_num(t.amountOut), exp_num(t.price), exp_num(t.fee), t.feeUnit, t.comment])
 
                 return response
 
@@ -47,7 +47,7 @@ def transactions_view(request, account):
                     amountOut=request.POST['amountout'], 
                     price=request.POST['price'], 
                     fee=request.POST['fee'], 
-                    feeType=request.POST['feetype'], 
+                    feeUnit=request.POST['feeunit'], 
                     comment=request.POST['comment']
                 )
 
@@ -63,7 +63,7 @@ def transactions_view(request, account):
                     if len(request.POST['amountout']) > 0: updated_transac.amountOut = request.POST['amountout']
                     if len(request.POST['price']) > 0: updated_transac.price = request.POST['price']
                     if len(request.POST['fee']) > 0: updated_transac.fee = request.POST['fee']
-                    if len(request.POST['feetype']) > 0: updated_transac.feeType = request.POST['feetype']
+                    if len(request.POST['feeunit']) > 0: updated_transac.feeUnit = request.POST['feeunit']
                     if len(request.POST['comment']) > 0: updated_transac.comment = request.POST['comment']
                     updated_transac.save()
 

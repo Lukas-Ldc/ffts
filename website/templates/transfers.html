@@ -51,7 +51,7 @@
             <td>{{ t.unit }}</td>
             <td>{{ t.amount.normalize }}</td>
             <td>{{ t.fee.normalize }}</td>
-            <td>{{ t.feeType }}</td>
+            <td>{{ t.feeUnit }}</td>
             <td>{{ t.comment }}</td>
         </tr>
     {% endfor %}
@@ -98,7 +98,7 @@
                         <label for="floatingInput">Fee</label>
                     </div>
                     <div class="form-floating mb-3">
-                        <input type="text" class="form-control" id="floatingInput" name="feetype">
+                        <input type="text" class="form-control" id="floatingInput" name="feeunit">
                         <label for="floatingInput">Fee Type</label>
                     </div>
                     <div class="form-floating mb-3">
@@ -153,7 +153,7 @@
                         <label for="floatingInput">Fee</label>
                     </div>
                     <div class="form-floating mb-3">
-                        <input type="text" class="form-control" id="floatingInput" name="feetype">
+                        <input type="text" class="form-control" id="floatingInput" name="feeunit">
                         <label for="floatingInput">Fee Type</label>
                     </div>
                     <div class="form-floating mb-3">
