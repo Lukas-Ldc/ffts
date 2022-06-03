@@ -13,166 +13,109 @@ def account_view(request, name):
         account = Account.objects.all().get(user__exact=request.user, unique__exact=name)
         transfers = Transfer.objects.all().filter(Q(source__exact=name) | Q(destination__exact=name))
         transactions = Transaction.objects.all().filter(account__exact=name).order_by('input','output')
+        acc_units = str(account.unit).split(",")
 
-        #Assets Overview
-        overv_transa = []
-        overv_calc = []
-        transa_unit = transactions.filter(Q(input__exact = "fakeQuery") | Q(output__exact = "fakeQuery"))
+        # [data] :                (0) : UNIT
+        #       Transactions part (1) : ACC_UNIT | VOL_IN | VOL_OUT | VOL_ACC_UNIT_IN | VOL_ACC_UNIT_OUT | VOL_FEE | VOL_FEE_ACC_UNIT
+        #       Transfers part    (2) : VOL_IN | VOL_OUT | VOL_FEE_IN | VOL_FEE_OUT
+        data = []
+        overview = []
 
-        #--Transactions part
-        for u in str(account.unit).split(","):
-            transa_unit = transa_unit | transactions.filter(Q(input__exact = u) | Q(output__exact = u))
-        
-        for u in unitFinder(True, transa_unit):
-            temp = []
-            if u not in str(account.unit).split(","):
-                for t in transa_unit.filter(Q(input__exact = u) | Q(output__exact = u)):
-                    if t.input == u:
-                        v = t.output
-                    elif t.output == u:
-                        v = t.input
-            else:
-                v = u
-            #UNIT ACCUNIT TOTALIN TOTALOUT UNITIN UNITOUT FEE FEEUNIT
-            for i in [u, v, 0, 0, 0, 0, 0, 0]:
-                temp.append(i)
-            overv_transa.append(temp)
-     
-        for tr in transa_unit:
-            feeCalc = feeCalculator(True, tr, account)
-            for t in overv_transa:
-                if t[0] == tr.input:
-                    t[2] = t[2] + feeCalc[0]
-                    t[4] = t[4] + feeCalc[1]
-                    t[6] = t[6] + feeCalc[2]
-                    t[7] = t[7] + feeCalc[2] + feeCalc[3]
-                if t[0] == tr.output:
-                    t[3] = t[3] + feeCalc[1]
-                    t[5] = t[5] + feeCalc[0]
-                    t[6] = t[6] + feeCalc[3]
-                    t[7] = t[7] + feeCalc[2] + feeCalc[3]
-                if t[0] == tr.feeUnit:
-                    t[7] = t[7] + feeCalc[4]
+        #Data creation by finding all units
+        for t in transfers.values('unit').order_by('unit').distinct():
+            data.append([str(t)[:-2][10:],'',0,0,0,0,0,0,0,0,0,0])
 
-        for t in overv_transa:
-            amount = t[3] - t[2] - t[6]
-            pf_ls = t[4] - t[5] - t[7]
-            try: avg_for_in = t[4] / t[2]
-            except: avg_for_in = t[4]
-            try: avg_for_out = t[5] / t[3]
-            except: avg_for_out = t[5]
-            try: perf = (t[4] / t[5]) * 100 - 100
-            except: perf = 0
-            if t[0] in str(account.unit).split(","): 
-                perf = avg_for_out = avg_for_in = 0
-                pf_ls = t[3] - t[2] - t[7]
-            temp = []
-            for a in [t[0], amount, perf, pf_ls, avg_for_out, avg_for_in, t[1]]:
-                temp.append(a)
-            overv_calc.append(temp)
-
-        #--Transfers part
-        for tr in transfers:
-            for t in overv_calc:
-                if tr.unit == t[0]:
-                    if ac_clean(tr.source) == account.unique:
-                        t[1] = t[1] - tr.amount
-                    elif ac_clean(tr.destination) == account.unique:
-                        t[1] = t[1] + tr.amount
-                if tr.feeUnit == t[0] and ac_clean(tr.source) == account.unique:
-                    t[1] = t[1] - tr.fee
-
-        #Transactions Overview
-        transa_calc = []
-        for u in unitFinder(True, transactions):
-            temp = []
-            #UNIT IN OUT FEE
-            for i in [u, 0, 0, 0]:
-                temp.append(i)
-            transa_calc.append(temp)
-
-        for tr in transactions:
-            feeCalc = feeCalculator(True, tr, account)
-            for t in transa_calc:
-                if t[0] == tr.input:
-                    t[1] = t[1] + feeCalc[0]
-                    t[3] = t[3] + feeCalc[2]
-                if t[0] == tr.output:
-                    t[2] = t[2] + feeCalc[1]
-                    t[3] = t[3] + feeCalc[3]
-                if t[0] == tr.feeUnit:
-                    t[3] = t[3] + feeCalc[4]
-
-        #Transfers Overview
-        transf_calc_temp = []
-        transf_calc = []
-
-        for u in unitFinder(False, transfers):
-            temp = []
-            for i in [u, "Input", 0, 0]:
-                temp.append(i)
-            transf_calc_temp.append(temp)
-            temp = []
-            for i in [u, "Output", 0, 0]:
-                temp.append(i)
-            transf_calc_temp.append(temp)
-
-        for tr in transfers:
-            feeCalc = feeCalculator(False, tr, account)
-            for t in transf_calc_temp:
-                if (t[0] == tr.unit and t[1] == "Output" and ac_clean(tr.source) == name) or (t[0] == tr.unit and t[1] == "Input" and ac_clean(tr.destination) == name):
-                    t[2] = t[2] + feeCalc[0]
-                    t[3] = t[3] + feeCalc[1]
+        for t in transactions.values('input').order_by('input').distinct():
+            iSin = False
+            for u in data:
+                if str(t)[:-2][11:] == u[0]:
+                    iSin = True
                     break
-        
-        for f in transf_calc_temp:
-            if f[2] != 0:
-                temp = []
-                for a in f:
-                    temp.append(a)
-                transf_calc.append(temp)
+            if not iSin:
+                data.append([str(t)[:-2][11:],'',0,0,0,0,0,0,0,0,0,0])
 
-        #Fees Overview
-        fees_calc_temp = []
-        fees_calc = []
+        for t in transactions.values('output').order_by('output').distinct():
+            iSin = False
+            for u in data:
+                if str(t)[:-2][12:] == u[0]:
+                    iSin = True
+                    break
+            if not iSin:
+                data.append([str(t)[:-2][12:],'',0,0,0,0,0,0,0,0,0,0])
 
-        for u in overv_calc:
-            temp = []
-            #UNIT FEE
-            for i in [u[0], 0]:
-                temp.append(i)
-            fees_calc_temp.append(temp)
+        data = sorted(data, key=lambda x:x[0])
 
-        for tr in transactions:
-            feeCalc = feeCalculator(True, tr, account)
-            for t in fees_calc_temp:
-                if t[0] == tr.input:
-                    t[1] = t[1] + feeCalc[2]
-                if t[0] == tr.output:
-                    t[1] = t[1] + feeCalc[3]
-                if t[0] == tr.feeUnit:
-                    t[1] = t[1] + feeCalc[4]
-        
-        for tr in transfers:
-            feeCalc = feeCalculator(False, tr, account)
-            for t in fees_calc_temp:
-                if t[0] == tr.unit:
-                    t[1] = t[1] + feeCalc[1]
+        #Adding Transactions data
+        for t in transactions:
+            for d in data:
 
-        for f in fees_calc_temp:
-            if f[1] != 0:
-                temp = []
-                for a in f:
-                    temp.append(a)
-                fees_calc.append(temp)
+                if t.input == d[0]:
+                    d[3] = d[3] + t.amountIn
+                    if t.output in acc_units:
+                        if len(d[1]) < 1:
+                            d[1] = t.output
+                            if d[0] in acc_units:
+                                d[1] = d[0]
+                        if d[1] == t.output:
+                            d[5] = d[5] + t.amountOut
+                    if t.feeUnit == d[1]:
+                        d[7] = d[7] + t.fee
+
+                elif t.output == d[0]:
+                    d[2] = d[2] + t.amountOut
+                    if t.input in acc_units:
+                        if len(d[1]) < 1:
+                            d[1] = t.input
+                            if d[0] in acc_units:
+                                d[1] = d[0]
+                        if d[1] == t.input:
+                            d[4] = d[4] + t.amountIn
+                    if t.feeUnit == d[1]:
+                        d[7] = d[7] + t.fee
+
+                if t.feeUnit == d[0]:
+                    d[6] = d[6] + t.fee
+
+        #Adding Transfers data
+        for t in transfers:
+            for d in data:
+
+                if t.unit == d[0]:
+                    if ac_clean(t.source) == account.unique:
+                        d[9] = d[9] + t.amount
+                    elif ac_clean(t.destination) == account.unique:
+                        d[8] = d[8] + t.amount
+
+                if t.feeUnit == d[0]:
+                    if ac_clean(t.source) == account.unique:
+                        d[11] = d[11] + t.fee
+                    elif ac_clean(t.destination) == account.unique:
+                        d[10] = d[10] + t.fee
+
+        #Assets Overview Calculs
+        for d in data:
+            if d[2] > 0 or d[3] > 0:
+
+                amount = (d[2] - d[3] - d[6]) + (d[8] - d[9] - d[11])
+                pAndL = d[5] - d[4] - d[7]
+                try: avg_u_in = d[4] / d[2]
+                except: avg_u_in = 0
+                try: avg_u_out = d[5] / d[3]
+                except: avg_u_out = 0
+                try: perf = (d[5] / d[4]) *100 -100
+                except: perf = 0
+
+                if d[0] in acc_units:
+                    perf = avg_u_in = avg_u_out = 0
+                    pAndL = d[2] - d[3] - d[6]
+
+                overview.append([d[0],d[1],amount,perf,pAndL,avg_u_in,avg_u_out])    
 
         context = {
             'page': 'account',
             'account': account,
-            'transfers': transf_calc,
-            'transactions': transa_calc,
-            'overview': overv_calc,
-            'fees': fees_calc,
+            'data': data,
+            'overview': overview,
         }
         return render(request, "account.html", context)
     
@@ -182,40 +125,3 @@ def account_view(request, name):
 
 def ac_clean(a):
     return str(a)[:-1].replace("Account object (", "")
-
-
-def feeCalculator(isTransa, info, acc):
-    fT = info.feeUnit if len(info.feeUnit) > 0 else None
-    if isTransa:
-        if fT == info.input or fT is None and info.input in str(acc.unit).split(","):
-            return [info.amountIn, info.amountOut, info.fee, 0, 0]
-        elif fT == info.output or fT is None and info.output in str(acc.unit).split(","):
-            return [info.amountIn, info.amountOut, 0, info.fee, 0]
-        elif fT in str(acc.unit).split(","):
-            return [info.amountIn, info.amountOut, 0, 0, info.fee]
-        else:
-            return [info.amountIn, info.amountOut, 0, 0, 0]
-    else:
-        if fT == info.unit or fT is None and info.unit in str(acc.unit).split(","):
-            return [info.amount, info.fee]
-        else:
-            return [info.amount, 0]
-
-def unitFinder(isTransa, query):
-    units = []
-    if isTransa:
-        for u in query.values('input').order_by('input').distinct():
-            units.append(str(u)[:-2][11:])
-        for u in query.values('output').order_by('output').distinct():
-            isIn = False
-            for v in units:
-                if str(u)[:-2][12:] == v:
-                    isIn = True
-                    break
-            if not isIn:
-                units.append(str(u)[:-2][12:])
-    else:
-        for u in query.values('unit').order_by('unit').distinct():
-            units.append(str(u)[:-2][10:])
-    units.sort()
-    return units
