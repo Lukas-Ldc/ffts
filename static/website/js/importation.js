@@ -17,3 +17,13 @@ function binance(val) {
         document.querySelectorAll(".binanceTa").forEach(a=>a.style.display = "block");
     }
 }
+
+function gateio(val) {
+    if (val.target.value === "CryptoDeposit" | val.target.value === "CryptoWithdrawal" | val.target.value === "FiatDeposit" | val.target.value === "FiatWithdrawal") {
+        document.querySelectorAll(".gateioTf").forEach(a=>a.style.display = "block");
+        document.querySelectorAll(".gateioTa").forEach(a=>a.style.display = "none");
+    } else {
+        document.querySelectorAll(".gateioTf").forEach(a=>a.style.display = "none");
+        document.querySelectorAll(".gateioTa").forEach(a=>a.style.display = "block");
+    }
+}

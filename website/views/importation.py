@@ -4,6 +4,7 @@ from website.models import Account, Standard
 from website.views.functions.importation.csv import csv_importer
 from website.views.functions.importation.binance import binance_importer
 from website.views.functions.importation.degiro import degiro_importer
+from website.views.functions.importation.gateio import gateio_importer
 from website.views.functions.importation.interactivebrokers import ib_importer
 
 
@@ -19,13 +20,16 @@ def importation_view(request, account):
             if "import_csv" in request.POST:
                 csv_importer(request.FILES['file'], request.POST['type'], request.POST['feeunit'], str(Account.objects.all().get(user__exact=request.user, unique__exact=account).unit).split(",")[0])
 
-            if "import_binance" in request.POST:
+            elif "import_binance" in request.POST:
                 binance_importer(request.FILES['file'], request.POST['type'], request.POST['tr_type'], request.POST['ac_type'], Account.objects.all().get(user__exact=request.user, unique__exact=account).unique)
 
-            if "import_degiro" in request.POST:
+            elif "import_degiro" in request.POST:
                 degiro_importer(request.FILES['file'], request.POST['type'], request.POST['tr_type'], request.POST['ac_type'], Account.objects.all().get(user__exact=request.user, unique__exact=account).unique)
 
-            if "import_ib" in request.POST:
+            elif "import_gateio" in request.POST:
+                gateio_importer(request.FILES['file'], request.POST['type'], request.POST['tr_type'], request.POST['ac_type'], Account.objects.all().get(user__exact=request.user, unique__exact=account).unique)
+
+            elif "import_ib" in request.POST:
                 ib_importer(request.FILES['file'], request.POST['tr_type'], request.POST['ac_type'], Account.objects.all().get(user__exact=request.user, unique__exact=account).unique)
 
         the_account = Account.objects.all().get(user__exact=request.user, unique__exact=account)
@@ -39,6 +43,6 @@ def importation_view(request, account):
             'accounts': accounts,
         }
         return render(request, "importation.html", context)
-    
+
     else:
         return redirect('website-accounts')

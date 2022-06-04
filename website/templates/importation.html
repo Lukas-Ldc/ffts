@@ -149,7 +149,39 @@
         </h2>
         <div id="c4" class="accordion-collapse collapse" aria-labelledby="h4" data-bs-parent="#accordion">
             <div class="accordion-body">
-                <em>In progress</em>
+                <form action="{% url 'website-importation' account=account.unique %}" method="POST" enctype="multipart/form-data">
+                    <div class="form-floating mb-3">
+                        <select class="form-select" id="floatingSelect" name="type" required onchange="gateio(event)">
+                            <option value="Transactions">Transactions</option>
+                            <option value="CryptoDeposit">Crypto Deposit</option>
+                            <option value="Dust">Dust (HTML Extract)</option>
+                        </select>
+                        <label for="floatingSelect">Type</label>
+                    </div>
+                    <div class="form-floating mb-3 gateioTa">
+                        <select class="form-select" id="floatingSelect" name="tr_type" required>
+                            {% for t in tr_types %}
+                                <option value="{{t.name}}">{{t.name}}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="floatingSelect">Transaction Type</label>
+                    </div>
+                    <div class="form-floating mb-3 gateioTf">
+                        <select class="form-select" id="floatingSelect" name="ac_type" required>
+                            <option value="Manual">Manual (Crypto Only)</option>
+                            {% for a in accounts %}
+                                <option value="{{a.unique}}">{{a.name}}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="floatingSelect">Deposit/Withdrawal Account Linked</label>
+                    </div>
+                    <em>The CSV file must be prepared in a special way for the import. Take a look at the documentation !</em>
+                    <div class="form-floating mb-3">
+                        <input type="file" name="file" required>
+                    </div>
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary" name="import_gateio">Import</button>
+                </form>
             </div>
         </div>
     </div>
