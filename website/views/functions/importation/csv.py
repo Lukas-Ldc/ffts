@@ -18,7 +18,7 @@ def csv_importer(file, table, fu, un):
                     amountOut = floatGaver(column[7]),
                     price = floatGaver(column[8]),
                     fee = floatGaver(column[9]),
-                    feeUnit = feeTypeGuesser(fu, column[4], column[5], un, column[10]) if fu != "None" else column[6],
+                    feeUnit = feeTypeGuesser(fu, column[4], column[5], un, column[10]) if fu != "None" else column[10],
                     comment = column[11],
                 )
 

@@ -20,6 +20,7 @@ def account_view(request, name):
         #       Transfers part    (2) : VOL_IN | VOL_OUT | VOL_FEE_IN | VOL_FEE_OUT
         data = []
         overview = []
+        temp = []
 
         #Data creation by finding all units
         for t in transfers.values('unit').order_by('unit').distinct():
@@ -94,22 +95,27 @@ def account_view(request, name):
 
         #Assets Overview Calculs
         for d in data:
-            if d[2] > 0 or d[3] > 0:
+            #if d[2] > 0 or d[3] > 0:
 
-                amount = (d[2] - d[3] - d[6]) + (d[8] - d[9] - d[11])
-                pAndL = d[5] - d[4] - d[7]
-                try: avg_u_in = d[4] / d[2]
-                except: avg_u_in = 0
-                try: avg_u_out = d[5] / d[3]
-                except: avg_u_out = 0
-                try: perf = (d[5] / d[4]) *100 -100
-                except: perf = 0
+            amount = (d[2] - d[3] - d[6]) + (d[8] - d[9] - d[11])
+            pAndL = d[5] - d[4] - d[7]
+            try: avg_u_in = d[4] / d[2]
+            except: avg_u_in = 0
+            try: avg_u_out = d[5] / d[3]
+            except: avg_u_out = 0
+            try: perf = (d[5] / d[4]) *100 -100
+            except: perf = 0
 
-                if d[0] in acc_units:
-                    perf = avg_u_in = avg_u_out = 0
-                    pAndL = d[2] - d[3] - d[6]
-
-                overview.append([d[0],d[1],amount,perf,pAndL,avg_u_in,avg_u_out])    
+            if d[0] in acc_units:
+                perf = avg_u_in = avg_u_out = 0
+                pAndL = d[2] - d[3] - d[6]
+            
+            if amount == 0:
+                temp.append([d[0],d[1],amount,perf,pAndL,avg_u_in,avg_u_out])
+            else:
+                overview.append([d[0],d[1],amount,perf,pAndL,avg_u_in,avg_u_out])
+        
+        overview = overview + temp
 
         context = {
             'page': 'account',

@@ -6,12 +6,12 @@ class Account_Interface(admin.ModelAdmin):
     search_fields = ['unqiue', 'name', 'type', 'user', 'group', 'unit', 'gmt', 'comment']
 
 class Transfer_Interface(admin.ModelAdmin):
-    list_display = ['source','destination','date','unit','amount','fee','feeUnit','comment']
-    search_fields = ['source','destination','date','unit','comment']
+    list_display = ['id','source','destination','date','unit','amount','fee','feeUnit','comment']
+    search_fields = ['id','source','destination','date','unit','comment']
 
 class Transaction_Interface(admin.ModelAdmin):
-    list_display = ['account','market','type','date','input','output','amountIn','amountOut','price','fee','feeUnit','comment']
-    search_fields = ['account','market','type','date','input','output','comment']
+    list_display = ['id','account','market','type','date','input','output','amountIn','amountOut','price','fee','feeUnit','comment']
+    search_fields = ['id','account','market','type','date','input','output','comment']
 
 class Standard_Interface(admin.ModelAdmin):
     list_display = ['type','name']

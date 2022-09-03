@@ -8,7 +8,7 @@ def gateio_importer(file, table, trType, acType, acc):
     if file.name.endswith('.csv'):
 
         if table == "Transactions":
-            for column in csv.reader(io.StringIO(file.read().decode('UTF-8')), delimiter='\t'):
+            for column in csv.reader(io.StringIO(file.read().decode('UTF-16')), delimiter='\t'):
                     Transaction.objects.create(
                         account = Account.objects.all().get(unique__exact=acc),
                         market = "",
@@ -25,7 +25,7 @@ def gateio_importer(file, table, trType, acType, acc):
                     )
 
         elif table == "CryptoDeposit":
-            for column in csv.reader(io.StringIO(file.read().decode('UTF-8')), delimiter='\t'):
+            for column in csv.reader(io.StringIO(file.read().decode('UTF-16')), delimiter='\t'):
                 Transfer.objects.create(
                     source = Account.objects.all().get(unique__exact=column[5]) if acType == "Manual" else Account.objects.all().get(unique__exact=acType),
                     destination = Account.objects.all().get(unique__exact=acc),
