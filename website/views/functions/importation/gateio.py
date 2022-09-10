@@ -13,7 +13,7 @@ def gateio_importer(file, table, trType, acType, acc):
                         account = Account.objects.all().get(unique__exact=acc),
                         market = "",
                         type = typeChecker(trType),
-                        date = dateGaver(column[1]),
+                        date = column[1],
                         input = column[3].split('/')[1] if column[2] == "Buy" else column[3].split('/')[0],
                         output = column[3].split('/')[0] if column[2] == "Buy" else column[3].split('/')[1],
                         amountIn = column[6] if column[2] == "Buy" else column[5],
@@ -72,10 +72,6 @@ def typeChecker(t):
         return t
     else:
         return "#IIT#"
-
-def dateGaver(d):
-    return str(d).split(" ")[0].split("/")[2] + "-" + str(d).split(" ")[0].split("/")[1] + "-" + str(d).split(" ")[0].split("/")[0] + " " + str(d).split(" ")[1]
-    #return datetime.strptime(d, '%d/%m/%Y H:M').strftime('%Y-%m-%d H:M')
 
 def floatRemover(f):
     if f > 1000:
