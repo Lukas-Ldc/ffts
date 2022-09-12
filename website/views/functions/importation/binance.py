@@ -139,20 +139,21 @@ def binance_importer(file, table, trType, acType, acc):
                             purchase_found = False
                             if str(pos_purchase).replace("-","") == str(c[5]).replace("-",""):
                                 for i in pos_interest:
-                                    Transaction.objects.create(
-                                        account = Account.objects.all().get(unique__exact=acc),
-                                        market = "",
-                                        type = typeChecker(trType),
-                                        date = i[0],
-                                        input = str(accUnit).split(",")[0],
-                                        output = c[4],
-                                        amountIn = 0,
-                                        amountOut = noNegFloat(i[1]),
-                                        price = 0,
-                                        fee = 0,
-                                        feeUnit = 0,
-                                        comment = "POS Interest",
-                                    )
+                                    if Transaction.objects.all().filter(account__exact=Account.objects.all().get(unique__exact=acc),date__exact=i[0],output__exact=c[4],amountOut__exact=noNegFloat(i[1])).count() == 0:
+                                        Transaction.objects.create(
+                                            account = Account.objects.all().get(unique__exact=acc),
+                                            market = "",
+                                            type = typeChecker(trType),
+                                            date = i[0],
+                                            input = str(accUnit).split(",")[0],
+                                            output = c[4],
+                                            amountIn = 0,
+                                            amountOut = noNegFloat(i[1]),
+                                            price = 0,
+                                            fee = 0,
+                                            feeUnit = 0,
+                                            comment = "POS Interest",
+                                        )
                             break
 
     elif file.name.endswith('.html'):
