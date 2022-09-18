@@ -39,6 +39,7 @@
             <th scope="col">GMT</th>
             <th scope="col">Transactions</th>
             <th scope="col">Transfers</th>
+            <th scope="col">Comment</th>
         </tr>
     </thead>
 
@@ -49,7 +50,7 @@
             <tr>
                 <th scope="row">-</th>
                 <td>
-                    <a href="{% url 'website-account' name=a.unique %}" data-bs-toggle="tooltip" title="{{ a.comment }}">{{ a.name }}</a>
+                    <a href="{% url 'website-account' name=a.unique %}" data-bs-toggle="tooltip">{{ a.name }}</a>
                 </td>
                 <td>{{ a.type }}</td>
                 <td>{{ a.unit }}</td>
@@ -69,6 +70,7 @@
                         </svg>
                     </a>
                 </td>
+                <td>{{ a.comment }}</td>
             </tr>
             {% endif %}
         {% endfor %}
