@@ -1,7 +1,7 @@
 import csv, io
 from website.models import Transaction, Transfer, Account, Standard
 
-def csv_importer(file, table, fu, un):
+def csv_importer(file, table, un):
 
     if file.name.endswith('.csv'):
 
@@ -18,7 +18,7 @@ def csv_importer(file, table, fu, un):
                     amountOut = floatGaver(column[7]),
                     price = floatGaver(column[8]),
                     fee = floatGaver(column[9]),
-                    feeUnit = feeTypeGuesser(fu, column[4], column[5], un, column[10]) if fu != "None" else column[10],
+                    feeUnit = column[10],
                     comment = column[11],
                 )
 
@@ -31,19 +31,9 @@ def csv_importer(file, table, fu, un):
                     unit = column[3],
                     amount = floatGaver(column[4]),
                     fee = floatGaver(column[5]),
-                    feeUnit = feeTypeGuesser(fu, column[4], column[4], un, column[6]) if fu != "None" else column[6],
+                    feeUnit = column[6],
                     comment = column[7],
                 )
-
-def feeTypeGuesser(fu, unIn, unOut, unAcc, ft):
-    if len(ft) < 1:
-        if fu == "Input":
-            return unIn
-        elif fu == "Output":
-            return unOut
-        elif fu == "Account":
-            return unAcc
-    return ft
 
 def floatGaver(f):
     if f is None or f == "":
