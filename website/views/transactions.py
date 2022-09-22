@@ -35,7 +35,7 @@ def transactions_view(request, account):
 
                 return response
 
-            if "add_transaction" in request.POST and trans_type_checker(request.POST['type']):
+            if "add_transaction" in request.POST:
                 Transaction.objects.create(
                     account=Account.objects.all().get(user__exact=request.user, unique__exact=account), 
                     market=request.POST['market'], 
@@ -55,7 +55,7 @@ def transactions_view(request, account):
                 if Transaction.objects.all().filter(id__exact=request.POST['id'], account__exact=account).exists():
                     updated_transac = Transaction.objects.all().get(id__exact=request.POST['id'], account__exact=account)
                     if len(request.POST['market']) > 0: updated_transac.market = request.POST['market']
-                    if trans_type_checker(request.POST['type']): updated_transac.type = request.POST['type']
+                    if len(request.POST['type']) > 0: updated_transac.type = request.POST['type']
                     if len(request.POST['date']) > 0: updated_transac.date = request.POST['date']
                     if len(request.POST['input']) > 0: updated_transac.input = request.POST['input']
                     if len(request.POST['output']) > 0: updated_transac.output = request.POST['output']
@@ -101,13 +101,6 @@ def transactions_view(request, account):
 
     else:
         return redirect('website-accounts')
-
-#Verify if the type given by the user is in the database
-def trans_type_checker(t):
-    if Standard.objects.all().filter(type__exact='TransactionType', name__exact=t).exists():
-        return True
-    else:
-        return False
 
 def exp_acc(a):
     return str(a).replace("Account object (","")[:-1]

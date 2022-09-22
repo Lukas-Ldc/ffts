@@ -107,12 +107,13 @@
                             <label for="floatingInput">Name *</label>
                         </div>
                         <div class="form-floating mb-3">
-                            <select class="form-select" id="floatingSelect" name="type" required>
+                            <select class="form-select" id="floatingSelect" name="type">
+                                <option value=""></option>
                                 {% for t in types %}
                                     <option value="{{t.name}}">{{t.name}}</option>
                                 {% endfor %}
                             </select>
-                            <label for="floatingSelect">Type *</label>
+                            <label for="floatingSelect">Type</label>
                         </div>
                         <div class="form-floating mb-3">
                             <input type="text" class="form-control" id="floatingInput" name="group" list="groupsList" autocomplete="off">
@@ -155,7 +156,7 @@
                         </div>
                         <div class="form-floating mb-3">
                             <select class="form-select" id="floatingSelect" name="type">
-                              <option value="" selected></option>
+                                <option value="" selected></option>
                                 {% for t in types %}
                                     <option value="{{t.name}}">{{t.name}}</option>
                                 {% endfor %}

@@ -16,7 +16,7 @@
             <p>These are the differents parameters for an account:</p>
             <ul>
                 <li>Name [Mandatory] (ex : Interactive Brokers) <i>Cannot be changed (do a back-up before trying !).</i></li>
-                <li>Type [Mandatory] (ex : Broker) <i>In the Django admin menu, go to the standards table to add an account type.</i></li>
+                <li>Type [Optional] (ex : Broker) <i>In the Django admin menu, go to the standards table to add an account type.</i></li>
                 <li>Group [Optional] (ex : Long Term Investments).</li>
                 <li>Unit [Mandatory] (ex : USD,EUR) <i>Every transaction should be against an account unit (not mandatory but used in the account page for calculations)</i>.</li>
                 <li>GMT [Mandatory] (ex : -5) <i>Modify the hours displayed and also used for the export. In the Django admin menu, go to the standards table and add the local GMT time.</i></li>
@@ -48,7 +48,7 @@
             <p>These are the differents parameters for a transaction:</p>
             <ul>
                 <li>Market [Optional] (ex : NASDAQ)</li>
-                <li>Type [Mandatory] (ex : Trade) <i>In the Django admin menu, go to the standards table to add a transaction type.</i></li>
+                <li>Type [Optional] (ex : Trade) <i>In the Django admin menu, go to the standards table to add a transaction type.</i></li>
                 <li>Date [Mandatory] (ex : 20/10/2020 10:30:05)</li>
                 <li>Input [Mandatory] (ex : USD)</li>
                 <li>Output [Mandatory] (ex : AAPL)</li>

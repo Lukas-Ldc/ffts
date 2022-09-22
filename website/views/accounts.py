@@ -10,13 +10,13 @@ def accounts_view(request):
 
     if request.method == 'POST':
 
-        if "add_account" in request.POST and acc_type_checker(request.POST['type']):
+        if "add_account" in request.POST:
             Account.objects.create(unique='.', name=request.POST['name'], type=request.POST['type'], user=request.user, group=request.POST['group'], unit=request.POST['unit'], gmt=request.POST['gmt'], comment=request.POST['comment'])
 
         if "modify_account" in request.POST:
             if Account.objects.all().filter(user__exact=request.user, name__exact=request.POST['name']).exists():
                 updated_acc = Account.objects.all().get(user__exact=request.user, name__exact=request.POST['name'])
-                if acc_type_checker(request.POST['type']): updated_acc.type = request.POST['type']
+                if len(request.POST['type']) > 0: updated_acc.type = request.POST['type']
                 if len(request.POST['group']) > 0: updated_acc.group = request.POST['group']
                 if len(request.POST['unit']) > 0: updated_acc.unit = request.POST['unit']
                 if len(request.POST['gmt']) > 0: updated_acc.gmt = request.POST['gmt']
@@ -40,10 +40,3 @@ def accounts_view(request):
         'types': acc_Types,
     }
     return render(request, "accounts.html", context)
-
-#Verify if the type given by the user is in the database
-def acc_type_checker(t):
-    if Standard.objects.all().filter(type__exact='AccountType', name__exact=t).exists():
-        return True
-    else:
-        return False

@@ -79,12 +79,13 @@
                             <label for="floatingInput">Market</label>
                         </div>
                         <div class="form-floating mb-3">
-                            <select class="form-select" id="floatingSelect" name="type" required>
+                            <select class="form-select" id="floatingSelect" name="type">
+                                <option value=""></option>
                                 {% for t in types %}
                                     <option value="{{t.name}}">{{t.name}}</option>
                                 {% endfor %}
                             </select>
-                            <label for="floatingSelect">Type *</label>
+                            <label for="floatingSelect">Type</label>
                         </div>
                         <div class="form-floating mb-3">
                             <input type="datetime-local" class="form-control" id="floatingInput" name="date" required value="0000-00-00 00:00">
