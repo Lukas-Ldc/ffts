@@ -9,7 +9,27 @@
     </h2>
     <div id="c1" class="accordion-collapse collapse" aria-labelledby="h1" data-bs-parent="#accordion">
         <div class="accordion-body">
-            <p>[...]</p>
+            <p>The accounts page is the main page of the website. You land on it when you login or when you click on the little home in the top left corner. You can logout by clicking in the top right corner.</p>
+            <p>On this page you can add, modify or delete an account. You can also view and access your accounts.</p>
+            <p>In the title of the page, you can see the username of the user who is currently logged in. 
+                If you have an administrator account, you will see a little server on the left of the title. You can access the admin menu from it.</p>
+            <p>These are the differents parameters for an account:</p>
+            <ul>
+                <li>Name [Mandatory] (ex : Interactive Brokers) <i>Cannot be changed (do a back-up before trying !).</i></li>
+                <li>Type [Mandatory] (ex : Broker) <i>In the Django admin menu, go to the standards table to add an account type.</i></li>
+                <li>Group [Optional] (ex : Long Term Investments).</li>
+                <li>Unit [Mandatory] (ex : USD,EUR) <i>Every transaction should be against an account unit (not mandatory but used in the account page for calculations)</i>.</li>
+                <li>GMT [Mandatory] (ex : -5) <i>Modify the hours displayed and also used for the export. In the Django admin menu, go to the standards table and add the local GMT time.</i></li>
+                <li>Comment [Optional] (ex : Anything).</li>
+            </ul>
+            <hr />
+            <p>When you click on the name of an account in the accounts page, you land on the account page. In the title of the page, you can find the account name. 
+                <i>The accountS page and the account page are different.</i></p>
+            <p>On the account page, you can see the assets of the accounts and the total volume per asset. You can access the transactions, the transfers and also the importation page for the account.</p>
+            <p>For the assets table (the first one), each asset is linked to only one unit account (unit column). The performance, the profit/loss and the average buy/sold price are calculated with the unit. 
+                The assets transactions not against the linked unit are forgotten. The table is first separated between the assets with a balance of zero and then ordered by name.</p>
+            <p>For the volume table (the second one), the input, output and fee volume are shown for the transactions (TR) and the transfers (TF). The table is ordered by name.</p>
+            <p>WARNING: the calculations could be wrong, do not relly 100% on it. <i>Don't hesitate to contribute to the project.</i></p>
         </div>
     </div>
 </div>
@@ -22,7 +42,24 @@
     </h2>
     <div id="c2" class="accordion-collapse collapse" aria-labelledby="h2" data-bs-parent="#accordion">
         <div class="accordion-body">
-            <p>[...]</p>
+            <p>From an account page, click on the transactions button to access them.</p>
+            <p>In the title of the page, there is the account name. You can click on it to go back to the account page.</p>
+            <p>From this page, you can view, add, modify, delete and export transactions linked to the account.</p>
+            <p>These are the differents parameters for a transaction:</p>
+            <ul>
+                <li>Market [Optional] (ex : NASDAQ)</li>
+                <li>Type [Mandatory] (ex : Trade) <i>In the Django admin menu, go to the standards table to add a transaction type.</i></li>
+                <li>Date [Mandatory] (ex : 20/10/2020 10:30:05)</li>
+                <li>Input [Mandatory] (ex : USD)</li>
+                <li>Output [Mandatory] (ex : AAPL)</li>
+                <li>Amount In [Mandatory] (ex : 300)</li>
+                <li>Amount Out [Mandatory] (ex : 2)</li>
+                <li>Price [Optional] (ex : 150)</li>
+                <li>Fee [Optional] (ex : 2.5)</li>
+                <li>Fee Type [Optional] (ex : USD)</li>
+                <li>Comment [Optional] (ex : Anything)</li>
+            </ul>
+            <p>You can delete multiple transactions at once.</p>
         </div>
     </div>
 </div>
@@ -35,7 +72,21 @@
     </h2>
     <div id="c3" class="accordion-collapse collapse" aria-labelledby="h3" data-bs-parent="#accordion">
         <div class="accordion-body">
-            <p>[...]</p>
+            <p>From an account page, click on the transfers button to access them.</p>
+            <p>In the title of the page, there is the account name. You can click on it to go back to the account page.</p>
+            <p>From this page, you can view, add, modify, delete and export transfers linked to the account.</p>
+            <p>These are the differents parameters for a transfer:</p>
+            <ul>
+                <li>Source [Mandatory] (ex : Bank Account)</li>
+                <li>Destination [Mandatory] (ex : Interactive Brokers)</li>
+                <li>Date [Mandatory] (ex : 20/10/2020 10:30:05)</li>
+                <li>Unit [Mandatory] (ex : USD)</li>
+                <li>Amount [Mandatory] (ex : 1000)</li>
+                <li>Fee [Optional] (ex : 1.5)</li>
+                <li>Fee Type [Optional] (ex : USD)</li>
+                <li>Comment [Optional] (ex : Anything)</li>
+            </ul>
+            <p>You can delete multiple transfers at once. For each transfer, one of the accounts must belong to you (user login).</p>
         </div>
     </div>
 </div>
@@ -48,7 +99,79 @@
     </h2>
     <div id="c4" class="accordion-collapse collapse" aria-labelledby="4" data-bs-parent="#accordion">
         <div class="accordion-body">
-            <p>[...]</p>
+            <p>From the account page, click on the importation button to access the importation page.</p>
+            <p>Select the importation model you want to use and follow the instructions. Don't hesitate to add your own model.</p>
+            <hr />
+
+            <h5>FFTS / Basic CSV</h5>
+            <p>This is the basic importation model for a CSV file generated by an FFTS export or by yourself: comma separated & UTF-8.</p>
+            <p>You have to choose wether you import transactions or transfers. <i>Fee calculation + fee unit: to be removed.</i></p>
+            <p>This is an example for a transaction import:</p>
+            <ul>
+                <li>Interactive Brokers,NASDAQ,Trade,2020-01-01 00:00:01-05:00,USD,AAPL,300,2,150,2.5,USD,Anything</li>
+                <li>Interactive Brokers,,Trade,2020-02-22 10:30:00-05:00,USD,GOOG,200,2,100,0,,Anything</li>
+            </ul>
+            <p>This is an example for a transfer import:</p>
+            <ul>
+                <li>Bank Account,Interactive Brokers,2020-01-01 00:00:01-05:00,USD,1000,1.5,USD,Anything</li>
+                <li>Bank Account,Interactive Brokers,2020-02-22 10:30:00-05:00,USD,500,,,</li>
+            </ul>
+            <p>The accounts linked to the import have to be added before.</p>
+
+            <hr />
+            <h5>Binance</h5>
+            <p>For the XLSX files, from Excel or Libre Office you can save as CSV. Sometimes the data is altered by the software (ex : the date) and the importation might not work. You also have to remove the first line with the columns names.</p>
+            <p>These are the differents types of importation:</p>
+            <ul>
+                <li>Transactions : Orders > Spot Orders > Trade History > Export (only tested with spot)</li>
+                <li>Crypto deposit : Wallet > Overview > Transaction History > Crypto > Deposit > Export Deposit History</li>
+                <li>Crypto withdrawal : Wallet > Overview > Transaction History > Crypto > Withdrawal > Export Withdrawal History</li>
+                <li>Fiat deposit : Wallet > Overview > Transaction History > Fiat > Withdrawal > Export Withdrawal History</li>
+                <li>Fiat withdrawal : Wallet > Overview > Transaction History > Fiat > Withdrawal > Export Withdrawal History</li>
+                <li>POS/Savings Interests & Small BNB Conversions : Wallet > Overview > Transaction History > Generate all statements</li>
+                <li>POS/Savings Interests Only : Wallet > Overview > Transaction History > Generate all statements (Spot & Savings are enough).</li>
+                <li>BNB Conversions (HTML Extract) : Wallet > Fiat & Spot > Convert Small Balance to BNB > Convert History, then copy the body of the page (source code) in a HTML file and import it (remove line breaks if not working).</li>
+            </ul>
+            <p>Depending on the type of importation, you can have the followings parameters:</p>
+            <ul>
+                <li>Transaction Type : the type that must be associated with the imported data (ex : trade, interest, ...).</li>
+                <li>Depost/Withdrawal Account Linked : the account where the transfers are coming/going (manual : the address column has been replaced with the names of the accounts).</li>
+            </ul>
+            <p>For the POS Interests : will only import the interests after redemption/refund detected. Warning : for the same asset, if you have more than one stake which overlap and one of them has been cancelled before the redemption date, the numbers won't be correct.</p>
+
+            <hr />
+            <h5>Degiro</h5>
+            <p>You have to remove the first line with the columns names. These are the differents types of importation:</p>
+            <ul>
+                <li>Transactions : Inbox > Transactions > Export > CSV</li>
+                <li>Transfers : Inbox > Account statement > Do not hide cash movements > Export > CSV</li>
+            </ul>
+            <p>For the transfers, you have to make multiple changes in the CSV file. Because the file is not in the same language for everyone, you have to find your deposits, withdrawals and change operations. You can do it automatically with a find an replace option.
+                In column number 6, replace with the following values : "DEPOSIT", "WITHDRAWAL", "CHANGE_IN" and "CHANGE_OUT". <i>Can be improved by sending me the file in order to automate it in your language.</i></p>
+            
+            <hr />
+            <h5>Gate.io</h5>
+            <p>You have to remove the first line with the columns names. These are the differents types of importation:</p>
+            <ul>
+                <li>Transactions : Order > Classic account > Spot orders > Trade history > download (only tested with spot)</li>
+                <li>Crypto deposit : Wallet > Funds overview > Deposit > Recent deposits > download</li>
+                <li>Dust (HTML Extract) : Wallet > Funds overview > Spot account > Dust swap > Dust swap history</li>
+            </ul>
+            <p>Depending on the type of importation, you can have the followings parameters:</p>
+            <ul>
+                <li>Transaction Type : the type that must be associated with the imported data (ex : trade, interest, ...).</li>
+                <li>Depost/Withdrawal Account Linked : the account where the transfers are coming/going (manual : the address column has been replaced with the names of the accounts).</li>
+            </ul>
+            <i>There are no other types of importation because I don't have any more data to analyse. Don't hesitate to contribute to the project.</i>
+
+            <hr />
+            <h5>Interactive Brokers</h5>
+            <p>There is only one type of importation : "Transactons + Transfers" : Performance & Reports > Activity > Format [CSV] + Language [English]</p>
+            <p>You also have the following parameters:</p>
+            <ul>
+                <li>Transaction Type : the type that must be associated with the imported data (ex : trade, interest, ...).</li>
+                <li>Bank account : assuming that every transfer is coming/going to this account (manual modifications might be needed).</li>
+            </ul>
         </div>
     </div>
 </div>
