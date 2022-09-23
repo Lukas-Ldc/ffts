@@ -21,6 +21,7 @@ def account_view(request, name):
         data = []
         overview = []
         temp = []
+        acc = []
 
         #Data creation by finding all units
         for t in transfers.values('unit').order_by('unit').distinct():
@@ -110,12 +111,14 @@ def account_view(request, name):
                 perf = avg_u_in = avg_u_out = 0
                 pAndL = d[2] - d[3] - d[6]
             
-            if amount == 0:
-                temp.append([d[0],d[1],amount,perf,pAndL,avg_u_in,avg_u_out])
+            if d[0] in acc_units:
+                acc.append([d[0],d[1],amount,perf,pAndL,avg_u_in,avg_u_out,1])
+            elif amount == 0:
+                temp.append([d[0],d[1],amount,perf,pAndL,avg_u_in,avg_u_out,0])
             else:
-                overview.append([d[0],d[1],amount,perf,pAndL,avg_u_in,avg_u_out])
+                overview.append([d[0],d[1],amount,perf,pAndL,avg_u_in,avg_u_out,0])
         
-        overview = overview + temp
+        overview = acc + overview + temp
 
         context = {
             'page': 'account',

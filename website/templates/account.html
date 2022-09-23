@@ -28,7 +28,11 @@
     <tbody>
     {% for o in overview %}
         <tr>
-            <td>{{o.0}}</td>
+            {% if o.7 %}
+                <td style="font-weight: bold; text-decoration: underline;">{{o.0}}</td>
+            {% else %}
+                <td>{{o.0}}</td>
+            {% endif %}
             <td>{{o.2.normalize}}</td>
             <td>{{o.3.normalize|floatformat:2}} %</td>
             <td>{{o.4.normalize|floatformat:2}}</td>
