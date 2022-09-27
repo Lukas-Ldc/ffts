@@ -29,7 +29,7 @@ def degiro_importer(file, table, trType, acType, acc, req):
             change = False
             for column in csv.reader(io.StringIO(file.read().decode('UTF-8')), delimiter=','):
 
-                if column[5] == "DEPOSIT":
+                if column[5] == "DEPOSIT" or column[5] == "Versement de fonds":
                     dbi.addTransfer(
                         req,
                         True,
@@ -43,7 +43,7 @@ def degiro_importer(file, table, trType, acType, acc, req):
                         ""
                     )
 
-                elif column[5] == "WITHDRAWAL":
+                elif column[5] == "WITHDRAWAL" or column[5] == "Retrait flatex":
                     dbi.addTransfer(
                         req,
                         True,
@@ -57,7 +57,7 @@ def degiro_importer(file, table, trType, acType, acc, req):
                         ""
                     )
 
-                elif column[5] == "CHANGE_IN":
+                elif column[5] == "CHANGE_IN" or column[5] == "Operation de change - Crédit":
                     if change:
                         dbi.modTransaction(
                             req,
@@ -95,7 +95,7 @@ def degiro_importer(file, table, trType, acType, acc, req):
                         )
                         change = True
 
-                elif column[5] == "CHANGE_OUT":
+                elif column[5] == "CHANGE_OUT" or column[5] == "Opération de change - Débit":
                     if change:
                         dbi.modTransaction(
                             req,
