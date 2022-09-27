@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect
 from website.models import Transaction, Account, Standard
 from django.contrib.auth import authenticate
 from django.http import HttpResponse
+import website.views.functions.dbinterface as dbi
 
 def transactions_view(request, account):
 
@@ -36,41 +37,19 @@ def transactions_view(request, account):
                 return response
 
             if "add_transaction" in request.POST:
-                Transaction.objects.create(
-                    account=Account.objects.all().get(user__exact=request.user, unique__exact=account), 
-                    market=request.POST['market'], 
-                    type=request.POST['type'], 
-                    date=request.POST['date'], 
-                    input=request.POST['input'], 
-                    output=request.POST['output'], 
-                    amountIn=request.POST['amountin'], 
-                    amountOut=request.POST['amountout'], 
-                    price=request.POST['price'], 
-                    fee=request.POST['fee'], 
-                    feeUnit=request.POST['feeunit'], 
-                    comment=request.POST['comment']
-                )
+                dbi.addTransaction(request, False, account, request.POST['market'], request.POST['type'], request.POST['date'], request.POST['input'], request.POST['output'], 
+                    request.POST['amountin'], request.POST['amountout'], request.POST['price'], request.POST['fee'], request.POST['feeunit'], request.POST['comment'])
 
             if "modify_transaction" in request.POST:
-                if Transaction.objects.all().filter(id__exact=request.POST['id'], account__exact=account).exists():
-                    updated_transac = Transaction.objects.all().get(id__exact=request.POST['id'], account__exact=account)
-                    if len(request.POST['market']) > 0: updated_transac.market = request.POST['market']
-                    if len(request.POST['type']) > 0: updated_transac.type = request.POST['type']
-                    if len(request.POST['date']) > 0: updated_transac.date = request.POST['date']
-                    if len(request.POST['input']) > 0: updated_transac.input = request.POST['input']
-                    if len(request.POST['output']) > 0: updated_transac.output = request.POST['output']
-                    if len(request.POST['amountin']) > 0: updated_transac.amountIn = request.POST['amountin']
-                    if len(request.POST['amountout']) > 0: updated_transac.amountOut = request.POST['amountout']
-                    if len(request.POST['price']) > 0: updated_transac.price = request.POST['price']
-                    if len(request.POST['fee']) > 0: updated_transac.fee = request.POST['fee']
-                    if len(request.POST['feeunit']) > 0: updated_transac.feeUnit = request.POST['feeunit']
-                    if len(request.POST['comment']) > 0: updated_transac.comment = request.POST['comment']
-                    updated_transac.save()
+                for id in str(request.POST['id']).split(','):
+                    dbi.modTransaction(request, id, request.POST['market'], request.POST['type'], request.POST['date'], request.POST['input'], request.POST['output'], 
+                        request.POST['amountin'], request.POST['amountout'], request.POST['price'], request.POST['fee'], request.POST['feeunit'], request.POST['comment'])
 
             if "delete_transaction" in request.POST:
                 if authenticate(request, username=request.user.username, password=request.POST['pass']):
                     for id in str(request.POST['id']).split(','):
-                        Transaction.objects.all().filter(id__exact=id, account__exact=account).delete()
+                        dbi.delTransaction(request, id)
+                    
 
         the_account = Account.objects.all().get(user__exact=request.user, unique__exact=account)
         transactions = Transaction.objects.all().filter(account__exact=account).order_by('-date','type','input','output')

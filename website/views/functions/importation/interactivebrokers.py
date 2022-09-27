@@ -1,8 +1,9 @@
 import csv, io
-from website.models import Transaction, Transfer, Standard, Account
+import website.views.functions.dbinterface as dbi
+from website.models import Account
 
 
-def ib_importer(file, trType, acType, acc):
+def ib_importer(file, trType, acType, acc, req):
 
     if file.name.endswith('.csv'):
 
@@ -11,63 +12,71 @@ def ib_importer(file, trType, acType, acc):
         for column in csv.reader(io.StringIO(file.read().decode('UTF-8')), delimiter=','):
 
             if column[0] == "Trades" and column[1] == "Data" and column[2] == "Order" and column[3] == "Forex":
-                Transaction.objects.create(
-                    account = Account.objects.all().get(unique__exact=acc),
-                    market = "",
-                    type = typeChecker(trType),
-                    date = str(column[6]).replace(",", ""),
-                    input = str(column[5]).split(".")[1] if floatGaver(column[7],True) > 0 else str(column[5]).split(".")[0],
-                    output = str(column[5]).split(".")[0] if floatGaver(column[7],True) > 0 else str(column[5]).split(".")[1],
-                    amountIn = floatGaver(column[10],False) if floatGaver(column[7],True) > 0 else floatGaver(column[7],False),
-                    amountOut = floatGaver(column[7],False) if floatGaver(column[7],True) > 0 else floatGaver(column[10],False),
-                    price = floatGaver(column[8],False),
-                    fee = floatGaver(column[11],False),
-                    feeUnit = forex_fee,
-                    comment = column[3],
+                dbi.addTransaction(
+                    req,
+                    True,
+                    acc,
+                    "",
+                    trType,
+                    str(column[6]).replace(",", ""),
+                    str(column[5]).split(".")[1] if floatGaver(column[7]) > 0 else str(column[5]).split(".")[0],
+                    str(column[5]).split(".")[0] if floatGaver(column[7]) > 0 else str(column[5]).split(".")[1],
+                    floatGaver(column[10]) if floatGaver(column[7]) > 0 else floatGaver(column[7]),
+                    floatGaver(column[7]) if floatGaver(column[7]) > 0 else floatGaver(column[10]),
+                    floatGaver(column[8]),
+                    floatGaver(column[11]),
+                    forex_fee,
+                    column[3]
                 )
 
             elif column[0] == "Trades" and column[1] == "Data" and column[2] == "Order":
-                Transaction.objects.create(
-                    account = Account.objects.all().get(unique__exact=acc),
-                    market = "",
-                    type = typeChecker(trType),
-                    date = str(column[6]).replace(",", ""),
-                    input = column[4] if floatGaver(column[7],True) > 0 else column[5],
-                    output = column[5] if floatGaver(column[7],True) > 0 else column[4],
-                    amountIn = floatGaver(column[10],False) if floatGaver(column[7],True) > 0 else floatGaver(column[7],False),
-                    amountOut = floatGaver(column[7],False) if floatGaver(column[7],True) > 0 else floatGaver(column[10],False),
-                    price = floatGaver(column[8],False),
-                    fee = floatGaver(column[11],False),
-                    feeUnit = column[4] if len(column[4]) > 0 else "",
-                    comment = column[3],
+                dbi.addTransaction(
+                    req,
+                    True,
+                    acc,
+                    "",
+                    trType,
+                    str(column[6]).replace(",", ""),
+                    column[4] if floatGaver(column[7]) > 0 else column[5],
+                    column[5] if floatGaver(column[7]) > 0 else column[4],
+                    floatGaver(column[10]) if floatGaver(column[7]) > 0 else floatGaver(column[7]),
+                    floatGaver(column[7]) if floatGaver(column[7]) > 0 else floatGaver(column[10]),
+                    floatGaver(column[8]),
+                    floatGaver(column[11]),
+                    column[4] if len(column[4]) > 0 else "",
+                    column[3]
                 )
 
             elif column[0] == "Deposits & Withdrawals" and column[1] == "Data" and column[2] != "Total":
-                Transfer.objects.create(
-                        source = Account.objects.all().get(unique__exact=acType) if floatGaver(column[5],True) > 0 else Account.objects.all().get(unique__exact=acc),
-                        destination = Account.objects.all().get(unique__exact=acc) if floatGaver(column[5],True) > 0 else Account.objects.all().get(unique__exact=acType),
-                        date = column[3],
-                        unit = column[2],
-                        amount = floatGaver(column[5],False),
-                        fee = 0,
-                        feeUnit = "",
-                        comment = column[4],
-                    )
+                dbi.addTransfer(
+                    req,
+                    True,
+                    acType if floatGaver(column[5]) > 0 else acc,
+                    acc if floatGaver(column[5]) > 0 else acType,
+                    column[3],
+                    column[2],
+                    floatGaver(column[5]),
+                    0,
+                    "",
+                    column[4]
+                )
 
             elif column[0] == "Transaction Fees" and column[1] == "Data" and column[2] != "Total":
-                Transaction.objects.create(
-                    account = Account.objects.all().get(unique__exact=acc),
-                    market = "",
-                    type = typeChecker(trType),
-                    date = column[4],
-                    input = column[3],
-                    output = column[5],
-                    amountIn = 0,
-                    amountOut = 0,
-                    price = 0,
-                    fee = floatGaver(column[9],False),
-                    feeUnit = column[3] if len(column[3]) > 0 else "",
-                    comment = column[6],
+                dbi.addTransaction(
+                    req,
+                    True,
+                    acc,
+                    "",
+                    trType,
+                    column[4],
+                    column[3],
+                    column[5],
+                    0,
+                    0,
+                    0,
+                    floatGaver(column[9]),
+                    column[3] if len(column[3]) > 0 else "",
+                    column[6]
                 )
 
             elif column[0] == "Account Information" and column[1] == "Data" and column[2] == "Base Currency":
@@ -78,17 +87,5 @@ def ib_importer(file, trType, acType, acc):
                     forex_fee = str(column[11])[8:]
 
 
-def floatGaver(f,n):
-    if f is None or f == "":
-        return 0
-    else:
-        if n:
-            return round(float(f.replace(",",".")), 4)
-        else:
-            return round(float(f.replace(",",".").replace("-","")), 4)
-
-def typeChecker(t):
-    if Standard.objects.all().filter(type__exact='TransactionType', name__exact=t).exists():
-        return t
-    else:
-        return "#IIT#"
+def floatGaver(f):
+    return round(float(f.replace(",",".")), 4)

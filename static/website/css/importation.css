@@ -7,6 +7,6 @@ a {
     margin: 3em auto;
 }
 
-.degiroTf, .binanceTf, .gateioTf {
+.degiroTf, .binanceTf, .gateioTf, .fftsTf {
     display: none;
 }

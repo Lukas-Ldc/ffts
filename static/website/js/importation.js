@@ -27,3 +27,13 @@ function gateio(val) {
         document.querySelectorAll(".gateioTa").forEach(a=>a.style.display = "block");
     }
 }
+
+function ffts(val) {
+    if (val.target.value === "Transactions") {
+        document.querySelectorAll(".fftsTa").forEach(a=>a.style.display = "block");
+        document.querySelectorAll(".fftsTf").forEach(a=>a.style.display = "none");
+    } else if (val.target.value === "Transfers") {
+        document.querySelectorAll(".fftsTa").forEach(a=>a.style.display = "none");
+        document.querySelectorAll(".fftsTf").forEach(a=>a.style.display = "block");
+    }
+}

@@ -1,8 +1,9 @@
 import csv, io, re, copy
-from website.models import Transaction, Transfer, Standard, Account
+import website.views.functions.dbinterface as dbi
+from website.models import Transaction, Account
 
 
-def binance_importer(file, table, trType, acType, acc):
+def binance_importer(file, table, trType, acType, acc, req):
 
     if file.name.endswith('.csv'):
 
@@ -21,63 +22,71 @@ def binance_importer(file, table, trType, acType, acc):
 
             if new_transa:
                 for column in csv.reader(io.StringIO(file.read().decode('UTF-8')), delimiter=','):
-                    Transaction.objects.create(
-                        account = Account.objects.all().get(unique__exact=acc),
-                        market = "",
-                        type = typeChecker(trType),
-                        date = column[0],
-                        input = unitGaverV2(column[1], column[2], column[7], accUnit)[0],
-                        output = unitGaverV2(column[1], column[2], column[7], accUnit)[1],
-                        amountIn = floatGaver(column[5]) if column[2] == "BUY" else floatGaver(column[4]),
-                        amountOut = floatGaver( column[4]) if column[2] == "BUY" else floatGaver(column[5]),
-                        price = floatGaver(column[3]),
-                        fee = floatGaver(column[6]),
-                        feeUnit = column[7],
-                        comment = "",
+                    dbi.addTransaction(
+                        req,
+                        True,
+                        acc,
+                        "",
+                        trType,
+                        column[0],
+                        unitGaverV2(column[1], column[2], column[7], accUnit)[0],
+                        unitGaverV2(column[1], column[2], column[7], accUnit)[1],
+                        floatGaver(column[5]) if column[2] == "BUY" else floatGaver(column[4]),
+                        floatGaver( column[4]) if column[2] == "BUY" else floatGaver(column[5]),
+                        floatGaver(column[3]),
+                        floatGaver(column[6]),
+                        column[7],
+                        ""
                     )
 
             else:
                 for column in csv.reader(io.StringIO(file.read().decode('UTF-8')), delimiter=','):
-                    Transaction.objects.create(
-                        account = Account.objects.all().get(unique__exact=acc),
-                        market = "",
-                        type = typeChecker(trType),
-                        date = column[0],
-                        input = unitGaver(column[5]) if column[2] == "BUY" else unitGaver(column[4]),
-                        output = unitGaver(column[4]) if column[2] == "BUY" else unitGaver(column[5]),
-                        amountIn = floatGaver(column[5]) if column[2] == "BUY" else floatGaver(column[4]),
-                        amountOut = floatGaver( column[4]) if column[2] == "BUY" else floatGaver(column[5]),
-                        price = floatGaver(column[3]),
-                        fee = floatGaver(column[6]),
-                        feeUnit = unitGaver(column[6]),
-                        comment = "",
+                    dbi.addTransaction(
+                        req,
+                        True,
+                        acc,
+                        "",
+                        trType,
+                        column[0],
+                        unitGaver(column[5]) if column[2] == "BUY" else unitGaver(column[4]),
+                        unitGaver(column[4]) if column[2] == "BUY" else unitGaver(column[5]),
+                        floatGaver(column[5]) if column[2] == "BUY" else floatGaver(column[4]),
+                        floatGaver( column[4]) if column[2] == "BUY" else floatGaver(column[5]),
+                        floatGaver(column[3]),
+                        floatGaver(column[6]),
+                        unitGaver(column[6]),
+                        ""
                     )
 
         elif table == "CryptoDeposit" or table == "CryptoWithdrawal":
             for column in csv.reader(io.StringIO(file.read().decode('UTF-8')), delimiter=','):
-                Transfer.objects.create(
-                    source = accGaver(table, "s", acType, column[5], acc),
-                    destination = accGaver(table, "d", acType, column[5], acc),
-                    date = column[0],
-                    unit = column[1],
-                    amount = floatGaver(column[3]),
-                    fee = floatGaver(column[4]),
-                    feeUnit = column[1],
-                    comment = "Via " + column[2],
+                dbi.addTransfer(
+                    req,
+                    True,
+                    accGaver(table, "s", acType, column[5], acc),
+                    accGaver(table, "d", acType, column[5], acc),
+                    column[0],
+                    column[1],
+                    floatGaver(column[3]),
+                    floatGaver(column[4]),
+                    column[1],
+                    "Via " + column[2]
                 )
         
         elif table == "FiatDeposit" or table == "FiatWithdrawal":
             for column in csv.reader(io.StringIO(file.read().decode('UTF-8')), delimiter=','):
                 if column[3] == "Successful":
-                    Transfer.objects.create(
-                        source = accGaver(table, "s", acType, "", acc),
-                        destination = accGaver(table, "d", acType, "", acc),
-                        date = column[0],
-                        unit = column[1],
-                        amount = floatGaver(column[2]),
-                        fee = floatGaver(column[6]),
-                        feeUnit = column[1],
-                        comment = column[4],
+                    dbi.addTransfer(
+                        req,
+                        True,
+                        accGaver(table, "s", acType, "", acc),
+                        accGaver(table, "d", acType, "", acc),
+                        column[0],
+                        column[1],
+                        floatGaver(column[2]),
+                        floatGaver(column[6]),
+                        column[1],
+                        column[4]
                     )
         
         elif table == "Other" or table == "OtherBnb":
@@ -86,36 +95,40 @@ def binance_importer(file, table, trType, acType, acc):
 
                 if column[3] == "Distribution" or column[3] == "Savings Interest":
                     if not (len(column[4]) > 3 and str(column[4]).startswith('LD')):
-                        Transaction.objects.create(
-                            account = Account.objects.all().get(unique__exact=acc),
-                            market = "",
-                            type = typeChecker(trType),
-                            date = column[1],
-                            input = str(accUnit).split(",")[0],
-                            output = column[4],
-                            amountIn = 0,
-                            amountOut = float(column[5]),
-                            price = 0,
-                            fee = 0,
-                            feeUnit = 0,
-                            comment = column[3],
+                        dbi.addTransaction(
+                            req,
+                            True,
+                            acc,
+                            "",
+                            trType,
+                            column[1],
+                            str(accUnit).split(",")[0],
+                            column[4],
+                            0,
+                            column[5],
+                            0,
+                            0,
+                            0,
+                            column[3]
                         )
 
                 elif column[3] == "Small assets exchange BNB" and table == "OtherBnb":
-                    Transaction.objects.create(
-                            account = Account.objects.all().get(unique__exact=acc),
-                            market = "",
-                            type = typeChecker(trType),
-                            date = column[1],
-                            input = "#DUST#" if column[4] == "BNB" else column[4],
-                            output = "BNB",
-                            amountIn = 0 if column[4] == "BNB" else noNegFloat(column[5]),
-                            amountOut = noNegFloat(column[5]) if column[4] == "BNB" else 0,
-                            price = 0,
-                            fee = 0,
-                            feeUnit = 0,
-                            comment = "SAE BNB",
-                        )
+                    dbi.addTransaction(
+                        req,
+                        True,
+                        acc,
+                        "",
+                        trType,
+                        column[1],
+                        "#DUST#" if column[4] == "BNB" else column[4],
+                        "BNB",
+                        0 if column[4] == "BNB" else noNegFloat(column[5]),
+                        noNegFloat(column[5]) if column[4] == "BNB" else 0,
+                        0,
+                        0,
+                        0,
+                        "SAE BNB"
+                    )
 
                 elif column[3] == "POS savings purchase":
 
@@ -140,19 +153,21 @@ def binance_importer(file, table, trType, acType, acc):
                             if str(pos_purchase).replace("-","") == str(c[5]).replace("-",""):
                                 for i in pos_interest:
                                     if Transaction.objects.all().filter(account__exact=Account.objects.all().get(unique__exact=acc),date__exact=i[0],output__exact=c[4],amountOut__exact=noNegFloat(i[1])).count() == 0:
-                                        Transaction.objects.create(
-                                            account = Account.objects.all().get(unique__exact=acc),
-                                            market = "",
-                                            type = typeChecker(trType),
-                                            date = i[0],
-                                            input = str(accUnit).split(",")[0],
-                                            output = c[4],
-                                            amountIn = 0,
-                                            amountOut = noNegFloat(i[1]),
-                                            price = 0,
-                                            fee = 0,
-                                            feeUnit = 0,
-                                            comment = "POS Interest",
+                                        dbi.addTransaction(
+                                            req,
+                                            True,
+                                            acc,
+                                            "",
+                                            trType,
+                                            i[0],
+                                            str(accUnit).split(",")[0],
+                                            c[4],
+                                            0,
+                                            noNegFloat(i[1]),
+                                            0,
+                                            0,
+                                            0,
+                                            "POS Interest"
                                         )
                             break
 
@@ -172,19 +187,21 @@ def binance_importer(file, table, trType, acType, acc):
                         fee = temp_l.split('<div data-type="table-min-row" class="css-1dm9igw">')[1].split("</div>")[0]
                         bnb = temp_l.split('<div data-type="table-min-row" class="css-1dm9igw">')[2].split("</div>")[0]
 
-                        Transaction.objects.create(
-                            account = Account.objects.all().get(unique__exact=acc),
-                            market = "",
-                            type = typeChecker(trType),
-                            date = time,
-                            input = coin,
-                            output = "BNB",
-                            amountIn = amount,
-                            amountOut = bnb,
-                            price = floatRemover(float(amount)/float(bnb)),
-                            fee = fee,
-                            feeUnit = "BNB",
-                            comment = "SAE BNB",
+                        dbi.addTransaction(
+                            req,
+                            True,
+                            acc,
+                            "",
+                            trType,
+                            time,
+                            coin,
+                            "BNB",
+                            amount,
+                            bnb,
+                            floatRemover(float(amount)/float(bnb)),
+                            fee,
+                            "BNB",
+                            "SAE BNB"
                         )
                     except: pass
 
@@ -201,9 +218,9 @@ def noNegFloat(f):
         return 0
     else:
         if str(f).startswith("-"):
-            return float(str(f)[1:])
+            return "{:.14f}".format(float(float(str(f)[1:])))
         else:
-            return float(f)
+            return "{:.14f}".format(float(float(f)))
 
 def floatRemover(f):
     if f > 1000:
@@ -246,25 +263,18 @@ def unitGaverV2(pair, way, feeU, accU):
         return [pair,pair]
 
 
-def typeChecker(t):
-    if Standard.objects.all().filter(type__exact='TransactionType', name__exact=t).exists():
-        return t
-    else:
-        return "#IIT#"
-
-
 def accGaver(table, direction, accLinked, manualVal, account):
     if str(table).endswith("Deposit") and direction == "s":
         if accLinked == "Manual":
-            return Account.objects.all().get(unique__exact=manualVal)
+            return Account.objects.all().get(unique__exact=manualVal).unique
         else:
-            return Account.objects.all().get(unique__exact=accLinked)
+            return Account.objects.all().get(unique__exact=accLinked).unique
     elif str(table).endswith("Deposit") and direction == "d":
-        return Account.objects.all().get(unique__exact=account)
+        return Account.objects.all().get(unique__exact=account).unique
     elif str(table).endswith("Withdrawal") and direction == "d":
         if accLinked == "Manual":
-            return Account.objects.all().get(unique__exact=manualVal)
+            return Account.objects.all().get(unique__exact=manualVal).unique
         else:
-            return Account.objects.all().get(unique__exact=accLinked)
+            return Account.objects.all().get(unique__exact=accLinked).unique
     elif str(table).endswith("Withdrawal") and direction == "s":
-        return Account.objects.all().get(unique__exact=account)
+        return Account.objects.all().get(unique__exact=account).unique

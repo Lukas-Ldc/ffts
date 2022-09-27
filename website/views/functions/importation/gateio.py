@@ -1,40 +1,42 @@
 import csv, io
-from datetime import datetime
-import logging
-from website.models import Transaction, Transfer, Standard, Account
+import website.views.functions.dbinterface as dbi
 
-def gateio_importer(file, table, trType, acType, acc):
+def gateio_importer(file, table, trType, acType, acc, req):
 
     if file.name.endswith('.csv'):
 
         if table == "Transactions":
             for column in csv.reader(io.StringIO(file.read().decode('UTF-16')), delimiter='\t'):
-                    Transaction.objects.create(
-                        account = Account.objects.all().get(unique__exact=acc),
-                        market = "",
-                        type = typeChecker(trType),
-                        date = column[1],
-                        input = column[3].split('/')[1] if column[2] == "Buy" else column[3].split('/')[0],
-                        output = column[3].split('/')[0] if column[2] == "Buy" else column[3].split('/')[1],
-                        amountIn = column[6] if column[2] == "Buy" else column[5],
-                        amountOut = column[5] if column[2] == "Buy" else column[6],
-                        price = column[4],
-                        fee = column[7].split(" ")[0],
-                        feeUnit = column[7].split(" ")[1],
-                        comment = "",
-                    )
+                dbi.addTransaction(
+                    req,
+                    True,
+                    acc,
+                    "",
+                    trType,
+                    column[1],
+                    column[3].split('/')[1] if column[2] == "Buy" else column[3].split('/')[0],
+                    column[3].split('/')[0] if column[2] == "Buy" else column[3].split('/')[1],
+                    column[6] if column[2] == "Buy" else column[5],
+                    column[5] if column[2] == "Buy" else column[6],
+                    column[4],
+                    column[7].split(" ")[0],
+                    column[7].split(" ")[1],
+                    ""
+                )
 
         elif table == "CryptoDeposit":
             for column in csv.reader(io.StringIO(file.read().decode('UTF-16')), delimiter='\t'):
-                Transfer.objects.create(
-                    source = Account.objects.all().get(unique__exact=column[5]) if acType == "Manual" else Account.objects.all().get(unique__exact=acType),
-                    destination = Account.objects.all().get(unique__exact=acc),
-                    date = column[2],
-                    unit = column[3],
-                    amount = column[4],
-                    fee = 0,
-                    feeUnit = "",
-                    comment = "",
+                dbi.addTransfer(
+                    req,
+                    True,
+                    column[5] if acType == "Manual" else acType,
+                    acc,
+                    column[2],
+                    column[3],
+                    column[4],
+                    0,
+                    "",
+                    ""
                 )
 
     elif file.name.endswith('.html'):
@@ -49,29 +51,24 @@ def gateio_importer(file, table, trType, acType, acc):
                         amount = line.split('<td>')[4].split("</td>")[0]
                         gt = line.split('<td>')[5].split("</td>")[0]
 
-                        logging.critical(time)
-
-                        Transaction.objects.create(
-                            account = Account.objects.all().get(unique__exact=acc),
-                            market = "",
-                            type = typeChecker(trType),
-                            date = time,
-                            input = coin,
-                            output = "GT",
-                            amountIn = amount,
-                            amountOut = gt,
-                            price = floatRemover(float(amount)/float(gt)),
-                            fee = 0,
-                            feeUnit = "",
-                            comment = "Dust",
+                        dbi.addTransaction(
+                            req,
+                            True,
+                            acc,
+                            "",
+                            trType,
+                            time,
+                            coin,
+                            "GT",
+                            amount,
+                            gt,
+                            floatRemover(float(amount)/float(gt)),
+                            0,
+                            "",
+                            "Dust",
                         )
                     except: pass
 
-def typeChecker(t):
-    if Standard.objects.all().filter(type__exact='TransactionType', name__exact=t).exists():
-        return t
-    else:
-        return "#IIT#"
 
 def floatRemover(f):
     if f > 1000:

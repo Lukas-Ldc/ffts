@@ -6,6 +6,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate
 from django.db.models import Q
 from django.http import HttpResponse
+import website.views.functions.dbinterface as dbi
 
 
 def transfers_view(request, account):
@@ -38,34 +39,18 @@ def transfers_view(request, account):
                 return response
 
             if "add_transfer" in request.POST:
-                Transfer.objects.create(
-                    source=Account.objects.all().get(unique__exact=request.POST['source']), 
-                    destination=Account.objects.all().get(unique__exact=request.POST['destination']), 
-                    date=request.POST['date'], 
-                    unit=request.POST['unit'], 
-                    amount=request.POST['amount'], 
-                    fee=request.POST['fee'], 
-                    feeUnit=request.POST['feeunit'], 
-                    comment=request.POST['comment']
-                )
+                dbi.addTransfer(request, False, request.POST['source'], request.POST['destination'], request.POST['date'], request.POST['unit'], request.POST['amount'], 
+                    request.POST['fee'], request.POST['feeunit'], request.POST['comment'])
 
             if "modify_transfer" in request.POST:
-                if Transfer.objects.all().filter(Q(id__exact=request.POST['id']), Q(source__exact=account) | Q(destination__exact=account)).exists():
-                    updated_transf = Transfer.objects.all().get(id__exact=request.POST['id'])
-                    if len(request.POST['source']) > 0: updated_transf.source = Account.objects.all().get(unique__exact=request.POST['source'])
-                    if len(request.POST['destination']) > 0: updated_transf.destination = Account.objects.all().get(unique__exact=request.POST['destination'])
-                    if len(request.POST['date']) > 0: updated_transf.date = request.POST['date']
-                    if len(request.POST['unit']) > 0: updated_transf.unit = request.POST['unit']
-                    if len(request.POST['amount']) > 0: updated_transf.amount = request.POST['amount']
-                    if len(request.POST['fee']) > 0: updated_transf.fee = request.POST['fee']
-                    if len(request.POST['feeunit']) > 0: updated_transf.feeUnit = request.POST['feeunit']
-                    if len(request.POST['comment']) > 0: updated_transf.comment = request.POST['comment']
-                    updated_transf.save()
+                for id in str(request.POST['id']).split(','):
+                    dbi.modTransfer(request, id, request.POST['source'], request.POST['destination'], request.POST['date'], request.POST['unit'], request.POST['amount'], 
+                        request.POST['fee'], request.POST['feeunit'], request.POST['comment'])
 
             if "delete_transfer" in request.POST:
                 if authenticate(request, username=request.user.username, password=request.POST['pass']):
                     for id in str(request.POST['id']).split(','):
-                        Transfer.objects.all().filter(Q(id__exact=id), Q(source__exact=account) | Q(destination__exact=account)).delete()
+                        dbi.delTransfer(request, id)
 
         the_account = Account.objects.all().get(user__exact=request.user, unique__exact=account)
         transfers = Transfer.objects.all().filter(Q(source__exact=account) | Q(destination__exact=account)).order_by('-date')

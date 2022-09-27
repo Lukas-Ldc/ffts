@@ -18,19 +18,19 @@ def importation_view(request, account):
         if request.POST:
 
             if "import_csv" in request.POST:
-                csv_importer(request.FILES['file'], request.POST['type'], str(Account.objects.all().get(user__exact=request.user, unique__exact=account).unit).split(",")[0])
+                csv_importer(request.FILES['file'], request.POST['type'], request.POST['oldacc'], account, request)
 
             elif "import_binance" in request.POST:
-                binance_importer(request.FILES['file'], request.POST['type'], request.POST['tr_type'], request.POST['ac_type'], Account.objects.all().get(user__exact=request.user, unique__exact=account).unique)
+                binance_importer(request.FILES['file'], request.POST['type'], request.POST['tr_type'], request.POST['ac_type'], account, request)
 
             elif "import_degiro" in request.POST:
-                degiro_importer(request.FILES['file'], request.POST['type'], request.POST['tr_type'], request.POST['ac_type'], Account.objects.all().get(user__exact=request.user, unique__exact=account).unique)
+                degiro_importer(request.FILES['file'], request.POST['type'], request.POST['tr_type'], request.POST['ac_type'], account, request)
 
             elif "import_gateio" in request.POST:
-                gateio_importer(request.FILES['file'], request.POST['type'], request.POST['tr_type'], request.POST['ac_type'], Account.objects.all().get(user__exact=request.user, unique__exact=account).unique)
+                gateio_importer(request.FILES['file'], request.POST['type'], request.POST['tr_type'], request.POST['ac_type'], account, request)
 
             elif "import_ib" in request.POST:
-                ib_importer(request.FILES['file'], request.POST['tr_type'], request.POST['ac_type'], Account.objects.all().get(user__exact=request.user, unique__exact=account).unique)
+                ib_importer(request.FILES['file'], request.POST['tr_type'], request.POST['ac_type'], account, request)
 
         the_account = Account.objects.all().get(user__exact=request.user, unique__exact=account)
         tr_types = Standard.objects.all().filter(type__exact='TransactionType').order_by('name')

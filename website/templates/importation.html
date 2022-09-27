@@ -15,11 +15,15 @@
             <div class="accordion-body">
                 <form action="{% url 'website-importation' account=account.unique %}" method="POST" enctype="multipart/form-data">
                     <div class="form-floating mb-3">
-                        <select class="form-select" id="floatingSelect" name="type" required>
+                        <select class="form-select" id="floatingSelect" name="type" required onchange="ffts(event)">
                             <option value="Transactions">Transactions</option>
                             <option value="Transfers">Transfers</option>
                         </select>
                         <label for="floatingSelect">Type</label>
+                    </div>
+                    <div class="form-floating mb-3 fftsTf">
+                        <input type="text" class="form-control" name="oldacc">
+                        <label for="floatingSelect">Account to be replaced</label>
                     </div>
                     <em>The CSV file must be prepared in a special way for the import. Take a look at the documentation !</em>
                     <div class="form-floating mb-3">
