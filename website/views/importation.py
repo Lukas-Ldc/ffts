@@ -30,7 +30,7 @@ def importation_view(request, account):
                 gateio_importer(request.FILES['file'], request.POST['type'], request.POST['tr_type'], request.POST['ac_type'], account, request)
 
             elif "import_ib" in request.POST:
-                ib_importer(request.FILES['file'], request.POST['tr_type'], request.POST['ac_type'], account, request)
+                ib_importer(request.FILES['file'], request.POST['tr_type'], request.POST['ac_type_ba'], request.POST['ac_type_ia'], account, request)
 
         the_account = Account.objects.all().get(user__exact=request.user, unique__exact=account)
         tr_types = Standard.objects.all().filter(type__exact='TransactionType').order_by('name')

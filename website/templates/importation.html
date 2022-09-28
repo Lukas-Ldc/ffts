@@ -202,12 +202,22 @@
                         <label for="floatingSelect">Transaction Type</label>
                     </div>
                     <div class="form-floating mb-3">
-                        <select class="form-select" id="floatingSelect" name="ac_type" required>
+                        <select class="form-select" id="floatingSelect" name="ac_type_ba">
+                            <option value="EMPTY">None</option>
                             {% for a in accounts %}
                                 <option value="{{a.unique}}">{{a.name}}</option>
                             {% endfor %}
                         </select>
                         <label for="floatingSelect">Bank Account</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <select class="form-select" id="floatingSelect" name="ac_type_ia">
+                            <option value="EMPTY">None</option>
+                            {% for a in accounts %}
+                                <option value="{{a.unique}}">{{a.name}}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="floatingSelect">Internal Account</label>
                     </div>
                     <em>The CSV file must be the activity account in english for the period of time you want. You might have to add your first transfer manually.</em>
                     <div class="form-floating mb-3">

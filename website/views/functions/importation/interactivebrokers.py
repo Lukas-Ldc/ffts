@@ -3,7 +3,7 @@ import website.views.functions.dbinterface as dbi
 from website.models import Account
 
 
-def ib_importer(file, trType, acType, acc, req):
+def ib_importer(file, trType, acTypeBa, acTypeIa, acc, req):
 
     if file.name.endswith('.csv'):
 
@@ -48,11 +48,12 @@ def ib_importer(file, trType, acType, acc, req):
                 )
 
             elif column[0] == "Deposits & Withdrawals" and column[1] == "Data" and column[2] != "Total":
+                acc_temp = acTypeBa if column[4] == "Electronic Fund Transfer" else acTypeIa
                 dbi.addTransfer(
                     req,
                     True,
-                    acType if floatGaver(column[5]) > 0 else acc,
-                    acc if floatGaver(column[5]) > 0 else acType,
+                    acc_temp if floatGaver(column[5]) > 0 else acc,
+                    acc if floatGaver(column[5]) > 0 else acc_temp,
                     column[3],
                     column[2],
                     floatGaver(column[5]),
