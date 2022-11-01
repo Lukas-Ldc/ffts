@@ -93,7 +93,7 @@ def binance_importer(file, table, trType, acType, acc, req):
             file_base = copy.deepcopy(file)
             for column in csv.reader(io.StringIO(file.read().decode('UTF-8')), delimiter=','):
 
-                if column[3] == "Distribution" or column[3] == "Savings Interest":
+                if column[3] == "Distribution" or column[3] == "Simple Earn Flexible Interest" or column[3] == "Savings Interest":
                     if not (len(column[4]) > 3 and str(column[4]).startswith('LD')):
                         dbi.addTransaction(
                             req,
@@ -109,7 +109,7 @@ def binance_importer(file, table, trType, acType, acc, req):
                             0,
                             0,
                             0,
-                            column[3]
+                            column[3] if column[3] == "Distribution" else "Flexible Interest"
                         )
 
                 elif column[3] == "Small assets exchange BNB" and table == "OtherBnb":
@@ -130,7 +130,7 @@ def binance_importer(file, table, trType, acType, acc, req):
                         "SAE BNB"
                     )
 
-                elif column[3] == "POS savings purchase":
+                elif column[3] == "Simple Earn Locked Subscription" or column[3] == "POS savings purchase":
 
                     filte_temp = copy.deepcopy(file_base)
                     purchase_found = False
@@ -138,17 +138,17 @@ def binance_importer(file, table, trType, acType, acc, req):
                     pos_purchase = 0
                     for c in csv.reader(io.StringIO(filte_temp.read().decode('UTF-8')), delimiter=','):
 
-                        if c[3] == "POS savings interest" and c[4] == column[4] and purchase_found:
+                        if c[4] == column[4] and purchase_found and (c[3] == "Simple Earn Locked Rewards" or c[3] == "POS savings interest"):
                             temp = []
                             for cc in [c[1], c[5]]:
                                 temp.append(cc)
                             pos_interest.append(temp)
                             
-                        elif c[1] == column[1] and c[3] == "POS savings purchase" and c[4] == column[4]:
+                        elif c[1] == column[1] and c[4] == column[4] and (c[3] == "Simple Earn Locked Subscription" or c[3] == "POS savings purchase"):
                             purchase_found = True
                             pos_purchase = c[5]
 
-                        elif c[3] == "POS savings redemption" and c[4] == column[4] and purchase_found:
+                        elif c[4] == column[4] and purchase_found and (c[3] == "Simple Earn Locked Redemption" or c[3] == "POS savings redemption"):
                             purchase_found = False
                             if str(pos_purchase).replace("-","") == str(c[5]).replace("-",""):
                                 for i in pos_interest:
@@ -167,7 +167,7 @@ def binance_importer(file, table, trType, acType, acc, req):
                                             0,
                                             0,
                                             0,
-                                            "POS Interest"
+                                            "Locked Subscription"
                                         )
                             break
 

@@ -89,4 +89,4 @@ def ib_importer(file, trType, acTypeBa, acTypeIa, acc, req):
 
 
 def floatGaver(f):
-    return round(float(f.replace(",",".")), 4)
+    return round(float(f.replace(",","")), 4)
