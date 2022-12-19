@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
 class Account(models.Model):
     unique = models.CharField(max_length=200, primary_key=True)
     name = models.CharField(max_length=50)
@@ -15,6 +16,7 @@ class Account(models.Model):
         self.unique = str(self.user) + '_' + str(self.name)
         super().save(*args, **kwargs)
 
+
 class Transfer(models.Model):
     source = models.ForeignKey(Account, to_field='unique', on_delete=models.CASCADE, related_name='source_account')
     destination = models.ForeignKey(Account, to_field='unique', on_delete=models.CASCADE, related_name='destination_account')
@@ -24,6 +26,7 @@ class Transfer(models.Model):
     fee = models.DecimalField(max_digits=30, decimal_places=15, null=True, blank=True)
     feeUnit = models.CharField(max_length=15, null=True, blank=True)
     comment = models.CharField(max_length=255, null=True, blank=True)
+
 
 class Transaction(models.Model):
     account = models.ForeignKey(Account, to_field='unique', on_delete=models.CASCADE)
@@ -39,11 +42,13 @@ class Transaction(models.Model):
     feeUnit = models.CharField(max_length=15, null=True, blank=True)
     comment = models.CharField(max_length=255, null=True, blank=True)
 
+
 Standard_Types = [
-    ('AccountType','AccountType'),
-    ('TransactionType','TransactionType'),
-    ('MyGMTtime','MyGMTtime'),
+    ('AccountType', 'AccountType'),
+    ('TransactionType', 'TransactionType'),
+    ('MyGMTtime', 'MyGMTtime'),
 ]
+
 
 class Standard(models.Model):
     type = models.CharField(max_length=30, choices=Standard_Types)

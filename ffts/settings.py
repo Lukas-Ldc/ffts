@@ -1,4 +1,4 @@
-import os
+from os.path import join
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -73,7 +73,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 STATIC_URL = '/static/'
 
-STATICFILES_DIRS = (os.path.join(BASE_DIR, "static/"),)
+STATICFILES_DIRS = (join(BASE_DIR, "static/"),)
 
 LANGUAGE_CODE = 'en-us'
 

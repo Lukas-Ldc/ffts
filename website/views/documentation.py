@@ -1,10 +1,10 @@
-import website.views.functions.authentication as auth
 from django.shortcuts import render, redirect
+from website.views.functions.authentication import authorized
 
 
 def documentation_view(request):
 
-    if not auth.amIauthorized(request):
+    if not authorized(request):
         return redirect('website-login')
 
     context = {

@@ -1,7 +1,6 @@
-import os
-
+from os import environ
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ffts.settings')
+environ.setdefault('DJANGO_SETTINGS_MODULE', 'ffts.settings')
 
 application = get_wsgi_application()

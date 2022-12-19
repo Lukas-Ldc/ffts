@@ -1,39 +1,40 @@
-import csv, io
-import website.views.functions.dbinterface as dbi
+from io import StringIO
+from csv import reader as csvreader
+from website.views.functions.dbinterface import add_transaction, add_transfer, mod_transaction
 
 
-def degiro_importer(file, table, trType, acType, acc, req):
+def degiro_importer(file, table, tr_type, ac_type, acc, req):
 
     if file.name.endswith('.csv'):
 
         if table == "Transactions":
-            for column in csv.reader(io.StringIO(file.read().decode('UTF-8')), delimiter=','):
-                dbi.addTransaction(
-                    req, 
-                    True, 
-                    acc, 
-                    column[4], 
-                    trType, 
-                    column[0] + ' ' + column[1], 
-                    column[10] if float(column[6]) > 0 else column[2], 
-                    column[2] if float(column[6]) > 0 else column[10], 
-                    column[9] if float(column[6]) > 0 else column[6], 
-                    column[6] if float(column[6]) > 0 else column[9], 
-                    column[7], 
-                    column[14], 
-                    column[15] if len(column[15]) > 0 else "", 
+            for column in csvreader(StringIO(file.read().decode('UTF-8')), delimiter=','):
+                add_transaction(
+                    req,
+                    True,
+                    acc,
+                    column[4],
+                    tr_type,
+                    column[0] + ' ' + column[1],
+                    column[10] if float(column[6]) > 0 else column[2],
+                    column[2] if float(column[6]) > 0 else column[10],
+                    column[9] if float(column[6]) > 0 else column[6],
+                    column[6] if float(column[6]) > 0 else column[9],
+                    column[7],
+                    column[14],
+                    column[15] if len(column[15]) > 0 else "",
                     ""
                 )
 
         elif table == "Transfers":
             change = False
-            for column in csv.reader(io.StringIO(file.read().decode('UTF-8')), delimiter=','):
+            for column in csvreader(StringIO(file.read().decode('UTF-8')), delimiter=','):
 
                 if column[5] == "DEPOSIT" or column[5] == "Versement de fonds":
-                    dbi.addTransfer(
+                    add_transfer(
                         req,
                         True,
-                        acType,
+                        ac_type,
                         acc,
                         column[0] + ' ' + column[1],
                         column[7],
@@ -44,11 +45,11 @@ def degiro_importer(file, table, trType, acType, acc, req):
                     )
 
                 elif column[5] == "WITHDRAWAL" or column[5] == "Retrait flatex":
-                    dbi.addTransfer(
+                    add_transfer(
                         req,
                         True,
                         acc,
-                        acType,
+                        ac_type,
                         column[0] + ' ' + column[1],
                         column[7],
                         column[8],
@@ -59,7 +60,7 @@ def degiro_importer(file, table, trType, acType, acc, req):
 
                 elif column[5] == "CHANGE_IN" or column[5] == "Operation de change - Crédit":
                     if change:
-                        dbi.modTransaction(
+                        mod_transaction(
                             req,
                             last.id,
                             None,
@@ -77,12 +78,12 @@ def degiro_importer(file, table, trType, acType, acc, req):
                         change = False
 
                     else:
-                        last = dbi.addTransaction(
+                        last = add_transaction(
                             req,
                             True,
                             acc,
                             "",
-                            trType,
+                            tr_type,
                             column[0] + ' ' + column[1],
                             "TEMP",
                             column[7],
@@ -97,7 +98,7 @@ def degiro_importer(file, table, trType, acType, acc, req):
 
                 elif column[5] == "CHANGE_OUT" or column[5] == "Opération de change - Débit":
                     if change:
-                        dbi.modTransaction(
+                        mod_transaction(
                             req,
                             last.id,
                             None,
@@ -113,14 +114,14 @@ def degiro_importer(file, table, trType, acType, acc, req):
                             None
                         )
                         change = False
-                        
+
                     else:
-                        last = dbi.addTransaction(
+                        last = add_transaction(
                             req,
                             True,
                             acc,
                             "",
-                            trType,
+                            tr_type,
                             column[0] + ' ' + column[1],
                             column[7],
                             "TEMP",
@@ -134,8 +135,8 @@ def degiro_importer(file, table, trType, acType, acc, req):
                         change = True
 
 
-def opp(n):
+def opp(number):
     try:
-        return round(1 / float(n.replace(",",".").replace("-","")), 4)
-    except:
+        return round(1 / float(number.replace(",", ".").replace("-", "")), 4)
+    except ZeroDivisionError:
         return 0

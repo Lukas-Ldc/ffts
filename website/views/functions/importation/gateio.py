@@ -1,18 +1,20 @@
-import csv, io
-import website.views.functions.dbinterface as dbi
+from io import StringIO
+from csv import reader as csvreader
+from website.views.functions.dbinterface import add_transaction, add_transfer
 
-def gateio_importer(file, table, trType, acType, acc, req):
+
+def gateio_importer(file, table, tr_type, ac_type, acc, req):
 
     if file.name.endswith('.csv'):
 
         if table == "Transactions":
-            for column in csv.reader(io.StringIO(file.read().decode('UTF-16')), delimiter='\t'):
-                dbi.addTransaction(
+            for column in csvreader(StringIO(file.read().decode('UTF-16')), delimiter='\t'):
+                add_transaction(
                     req,
                     True,
                     acc,
                     "",
-                    trType,
+                    tr_type,
                     column[1],
                     column[3].split('/')[1] if column[2] == "Buy" else column[3].split('/')[0],
                     column[3].split('/')[0] if column[2] == "Buy" else column[3].split('/')[1],
@@ -25,11 +27,11 @@ def gateio_importer(file, table, trType, acType, acc, req):
                 )
 
         elif table == "CryptoDeposit":
-            for column in csv.reader(io.StringIO(file.read().decode('UTF-16')), delimiter='\t'):
-                dbi.addTransfer(
+            for column in csvreader(StringIO(file.read().decode('UTF-16')), delimiter='\t'):
+                add_transfer(
                     req,
                     True,
-                    column[5] if acType == "Manual" else acType,
+                    column[5] if ac_type == "Manual" else ac_type,
                     acc,
                     column[2],
                     column[3],
@@ -43,41 +45,42 @@ def gateio_importer(file, table, trType, acType, acc, req):
 
         if table == "Dust":
             for html in file:
-                
+
                 for line in str(html).split("<tr"):
                     try:
                         time = line.split('<div>')[1].split("</div>")[0]
                         coin = line.split('<td>')[3].split("</td>")[0]
                         amount = line.split('<td>')[4].split("</td>")[0]
-                        gt = line.split('<td>')[5].split("</td>")[0]
+                        gtt = line.split('<td>')[5].split("</td>")[0]
 
-                        dbi.addTransaction(
+                        add_transaction(
                             req,
                             True,
                             acc,
                             "",
-                            trType,
+                            tr_type,
                             time,
                             coin,
                             "GT",
                             amount,
-                            gt,
-                            floatRemover(float(amount)/float(gt)),
+                            gtt,
+                            float_remover(float(amount) / float(gtt)),
                             0,
                             "",
                             "Dust",
                         )
-                    except: pass
+                    except IndexError:
+                        pass
 
 
-def floatRemover(f):
-    if f > 1000:
-        return round(f, 2)
-    elif f > 100:
-        return round(f, 4)
-    elif f > 10:
-        return round(f, 6)
-    elif f > 1:
-        return round(f, 8)
+def float_remover(number):
+    if number > 1000:
+        return round(number, 2)
+    elif number > 100:
+        return round(number, 4)
+    elif number > 10:
+        return round(number, 6)
+    elif number > 1:
+        return round(number, 8)
     else:
-        return round(f, 10)
+        return round(number, 10)

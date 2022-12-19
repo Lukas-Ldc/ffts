@@ -1,81 +1,82 @@
-import csv, io
-import website.views.functions.dbinterface as dbi
+from io import StringIO
+from csv import reader as csvreader
 from website.models import Account
+from website.views.functions.dbinterface import add_transaction, add_transfer
 
 
-def ib_importer(file, trType, acTypeBa, acTypeIa, acc, req):
+def ib_importer(file, tr_type, ac_type_ba, ac_type_ia, acc, req):
 
     if file.name.endswith('.csv'):
 
         forex_fee = str(Account.objects.all().get(unique__exact=acc).unit).split(",")[0]
 
-        for column in csv.reader(io.StringIO(file.read().decode('UTF-8')), delimiter=','):
+        for column in csvreader(StringIO(file.read().decode('UTF-8')), delimiter=','):
 
             if column[0] == "Trades" and column[1] == "Data" and column[2] == "Order" and column[3] == "Forex":
-                dbi.addTransaction(
+                add_transaction(
                     req,
                     True,
                     acc,
                     "",
-                    trType,
+                    tr_type,
                     str(column[6]).replace(",", ""),
-                    str(column[5]).split(".")[1] if floatGaver(column[7]) > 0 else str(column[5]).split(".")[0],
-                    str(column[5]).split(".")[0] if floatGaver(column[7]) > 0 else str(column[5]).split(".")[1],
-                    floatGaver(column[10]) if floatGaver(column[7]) > 0 else floatGaver(column[7]),
-                    floatGaver(column[7]) if floatGaver(column[7]) > 0 else floatGaver(column[10]),
-                    floatGaver(column[8]),
-                    floatGaver(column[11]),
+                    str(column[5]).split(".")[1] if float_gaver(column[7]) > 0 else str(column[5]).split(".")[0],
+                    str(column[5]).split(".")[0] if float_gaver(column[7]) > 0 else str(column[5]).split(".")[1],
+                    float_gaver(column[10]) if float_gaver(column[7]) > 0 else float_gaver(column[7]),
+                    float_gaver(column[7]) if float_gaver(column[7]) > 0 else float_gaver(column[10]),
+                    float_gaver(column[8]),
+                    float_gaver(column[11]),
                     forex_fee,
                     column[3]
                 )
 
             elif column[0] == "Trades" and column[1] == "Data" and column[2] == "Order":
-                dbi.addTransaction(
+                add_transaction(
                     req,
                     True,
                     acc,
                     "",
-                    trType,
+                    tr_type,
                     str(column[6]).replace(",", ""),
-                    column[4] if floatGaver(column[7]) > 0 else column[5],
-                    column[5] if floatGaver(column[7]) > 0 else column[4],
-                    floatGaver(column[10]) if floatGaver(column[7]) > 0 else floatGaver(column[7]),
-                    floatGaver(column[7]) if floatGaver(column[7]) > 0 else floatGaver(column[10]),
-                    floatGaver(column[8]),
-                    floatGaver(column[11]),
+                    column[4] if float_gaver(column[7]) > 0 else column[5],
+                    column[5] if float_gaver(column[7]) > 0 else column[4],
+                    float_gaver(column[10]) if float_gaver(column[7]) > 0 else float_gaver(column[7]),
+                    float_gaver(column[7]) if float_gaver(column[7]) > 0 else float_gaver(column[10]),
+                    float_gaver(column[8]),
+                    float_gaver(column[11]),
                     column[4] if len(column[4]) > 0 else "",
                     column[3]
                 )
 
             elif column[0] == "Deposits & Withdrawals" and column[1] == "Data" and column[2] != "Total":
-                acc_temp = acTypeBa if column[4] == "Electronic Fund Transfer" else acTypeIa
-                dbi.addTransfer(
+                acc_temp = ac_type_ba if column[4] == "Electronic Fund Transfer" else ac_type_ia
+                add_transfer(
                     req,
                     True,
-                    acc_temp if floatGaver(column[5]) > 0 else acc,
-                    acc if floatGaver(column[5]) > 0 else acc_temp,
+                    acc_temp if float_gaver(column[5]) > 0 else acc,
+                    acc if float_gaver(column[5]) > 0 else acc_temp,
                     column[3],
                     column[2],
-                    floatGaver(column[5]),
+                    float_gaver(column[5]),
                     0,
                     "",
                     column[4]
                 )
 
             elif column[0] == "Transaction Fees" and column[1] == "Data" and column[2] != "Total":
-                dbi.addTransaction(
+                add_transaction(
                     req,
                     True,
                     acc,
                     "",
-                    trType,
+                    tr_type,
                     column[4],
                     column[3],
                     column[5],
                     0,
                     0,
                     0,
-                    floatGaver(column[9]),
+                    float_gaver(column[9]),
                     column[3] if len(column[3]) > 0 else "",
                     column[6]
                 )
@@ -88,5 +89,5 @@ def ib_importer(file, trType, acTypeBa, acTypeIa, acc, req):
                     forex_fee = str(column[11])[8:]
 
 
-def floatGaver(f):
-    return round(float(f.replace(",","")), 4)
+def float_gaver(number):
+    return round(float(number.replace(",", "")), 4)

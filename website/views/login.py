@@ -6,10 +6,10 @@ def login_view(request):
 
     login_message = 0
     if request.method == 'POST':
-        uAuth = authenticate(request, username=request.POST['user'], password=request.POST['pass'])
-        if uAuth is not None:
-             login(request, uAuth)
-             return redirect('website-accounts')
+        user_auth = authenticate(request, username=request.POST['user'], password=request.POST['pass'])
+        if user_auth is not None:
+            login(request, user_auth)
+            return redirect('website-accounts')
         else:
             login_message = 1
 

@@ -1,18 +1,20 @@
-import website.views.functions.authentication as auth
+from decimal import DivisionByZero, InvalidOperation
 from django.shortcuts import render, redirect
-from website.models import Transfer, Transaction, Account
 from django.db.models import Q
+from website.models import Transfer, Transaction, Account
+from website.views.functions.authentication import authorized
+
 
 def account_view(request, name):
 
-    if not auth.amIauthorized(request):
+    if not authorized(request):
         return redirect('website-login')
 
     if Account.objects.all().filter(user__exact=request.user, unique__exact=name).exists():
 
         account = Account.objects.all().get(user__exact=request.user, unique__exact=name)
         transfers = Transfer.objects.all().filter(Q(source__exact=name) | Q(destination__exact=name))
-        transactions = Transaction.objects.all().filter(account__exact=name).order_by('input','output')
+        transactions = Transaction.objects.all().filter(account__exact=name).order_by('input', 'output')
         acc_units = str(account.unit).split(",")
 
         # [data] :                (0) : UNIT
@@ -23,101 +25,110 @@ def account_view(request, name):
         temp = []
         acc = []
 
-        #Data creation by finding all units
-        for t in transfers.values('unit').order_by('unit').distinct():
-            data.append([str(t)[:-2][10:],'',0,0,0,0,0,0,0,0,0,0])
+        # Data creation by finding all units
+        for unit in transfers.values('unit').order_by('unit').distinct():
+            data.append([str(unit)[:-2][10:], '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 
-        for t in transactions.values('input').order_by('input').distinct():
-            iSin = False
-            for u in data:
-                if str(t)[:-2][11:] == u[0]:
-                    iSin = True
+        for unit in transactions.values('input').order_by('input').distinct():
+            found = False
+            for ok_unit in data:
+                if str(unit)[:-2][11:] == ok_unit[0]:
+                    found = True
                     break
-            if not iSin:
-                data.append([str(t)[:-2][11:],'',0,0,0,0,0,0,0,0,0,0])
+            if not found:
+                data.append([str(unit)[:-2][11:], '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 
-        for t in transactions.values('output').order_by('output').distinct():
-            iSin = False
-            for u in data:
-                if str(t)[:-2][12:] == u[0]:
-                    iSin = True
+        for unit in transactions.values('output').order_by('output').distinct():
+            found = False
+            for ok_unit in data:
+                if str(unit)[:-2][12:] == ok_unit[0]:
+                    found = True
                     break
-            if not iSin:
-                data.append([str(t)[:-2][12:],'',0,0,0,0,0,0,0,0,0,0])
+            if not found:
+                data.append([str(unit)[:-2][12:], '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 
-        data = sorted(data, key=lambda x:x[0])
+        data = sorted(data, key=lambda x: x[0])
 
-        #Adding Transactions data
-        for t in transactions:
-            for d in data:
+        # Adding Transactions data
+        for trans in transactions:
+            for unit in data:
 
-                if t.input == d[0]:
-                    d[3] = d[3] + t.amountIn
-                    if t.output in acc_units:
-                        if len(d[1]) < 1:
-                            d[1] = t.output
-                            if d[0] in acc_units:
-                                d[1] = d[0]
-                        if d[1] == t.output:
-                            d[5] = d[5] + t.amountOut
-                    if t.feeUnit == d[1]:
-                        d[7] = d[7] + t.fee
+                if trans.input == unit[0]:
+                    unit[3] = unit[3] + trans.amountIn
+                    if trans.output in acc_units:
+                        if len(unit[1]) < 1:
+                            unit[1] = trans.output
+                            if unit[0] in acc_units:
+                                unit[1] = unit[0]
+                        if unit[1] == trans.output:
+                            unit[5] = unit[5] + trans.amountOut
+                    if trans.feeUnit == unit[1]:
+                        unit[7] = unit[7] + trans.fee
 
-                elif t.output == d[0]:
-                    d[2] = d[2] + t.amountOut
-                    if t.input in acc_units:
-                        if len(d[1]) < 1:
-                            d[1] = t.input
-                            if d[0] in acc_units:
-                                d[1] = d[0]
-                        if d[1] == t.input:
-                            d[4] = d[4] + t.amountIn
-                    if t.feeUnit == d[1]:
-                        d[7] = d[7] + t.fee
+                elif trans.output == unit[0]:
+                    unit[2] = unit[2] + trans.amountOut
+                    if trans.input in acc_units:
+                        if len(unit[1]) < 1:
+                            unit[1] = trans.input
+                            if unit[0] in acc_units:
+                                unit[1] = unit[0]
+                        if unit[1] == trans.input:
+                            unit[4] = unit[4] + trans.amountIn
+                    if trans.feeUnit == unit[1]:
+                        unit[7] = unit[7] + trans.fee
 
-                if t.feeUnit == d[0]:
-                    d[6] = d[6] + t.fee
+                if trans.feeUnit == unit[0]:
+                    unit[6] = unit[6] + trans.fee
 
-        #Adding Transfers data
-        for t in transfers:
-            for d in data:
+        # Adding Transfers data
+        for trans in transfers:
+            for unit in data:
 
-                if t.unit == d[0]:
-                    if ac_clean(t.source) == account.unique:
-                        d[9] = d[9] + t.amount
-                    elif ac_clean(t.destination) == account.unique:
-                        d[8] = d[8] + t.amount
+                if trans.unit == unit[0]:
+                    if ac_clean(trans.source) == account.unique:
+                        unit[9] = unit[9] + trans.amount
+                    elif ac_clean(trans.destination) == account.unique:
+                        unit[8] = unit[8] + trans.amount
 
-                if t.feeUnit == d[0]:
-                    if ac_clean(t.source) == account.unique:
-                        d[11] = d[11] + t.fee
-                    elif ac_clean(t.destination) == account.unique:
-                        d[10] = d[10] + t.fee
+                if trans.feeUnit == unit[0]:
+                    if ac_clean(trans.source) == account.unique:
+                        unit[11] = unit[11] + trans.fee
+                    elif ac_clean(trans.destination) == account.unique:
+                        unit[10] = unit[10] + trans.fee
 
-        #Assets Overview Calculs
-        for d in data:
-            #if d[2] > 0 or d[3] > 0:
+        # Assets Overview Calculs
+        for unit in data:
+            # if unit[2] > 0 or unit[3] > 0:
 
-            amount = (d[2] - d[3] - d[6]) + (d[8] - d[9] - d[11])
-            pAndL = d[5] - d[4] - d[7]
-            try: avg_u_in = d[4] / d[2]
-            except: avg_u_in = 0
-            try: avg_u_out = d[5] / d[3]
-            except: avg_u_out = 0
-            try: perf = (d[5] / d[4]) *100 -100
-            except: perf = 0
+            amount = (unit[2] - unit[3] - unit[6]) + (unit[8] - unit[9] - unit[11])
+            p_and_l = unit[5] - unit[4] - unit[7]
 
-            if d[0] in acc_units:
+            try:
+                avg_u_in = unit[4] / unit[2]
+            except (TypeError, ZeroDivisionError):
+                avg_u_in = 0
+
+            try:
+                avg_u_out = unit[5] / unit[3]
+            except (TypeError, ZeroDivisionError):
+                avg_u_out = 0
+
+            try:
+                perf = (unit[5] / unit[4]) * 100 - 100
+            except (TypeError, ZeroDivisionError, DivisionByZero, InvalidOperation):
+                perf = 0
+
+            if unit[0] in acc_units:
                 perf = avg_u_in = avg_u_out = 0
-                pAndL = d[2] - d[3] - d[6]
-            
-            if d[0] in acc_units:
-                acc.append([d[0],d[1],amount,perf,pAndL,avg_u_in,avg_u_out,1])
+                p_and_l = unit[2] - unit[3] - unit[6]
+
+            if unit[0] in acc_units:
+                acc.append([unit[0], unit[1], amount, perf, p_and_l, avg_u_in, avg_u_out, 1])
             elif amount == 0:
-                temp.append([d[0],d[1],amount,perf,pAndL,avg_u_in,avg_u_out,0])
+                temp.append([unit[0], unit[1], amount, perf, p_and_l, avg_u_in, avg_u_out, 0])
             else:
-                overview.append([d[0],d[1],amount,perf,pAndL,avg_u_in,avg_u_out,0])
-        
+                overview.append([unit[0], unit[1], amount, perf, p_and_l, avg_u_in, avg_u_out, 0])
+
         overview = acc + overview + temp
 
         context = {
@@ -127,10 +138,10 @@ def account_view(request, name):
             'overview': overview,
         }
         return render(request, "account.html", context)
-    
+
     else:
         return redirect('website-accounts')
 
 
-def ac_clean(a):
-    return str(a)[:-1].replace("Account object (", "")
+def ac_clean(account):
+    return str(account)[:-1].replace("Account object (", "")
