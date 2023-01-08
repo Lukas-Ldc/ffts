@@ -15,14 +15,14 @@ def gateio_importer(file, table, tr_type, ac_type, acc, req):
                     acc,
                     "",
                     tr_type,
-                    column[1],
-                    column[3].split('/')[1] if column[2] == "Buy" else column[3].split('/')[0],
-                    column[3].split('/')[0] if column[2] == "Buy" else column[3].split('/')[1],
-                    column[6] if column[2] == "Buy" else column[5],
-                    column[5] if column[2] == "Buy" else column[6],
-                    column[4],
-                    column[7].split(" ")[0],
-                    column[7].split(" ")[1],
+                    column[2],
+                    column[5].split('/')[1] if column[3] == "Buy" else column[5].split('/')[0],
+                    column[5].split('/')[0] if column[3] == "Buy" else column[5].split('/')[1],
+                    column[8] if column[3] == "Buy" else column[7],
+                    column[7] if column[3] == "Buy" else column[8],
+                    column[6],
+                    column[9].split(" ")[0],
+                    column[9].split(" ")[1],
                     ""
                 )
 
