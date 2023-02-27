@@ -11,23 +11,23 @@
         <div class="accordion-body">
             <p>The accounts page is the main page of the website. You land on it when you login or when you click on the little home in the top left corner. You can logout by clicking in the top right corner.</p>
             <p>On this page you can add, modify or delete an account. You can also view and access your accounts.</p>
-            <p>In the title of the page, you can see the username of the user who is currently logged in. 
-                If you have an administrator account, you will see a little server on the left of the title. You can access the admin menu from it.</p>
+            <p>In the title of the page, you can see the username of the user who is currently logged in.
+                If you have an administrator account, you will see a little server on the left of the title. You can access the Django admin menu from it.</p>
             <p>These are the differents parameters for an account:</p>
             <ul>
                 <li>Name [Mandatory] (ex : Interactive Brokers) <i>Cannot be changed (do a back-up before trying !).</i></li>
-                <li>Type [Optional] (ex : Broker) <i>In the Django admin menu, go to the standards table to add an account type.</i></li>
+                <li>Type [Optional] (ex : Broker) <i>Mandatory: In the Django admin menu, go to the standards table to add an account type.</i></li>
                 <li>Group [Optional] (ex : Long Term Investments).</li>
                 <li>Unit [Mandatory] (ex : USD,EUR) <i>Every transaction should be against an account unit (not mandatory but used in the account page for calculations)</i>.</li>
                 <li>GMT [Optional] (ex : -5) <i>Modify the hours displayed and also used for the export. In the Django admin menu, go to the standards table and add the local GMT time.</i></li>
                 <li>Comment [Optional] (ex : Anything).</li>
             </ul>
             <hr />
-            <p>When you click on the name of an account in the accounts page, you land on the account page. In the title of the page, you can find the account name. 
+            <p>When you click on the name of an account in the accounts page, you land on the account page. In the title of the page, you can find the account name.
                 <i>The accountS page and the account page are different.</i></p>
             <p>On the account page, you can see the assets of the accounts and the total volume per asset. You can access the transactions, the transfers and also the importation page for the account.</p>
-            <p>For the assets table (the first one), each asset is linked to only one unit account (unit column). The performance, the profit/loss and the average buy/sold price are calculated with the unit. 
-                The assets transactions not against the linked unit are forgotten. Ordered by name, you have first the account units, then the assets with a balance different than zero and finally the assets with a balance of zero.</p>
+            <p>For the assets table (the first one), each asset is linked to only one unit account (unit column). The performance, the profit/loss and the average buy/sold price are calculated with the unit account.
+                The assets transactions not against the account unit are forgotten. Ordered by name, you have first the account units, then the assets with a balance different than zero and finally the assets with a balance of zero.</p>
             <p>For the volume table (the second one), the input, output and fee volume are shown for the transactions (TR) and the transfers (TF). The table is ordered by name.</p>
             <p>WARNING: the calculations could be wrong, do not relly 100% on it. <i>Don't hesitate to contribute to the project.</i></p>
         </div>
@@ -48,7 +48,7 @@
             <p>These are the differents parameters for a transaction:</p>
             <ul>
                 <li>Market [Optional] (ex : NASDAQ)</li>
-                <li>Type [Optional] (ex : Trade) <i>In the Django admin menu, go to the standards table to add a transaction type.</i></li>
+                <li>Type [Optional] (ex : Trade) <i>Optional: In the Django admin menu, go to the standards table to add a transaction type.</i></li>
                 <li>Date [Mandatory] (ex : 20/10/2020 10:30:05)</li>
                 <li>Input [Mandatory] (ex : USD)</li>
                 <li>Output [Mandatory] (ex : AAPL)</li>
@@ -115,7 +115,7 @@
                 <li>user_Bank Account,user_Interactive Brokers,2020-01-01 00:00:01-05:00,USD,1000,1.5,USD,Anything</li>
                 <li>user_Bank Account,user_Interactive Brokers,2020-02-22 10:30:00-05:00,USD,500,,,</li>
             </ul>
-            <p>The accounts linked to the import have to be added before. For the transfer import, you can precise the name (user_name) of the account that will be replaced by the actual account. 
+            <p>The accounts linked to the import have to be added before. For the transfer import, you can precise the name (user_name) of the account that will be replaced by the actual account.
                 If you wish to make more modification, use a find and replace tool.</p>
 
             <hr />
@@ -149,7 +149,7 @@
             </ul>
             <p>For the transfers, you have to make multiple changes in the CSV file. Because the file is not in the same language for everyone, you have to find your deposits, withdrawals and change operations in order to rename a column so it can be detected. You can do it automatically with a find an replace option.
                 In column number 6, replace with the following values : "DEPOSIT", "WITHDRAWAL", "CHANGE_IN" and "CHANGE_OUT". Supported languages (modifications not needed) : French. <i>Can be improved by sending me the file in order to automate it in your language.</i></p>
-            
+
             <hr />
             <h5>Gate.io</h5>
             <p>You have to remove the first line with the columns names. Protected against duplicates.</p>

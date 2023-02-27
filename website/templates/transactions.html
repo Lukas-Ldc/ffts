@@ -29,7 +29,7 @@
 <table class="table">
     <thead>
         <tr>
-            <th scope="col">ID</th> 
+            <th scope="col">ID</th>
             <th scope="col">Market</th>
             <th scope="col">Type</th>
             <th scope="col">Date</th>
@@ -65,6 +65,12 @@
 </table>
 
 <!-- Modals from Clinking on Buttons -->
+<datalist id="type-list">
+    {% for t in types %}
+        <option value="{{t.name}}">{{t.name}}</option>
+    {% endfor %}
+</datalist>
+
 <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -79,13 +85,8 @@
                             <label for="floatingInput">Market</label>
                         </div>
                         <div class="form-floating mb-3">
-                            <select class="form-select" id="floatingSelect" name="type">
-                                <option value=""></option>
-                                {% for t in types %}
-                                    <option value="{{t.name}}">{{t.name}}</option>
-                                {% endfor %}
-                            </select>
-                            <label for="floatingSelect">Type</label>
+                            <input type="text" class="form-control" id="floatingInput" name="type" list="type-list">
+                            <label for="floatingInput">Type</label>
                         </div>
                         <div class="form-floating mb-3">
                             <input type="datetime-local" class="form-control" id="floatingInput" name="date" required value="0000-00-00 00:00">
@@ -151,13 +152,8 @@
                         <label for="floatingInput">Market</label>
                     </div>
                     <div class="form-floating mb-3">
-                        <select class="form-select" id="floatingSelect" name="type">
-                            <option value=""></option>
-                            {% for t in types %}
-                                <option value="{{t.name}}">{{t.name}}</option>
-                            {% endfor %}
-                        </select>
-                        <label for="floatingSelect">Type</label>
+                        <input type="text" class="form-control" id="floatingInput" name="type" list="type-list">
+                        <label for="floatingInput">Type</label>
                     </div>
                     <div class="form-floating mb-3">
                         <input type="datetime-local" class="form-control" id="floatingInput" name="date">

@@ -53,7 +53,7 @@ def add_transaction(req: HttpRequest, dup: bool, p_acc, p_mkt, p_typ, p_dat, p_i
     # If duplicate, update transaction
     if old_tr and dup:
         old_tr.market = normal_data(p_mkt)
-        old_tr.type = tr_type_checker(p_typ)
+        old_tr.type = normal_data(p_typ)
         old_tr.price = correct_number(p_prc)
         old_tr.fee = correct_number(p_fee)
         old_tr.feeUnit = normal_data(p_feu)
@@ -66,7 +66,7 @@ def add_transaction(req: HttpRequest, dup: bool, p_acc, p_mkt, p_typ, p_dat, p_i
         new_tf = Transaction.objects.create(
             account=the_account,
             market=normal_data(p_mkt),
-            type=tr_type_checker(p_typ),
+            type=normal_data(p_typ),
             date=date_checker(p_dat),
             input=normal_data(p_iin),
             output=normal_data(p_out),
@@ -181,7 +181,7 @@ def mod_transaction(req: HttpRequest, p_id, p_mkt, p_typ, p_dat, p_iin, p_out, p
     if empty_checker(p_mkt):
         the_tr.market = "" if str(p_mkt) == EMPTY else normal_data(p_mkt)
     if empty_checker(p_typ):
-        the_tr.type = "" if str(p_typ) == EMPTY else tr_type_checker(p_typ)
+        the_tr.type = "" if str(p_typ) == EMPTY else normal_data(p_typ)
     if empty_checker(p_dat):
         the_tr.date = the_tr.date if str(p_dat) == EMPTY else date_checker(p_dat)
     if empty_checker(p_iin):
@@ -344,14 +344,6 @@ def acc_type_checker(atype):
     # Normalise the type for a transaction
 
     if Standard.objects.all().filter(type__exact='AccountType', name__exact=atype).exists():
-        return atype
-    return str("")
-
-
-def tr_type_checker(atype):
-    # Normalise the type for a transaction
-
-    if Standard.objects.all().filter(type__exact='TransactionType', name__exact=atype).exists():
         return atype
     return str("")
 

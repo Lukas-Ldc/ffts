@@ -3,6 +3,12 @@
 
 <h1>Importations for <a href="{% url 'website-account' name=account.unique %}">{{account.name}}</a></h1>
 
+<datalist id="type-list">
+    {% for t in tr_types %}
+        <option value="{{t.name}}">{{t.name}}</option>
+    {% endfor %}
+</datalist>
+
 <div class="accordion" id="accordion">
 
     <div class="accordion-item">
@@ -59,13 +65,8 @@
                         <label for="floatingSelect">Type</label>
                     </div>
                     <div class="form-floating mb-3 binanceTa">
-                        <select class="form-select" id="floatingSelect" name="tr_type">
-                            <option value=""></option>
-                            {% for t in tr_types %}
-                                <option value="{{t.name}}">{{t.name}}</option>
-                            {% endfor %}
-                        </select>
-                        <label for="floatingSelect">Transaction Type</label>
+                        <input type="text" class="form-control" id="floatingInput" name="tr_type" list="type-list">
+                        <label for="floatingInput">Transaction Type</label>
                     </div>
                     <div class="form-floating mb-3 binanceTf">
                         <select class="form-select" id="floatingSelect" name="ac_type" required>
@@ -104,13 +105,8 @@
                         <label for="floatingSelect">Type</label>
                     </div>
                     <div class="form-floating mb-3">
-                        <select class="form-select" id="floatingSelect" name="tr_type">
-                            <option value=""></option>
-                            {% for t in tr_types %}
-                                <option value="{{t.name}}">{{t.name}}</option>
-                            {% endfor %}
-                        </select>
-                        <label for="floatingSelect">Transaction Type (Change operations for Transfers)</label>
+                        <input type="text" class="form-control" id="floatingInput" name="tr_type" list="type-list">
+                        <label for="floatingInput">Transaction Type (Change operations for Transfers)</label>
                     </div>
                     <div class="form-floating mb-3 degiroTf">
                         <select class="form-select" id="floatingSelect" name="ac_type" required>
@@ -149,13 +145,8 @@
                         <label for="floatingSelect">Type</label>
                     </div>
                     <div class="form-floating mb-3 gateioTa">
-                        <select class="form-select" id="floatingSelect" name="tr_type">
-                            <option value=""></option>
-                            {% for t in tr_types %}
-                                <option value="{{t.name}}">{{t.name}}</option>
-                            {% endfor %}
-                        </select>
-                        <label for="floatingSelect">Transaction Type</label>
+                        <input type="text" class="form-control" id="floatingInput" name="tr_type" list="type-list">
+                        <label for="floatingInput">Transaction Type (Change operations for Transfers)</label>
                     </div>
                     <div class="form-floating mb-3 gateioTf">
                         <select class="form-select" id="floatingSelect" name="ac_type" required>
@@ -193,13 +184,8 @@
                         <label for="floatingSelect">Type</label>
                     </div>
                     <div class="form-floating mb-3">
-                        <select class="form-select" id="floatingSelect" name="tr_type">
-                            <option value=""></option>
-                            {% for t in tr_types %}
-                                <option value="{{t.name}}">{{t.name}}</option>
-                            {% endfor %}
-                        </select>
-                        <label for="floatingSelect">Transaction Type</label>
+                        <input type="text" class="form-control" id="floatingInput" name="tr_type" list="type-list">
+                        <label for="floatingInput">Transaction Type (Change operations for Transfers)</label>
                     </div>
                     <div class="form-floating mb-3">
                         <select class="form-select" id="floatingSelect" name="ac_type_ba">
