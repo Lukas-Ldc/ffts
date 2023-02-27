@@ -4,6 +4,7 @@ from website.views.functions.authentication import authorized
 from website.views.functions.importation.csv import csv_importer
 from website.views.functions.importation.binance import binance_importer
 from website.views.functions.importation.degiro import degiro_importer
+from website.views.functions.importation.estateguru import estateguru_importer
 from website.views.functions.importation.gateio import gateio_importer
 from website.views.functions.importation.interactivebrokers import ib_importer
 
@@ -42,6 +43,14 @@ def importation_view(request, account):
                     request.POST['type'],
                     request.POST['tr_type'],
                     request.POST['ac_type'],
+                    account,
+                    request
+                )
+
+            elif "import_estateguru" in request.POST:
+                estateguru_importer(
+                    request.FILES['file'],
+                    request.POST['bk_acc'],
                     account,
                     request
                 )

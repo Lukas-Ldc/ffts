@@ -12,12 +12,12 @@
 <div class="accordion" id="accordion">
 
     <div class="accordion-item">
-        <h2 class="accordion-header" id="h1">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c1" aria-expanded="true" aria-controls="c1">
+        <h2 class="accordion-header" id="h_ffts">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c_ffts" aria-expanded="true" aria-controls="c_ffts">
                 FFTS / Basic CSV
             </button>
         </h2>
-        <div id="c1" class="accordion-collapse collapse" aria-labelledby="h1" data-bs-parent="#accordion">
+        <div id="c_ffts" class="accordion-collapse collapse" aria-labelledby="h_ffts" data-bs-parent="#accordion">
             <div class="accordion-body">
                 <form action="{% url 'website-importation' account=account.unique %}" method="POST" enctype="multipart/form-data">
                     <div class="form-floating mb-3">
@@ -43,12 +43,12 @@
     </div>
 
     <div class="accordion-item">
-        <h2 class="accordion-header" id="h2">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c2" aria-expanded="true" aria-controls="c2">
+        <h2 class="accordion-header" id="h_bin">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c_bin" aria-expanded="true" aria-controls="c_bin">
                 Binance
             </button>
         </h2>
-        <div id="c2" class="accordion-collapse collapse" aria-labelledby="h2" data-bs-parent="#accordion">
+        <div id="c_bin" class="accordion-collapse collapse" aria-labelledby="h_bin" data-bs-parent="#accordion">
             <div class="accordion-body">
                 <form action="{% url 'website-importation' account=account.unique %}" method="POST" enctype="multipart/form-data">
                     <div class="form-floating mb-3">
@@ -89,12 +89,12 @@
     </div>
 
     <div class="accordion-item">
-        <h2 class="accordion-header" id="h3">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c3" aria-expanded="true" aria-controls="c3">
+        <h2 class="accordion-header" id="h_degi">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c_degi" aria-expanded="true" aria-controls="c_degi">
                 Degiro
             </button>
         </h2>
-        <div id="c3" class="accordion-collapse collapse" aria-labelledby="h3" data-bs-parent="#accordion">
+        <div id="c_degi" class="accordion-collapse collapse" aria-labelledby="h_degi" data-bs-parent="#accordion">
             <div class="accordion-body">
                 <form action="{% url 'website-importation' account=account.unique %}" method="POST" enctype="multipart/form-data">
                     <div class="form-floating mb-3">
@@ -128,12 +128,40 @@
     </div>
 
     <div class="accordion-item">
-        <h2 class="accordion-header" id="h4">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c4" aria-expanded="true" aria-controls="c4">
+        <h2 class="accordion-header" id="h_estate">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c_estate" aria-expanded="true" aria-controls="c_estate">
+                EstateGuru
+            </button>
+        </h2>
+        <div id="c_estate" class="accordion-collapse collapse" aria-labelledby="h_estate" data-bs-parent="#accordion">
+            <div class="accordion-body">
+                <form action="{% url 'website-importation' account=account.unique %}" method="POST" enctype="multipart/form-data">
+                    <div class="form-floating mb-3">
+                        <select class="form-select" id="floatingSelect" name="bk_acc" required>
+                            {% for a in accounts %}
+                                <option value="{{a.unique}}">{{a.name}}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="floatingSelect">Bank Account</label>
+                    </div>
+                    <em>The CSV file must be prepared in a special way for the import. Take a look at the documentation !</em>
+                    <div class="form-floating mb-3">
+                        <input type="file" name="file" required>
+                    </div>
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary" name="import_estateguru">Import</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="h_gate">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c_gate" aria-expanded="true" aria-controls="c_gate">
                 Gate.io
             </button>
         </h2>
-        <div id="c4" class="accordion-collapse collapse" aria-labelledby="h4" data-bs-parent="#accordion">
+        <div id="c_gate" class="accordion-collapse collapse" aria-labelledby="h_gate" data-bs-parent="#accordion">
             <div class="accordion-body">
                 <form action="{% url 'website-importation' account=account.unique %}" method="POST" enctype="multipart/form-data">
                     <div class="form-floating mb-3">
@@ -169,12 +197,12 @@
     </div>
 
     <div class="accordion-item">
-        <h2 class="accordion-header" id="h5">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c5" aria-expanded="true" aria-controls="c5">
+        <h2 class="accordion-header" id="h_inter">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c_inter" aria-expanded="true" aria-controls="c_inter">
                 InteractiveBrokers
             </button>
         </h2>
-        <div id="c5" class="accordion-collapse collapse" aria-labelledby="h5" data-bs-parent="#accordion">
+        <div id="c_inter" class="accordion-collapse collapse" aria-labelledby="h_inter" data-bs-parent="#accordion">
             <div class="accordion-body">
                 <form action="{% url 'website-importation' account=account.unique %}" method="POST" enctype="multipart/form-data">
                     <div class="form-floating mb-3">
