@@ -14,7 +14,7 @@ def add_account(req: HttpRequest, p_nam, p_typ, p_grp, p_unt, p_gmt, p_cmt):
 
     # Creating the account
     new_acc = Account.objects.create(
-        unique='.',
+        unique=None,
         name=normal_data(p_nam),
         type=acc_type_checker(p_typ),
         user=req.user,
@@ -37,7 +37,7 @@ def add_transaction(req: HttpRequest, dup: bool, p_acc, p_mkt, p_typ, p_dat, p_i
     except Account.DoesNotExist:
         return False
 
-    # Getting a possible duplicate transaction (account, date, input, output and amounts)
+    # Getting a possible duplicate transaction (account, date, input, output and amounts: rows that make a transaction unique)
     try:
         old_tr = Transaction.objects.all().filter(
             account__exact=the_account,
@@ -50,16 +50,9 @@ def add_transaction(req: HttpRequest, dup: bool, p_acc, p_mkt, p_typ, p_dat, p_i
     except IndexError:
         old_tr = False
 
-    # If duplicate, update transaction
+    # If duplicate, update transaction (only the rows not used for unique detection)
     if old_tr and dup:
-        old_tr.market = normal_data(p_mkt)
-        old_tr.type = normal_data(p_typ)
-        old_tr.price = correct_number(p_prc)
-        old_tr.fee = correct_number(p_fee)
-        old_tr.feeUnit = normal_data(p_feu)
-        old_tr.comment = normal_data(p_cmt)
-        old_tr.save()
-        return old_tr
+        return mod_transaction(req, old_tr.id, p_mkt, p_typ, str(old_tr.date), old_tr.input, old_tr.output, old_tr.amountIn, old_tr.amountOut, p_prc, p_fee, p_feu, p_cmt)
 
     # Else add the new transaction
     else:
@@ -99,7 +92,7 @@ def add_transfer(req: HttpRequest, dup: bool, p_src, p_dst, p_dat, p_uni, p_amt,
     if not the_source.user == req.user and not the_destination.user == req.user:
         return False
 
-    # Getting a possible duplicate transfer (source, destination, date, unit, amount)
+    # Getting a possible duplicate transfer (source, destination, date, unit, amount: rows that make a transfer unique)
     try:
         old_tf = Transfer.objects.all().filter(
             source__exact=the_source,
@@ -111,13 +104,9 @@ def add_transfer(req: HttpRequest, dup: bool, p_src, p_dst, p_dat, p_uni, p_amt,
     except IndexError:
         old_tf = False
 
-    # If duplicate, update transfer
+    # If duplicate, update transfer (only the rows not used for unique detection)
     if old_tf and dup:
-        old_tf.fee = correct_number(p_fee)
-        old_tf.feeUnit = normal_data(p_feu)
-        old_tf.comment = normal_data(p_cmt)
-        old_tf.save()
-        return old_tf
+        return mod_transfer(req, old_tf.id, old_tf.source, old_tf.destination, str(old_tf.date), old_tf.unit, old_tf.amount, p_fee, p_feu, p_cmt)
 
     # Else add the new transfer
     else:
