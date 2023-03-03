@@ -1,3 +1,6 @@
+"""
+This module defines the database model.
+"""
 from django.db import models
 from django.contrib.auth.models import User
 

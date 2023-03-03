@@ -4,17 +4,28 @@ from website.models import Account
 from website.views.functions.dbinterface import add_transaction, add_transfer
 
 
-def ib_importer(file, tr_type, ac_type_ba, ac_type_ia, acc, req):
+def ib_importer(file, tr_type: str, bank_acc: str, ib_acc: str, acc: str, request):
+    """Import an InteractiveBrokers export
+
+    Args:
+        file (file): The file that contains the data to import
+        tr_type (str): The type of transaction
+        bank_acc (str): The account linked to the withdrawals & deposits
+        ib_acc (str): Internal IB account and making internal transfers
+        acc (str): The account that will receive the imported data
+        request (HttpRequest): The request made to send the file
+    """
 
     if file.name.endswith('.csv'):
 
-        forex_fee = str(Account.objects.all().get(unique__exact=acc).unit).split(",")[0]
+        forex_fee_unit = str(Account.objects.all().get(unique__exact=acc).unit).split(",")[0]
 
         for column in csvreader(StringIO(file.read().decode('UTF-8')), delimiter=','):
 
+            # Importation of a change operation
             if column[0] == "Trades" and column[1] == "Data" and column[2] == "Order" and column[3] == "Forex":
                 add_transaction(
-                    req,
+                    request,
                     True,
                     acc,
                     "",
@@ -26,13 +37,14 @@ def ib_importer(file, tr_type, ac_type_ba, ac_type_ia, acc, req):
                     float_gaver(column[7]) if float_gaver(column[7]) > 0 else float_gaver(column[10]),
                     float_gaver(column[8]),
                     float_gaver(column[11]),
-                    forex_fee,
+                    forex_fee_unit,
                     column[3]
                 )
 
+            # Importation of a transaction (not a change operation)
             elif column[0] == "Trades" and column[1] == "Data" and column[2] == "Order":
                 add_transaction(
-                    req,
+                    request,
                     True,
                     acc,
                     "",
@@ -48,10 +60,11 @@ def ib_importer(file, tr_type, ac_type_ba, ac_type_ia, acc, req):
                     column[3]
                 )
 
+            # Importation of a deposit / withdrawal
             elif column[0] == "Deposits & Withdrawals" and column[1] == "Data" and column[2] != "Total":
-                acc_temp = ac_type_ba if column[4] == "Electronic Fund Transfer" else ac_type_ia
+                acc_temp = bank_acc if column[4] == "Electronic Fund Transfer" else ib_acc
                 add_transfer(
-                    req,
+                    request,
                     True,
                     acc_temp if float_gaver(column[5]) > 0 else acc,
                     acc if float_gaver(column[5]) > 0 else acc_temp,
@@ -63,9 +76,10 @@ def ib_importer(file, tr_type, ac_type_ba, ac_type_ia, acc, req):
                     column[4]
                 )
 
+            # Importation of transaction fees
             elif column[0] == "Transaction Fees" and column[1] == "Data" and column[2] != "Total":
                 add_transaction(
-                    req,
+                    request,
                     True,
                     acc,
                     "",
@@ -81,13 +95,22 @@ def ib_importer(file, tr_type, ac_type_ba, ac_type_ia, acc, req):
                     column[6]
                 )
 
+            # Extracting the forex fee unit
             elif column[0] == "Account Information" and column[1] == "Data" and column[2] == "Base Currency":
-                forex_fee = column[3]
+                forex_fee_unit = column[3]
 
             elif column[0] == "Trades" and column[1] == "Header":
                 if str(column[11])[:8] == "Comm in ":
-                    forex_fee = str(column[11])[8:]
+                    forex_fee_unit = str(column[11])[8:]
 
 
-def float_gaver(number):
+def float_gaver(number: str):
+    """Returns a float from a string.
+
+    Args:
+        number (str): The number to convert
+
+    Returns:
+        float: The correct number
+    """
     return round(float(number.replace(",", "")), 4)

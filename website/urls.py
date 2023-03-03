@@ -1,3 +1,6 @@
+"""
+This module defines the website URLs.
+"""
 from django.urls import path
 from website.views.account import account_view
 from website.views.accounts import accounts_view

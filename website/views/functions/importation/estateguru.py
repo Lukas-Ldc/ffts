@@ -3,17 +3,28 @@ from csv import reader as csvreader
 from website.views.functions.dbinterface import add_transaction, add_transfer
 
 
-def estateguru_importer(file, bk_acc, acc, req):
+def estateguru_importer(file, bank_acc: str, acc: str, req):
+    """Import an EstateGuru export
+
+    Args:
+        file (file): The file that contains the data to import
+        bank_acc (str): The account linked to the withdrawals & deposits
+        acc (str): The account that will receive the imported data
+        req (HttpRequest): The request made to send the file
+    """
 
     if file.name.endswith('.csv'):
 
         for column in csvreader(StringIO(file.read().decode('UTF-8')), delimiter=','):
+
+            # Adding a deposit or a withdrawal
+            # Not sure about "Withdrawal" keyword, to confirm (never made one)
             if column[6] == "Approved" and column[5] == "Deposit" or column[5] == "Withdrawal":
-                add_transfer(  # Not sure about "Withdrawal" keyword, to confirm (never made one)
+                add_transfer(
                     req,
                     True,
-                    bk_acc if column[5] == "Deposit" else acc,
-                    acc if column[5] == "Deposit" else bk_acc,
+                    bank_acc if column[5] == "Deposit" else acc,
+                    acc if column[5] == "Deposit" else bank_acc,
                     column[3],
                     column[10],
                     column[8],
@@ -22,6 +33,7 @@ def estateguru_importer(file, bk_acc, acc, req):
                     ""
                 )
 
+            # Adding a transaction
             elif column[6] == "Approved":
                 add_transaction(
                     req,

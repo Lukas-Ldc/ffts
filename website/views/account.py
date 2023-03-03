@@ -6,11 +6,21 @@ from website.views.functions.authentication import authorized
 
 
 def account_view(request, name):
+    """The view for the account page
+
+    Args:
+        request (HttpRequest): The request for the account page
+
+    Returns:
+        HttpResponse: The account page
+    """
 
     if not authorized(request):
         return redirect('website-login')
 
+    # If the account belongs to the user who made the request
     if Account.objects.all().filter(user__exact=request.user, unique__exact=name).exists():
+        # FIXME: Account units total not always correct
 
         account = Account.objects.all().get(user__exact=request.user, unique__exact=name)
         transfers = Transfer.objects.all().filter(Q(source__exact=name) | Q(destination__exact=name))
@@ -85,15 +95,15 @@ def account_view(request, name):
             for unit in data:
 
                 if trans.unit == unit[0]:
-                    if ac_clean(trans.source) == account.unique:
+                    if acc_clean(trans.source) == account.unique:
                         unit[9] = unit[9] + trans.amount
-                    elif ac_clean(trans.destination) == account.unique:
+                    elif acc_clean(trans.destination) == account.unique:
                         unit[8] = unit[8] + trans.amount
 
                 if trans.feeUnit == unit[0]:
-                    if ac_clean(trans.source) == account.unique:
+                    if acc_clean(trans.source) == account.unique:
                         unit[11] = unit[11] + trans.fee
-                    elif ac_clean(trans.destination) == account.unique:
+                    elif acc_clean(trans.destination) == account.unique:
                         unit[10] = unit[10] + trans.fee
 
         # Assets Overview Calculs
@@ -131,6 +141,7 @@ def account_view(request, name):
 
         overview = acc + overview + temp
 
+        # Web page rendering
         context = {
             'page': 'account',
             'account': account,
@@ -139,9 +150,18 @@ def account_view(request, name):
         }
         return render(request, "account.html", context)
 
-    else:
-        return redirect('website-accounts')
+    # Account + User did not matched
+    return redirect('website-accounts')
 
 
-def ac_clean(account):
+def acc_clean(account: str):
+    """Cleans an account object name:
+    "Account object (acc_name)" -> "acc_name"
+
+    Args:
+        account (str): The account object name
+
+    Returns:
+        str: The account name
+    """
     return str(account)[:-1].replace("Account object (", "")

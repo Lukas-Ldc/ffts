@@ -1,3 +1,6 @@
+"""
+This module defines the admin view.
+"""
 from django.contrib import admin
 from .models import Account, Transfer, Transaction, Standard
 

@@ -1,7 +1,7 @@
 {% include "header.html" %}
 {% load static %}
 
-<!-- Admin Page Link & Title --->
+<!-- Admin Page Link & Page Title --->
 <h1>
     {% if staff %}
     <a id="admin" href="{% url 'admin:index' %}" target="_blank">
@@ -13,7 +13,7 @@
     Accounts of {{user}}
 </h1>
 
-<!-- Acconts Buttons (content at end of page) -->
+<!-- Account Buttons (content at end of page) -->
 <div id="accounts-manager">
     <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#addModal">
         Add an Account
@@ -32,7 +32,7 @@
 
     <thead>
         <tr>
-            <th scope="col">{{ g.group }}</th> 
+            <th scope="col">{{ g.group }}</th>
             <th scope="col">Name</th>
             <th scope="col">Type</th>
             <th scope="col">Unit</th>
@@ -93,6 +93,7 @@
     {% endfor %}
 </datalist>
 
+<!-- Add an account -->
 <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -141,6 +142,7 @@
     </div>
 </div>
 
+<!-- Modify an account -->
 <div class="modal fade" id="modifyModal" tabindex="-1" aria-labelledby="modifyModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -189,6 +191,7 @@
     </div>
 </div>
 
+<!-- Delete an account -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">

@@ -1,22 +1,22 @@
 {% include "header.html" %}
 {% load static %}
 
-<!-- Admin Page Link & Title --->
+<!-- Page Title --->
 <h1>Account {{account.name}}</h1>
 
-<!-- Acconts Buttons (content at end of page) -->
+<!-- Account Buttons -->
 <div id="redirection">
     <a href="{% url 'website-transactions' account=account.unique %}"><button type="button" class="btn btn-outline-secondary">Transactions</button></a>
     <a href="{% url 'website-transfers' account=account.unique %}"><button type="button" class="btn btn-outline-secondary">Transfers</button></a>
     <a href="{% url 'website-importation' account=account.unique %}"><button type="button" class="btn btn-outline-secondary">Import into {{account.name}}</button></a>
 </div>
 
-<!-- List --->
+<!-- Assets List --->
 <h3>Assets Overview</h3>
 <table class="table">
     <thead>
         <tr>
-            <th scope="col">Unit</th> 
+            <th scope="col">Unit</th>
             <th scope="col">Amount</th>
             <th scope="col">Performance</th>
             <th scope="col">Profit / Loss</th>
@@ -43,12 +43,12 @@
     </tbody>
 </table>
 
-<!-- List --->
+<!-- Volume List --->
 <h3>Volume Overview</h3>
 <table class="table">
     <thead>
         <tr>
-            <th scope="col">Unit</th> 
+            <th scope="col">Unit</th>
             <th scope="col">[TR] Volume In</th>
             <th scope="col">[TR] Volume Out</th>
             <th scope="col">[TR] Fee Volume</th>

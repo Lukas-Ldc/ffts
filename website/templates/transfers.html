@@ -1,10 +1,10 @@
 {% include "header.html" %}
 {% load static %}
 
-<!-- Admin Page Link & Title --->
+<!-- Page title --->
 <h1>Transfers from <a href="{% url 'website-account' name=account_.unique %}">{{account_.name}}</a></h1>
 
-<!-- Acconts Buttons (content at end of page) -->
+<!-- Transfers Buttons (content at end of page) -->
 <div id="transfers-manager">
     <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#addModal">
         Add a Transfer
@@ -25,11 +25,11 @@
     </form>
 </div>
 
-<!-- TransacTransferstions List --->
+<!-- Transfers List --->
 <table class="table">
     <thead>
         <tr>
-            <th scope="col">ID</th> 
+            <th scope="col">ID</th>
             <th scope="col">Source</th>
             <th scope="col">Destination</th>
             <th scope="col">Date</th>
@@ -64,6 +64,8 @@
         <option value="{{a.unique}}">
     {% endfor %}
 </datalist>
+
+<!-- Add a transfer -->
 <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -115,6 +117,7 @@
     </div>
 </div>
 
+<!-- Modify a transfer -->
 <div class="modal fade" id="modifyModal" tabindex="-1" aria-labelledby="modifyModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -170,6 +173,7 @@
     </div>
 </div>
 
+<!-- Delete a transfer -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">

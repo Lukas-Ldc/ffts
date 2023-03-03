@@ -3,6 +3,7 @@
 
 <head>
 	{% load static %}
+	<!-- TODO: Account name in title -->
 	<title>FFTS - {{ page|title }}</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -21,6 +22,7 @@
 
 <body class="container-xxl" id="top">
 
+<!-- Home button -->
 <div id="global-t-left" class="global-b">
 	<a href="{% url 'website-accounts' %}">
 		<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-house" viewBox="0 0 16 16">
@@ -29,6 +31,7 @@
 		</svg>
 	</a>
 </div>
+<!-- Logout button -->
 <div id="global-t-right" class="global-b">
 	<a href="{% url 'website-logout' %}">
 		<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-person-x" viewBox="0 0 16 16">
@@ -37,6 +40,7 @@
 		</svg>
 	</a>
 </div>
+<!-- Documentation button -->
 <div id="global-b-left" class="global-b">
 	<a href="{% url 'website-documentation' %}" target="_blank">
 		<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-info-square" viewBox="0 0 16 16">
@@ -45,6 +49,7 @@
 		  </svg>
 	</a>
 </div>
+<!-- Top page button -->
 <div id="global-b-right" class="global-b">
 	<a href="#top">
 		<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-arrow-up-square" viewBox="0 0 16 16">

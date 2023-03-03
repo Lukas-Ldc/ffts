@@ -10,75 +10,93 @@ from website.views.functions.importation.interactivebrokers import ib_importer
 
 
 def importation_view(request, account):
+    """The view for the importation page
+
+    Args:
+        request (HttpRequest): The request for the importation page
+        account (str): The name of the account
+
+    Returns:
+        HttpResponse: The importation page
+    """
 
     if not authorized(request):
         return redirect('website-login')
 
+    # If the account belongs to the user who made the request
     if Account.objects.all().filter(user__exact=request.user, unique__exact=account).exists():
 
         if request.POST:
 
+            # The user wants to import a CSV file
             if "import_csv" in request.POST:
                 csv_importer(
                     request.FILES['file'],
                     request.POST['type'],
-                    request.POST['oldacc'],
+                    request.POST['transf_acc'],
                     account,
                     request
                 )
 
+            # The user wants to import data from binance
             elif "import_binance" in request.POST:
                 binance_importer(
                     request.FILES['file'],
                     request.POST['type'],
                     request.POST['tr_type'],
-                    request.POST['ac_type'],
+                    request.POST['transf_acc'],
                     account,
                     request
                 )
 
+            # The user wants to import data from Degiro
             elif "import_degiro" in request.POST:
                 degiro_importer(
                     request.FILES['file'],
                     request.POST['type'],
                     request.POST['tr_type'],
-                    request.POST['ac_type'],
+                    request.POST['bank_acc'],
                     account,
                     request
                 )
 
+            # The user wants to import data from EstateGuru
             elif "import_estateguru" in request.POST:
                 estateguru_importer(
                     request.FILES['file'],
-                    request.POST['bk_acc'],
+                    request.POST['bank_acc'],
                     account,
                     request
                 )
 
+            # The user wants to import data from Gate.io
             elif "import_gateio" in request.POST:
                 gateio_importer(
                     request.FILES['file'],
                     request.POST['type'],
                     request.POST['tr_type'],
-                    request.POST['ac_type'],
+                    request.POST['transf_acc'],
                     account,
                     request
                 )
 
+            # The user wants to import data from InteractiveBrokers
             elif "import_ib" in request.POST:
                 ib_importer(
                     request.FILES['file'],
                     request.POST['tr_type'],
-                    request.POST['ac_type_ba'],
-                    request.POST['ac_type_ia'],
+                    request.POST['bank_acc'],
+                    request.POST['ib_acc'],
                     account,
                     request
                 )
 
+        # Web page context data
         the_account = Account.objects.all().get(user__exact=request.user, unique__exact=account)
         tr_types = Standard.objects.all().filter(type__exact='TransactionType').order_by('name')
         accounts = Account.objects.all().filter(user__exact=request.user)
 
+        # Web page rendering
         context = {
             'page': 'importation',
             'account': the_account,
@@ -87,5 +105,5 @@ def importation_view(request, account):
         }
         return render(request, "importation.html", context)
 
-    else:
-        return redirect('website-accounts')
+    # Account + User did not matched
+    return redirect('website-accounts')

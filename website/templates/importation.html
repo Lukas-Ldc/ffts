@@ -11,6 +11,7 @@
 
 <div class="accordion" id="accordion">
 
+    <!-- FFTS Importation -->
     <div class="accordion-item">
         <h2 class="accordion-header" id="h_ffts">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c_ffts" aria-expanded="true" aria-controls="c_ffts">
@@ -28,7 +29,7 @@
                         <label for="floatingSelect">Type</label>
                     </div>
                     <div class="form-floating mb-3 fftsTf">
-                        <input type="text" class="form-control" name="oldacc">
+                        <input type="text" class="form-control" name="transf_acc">
                         <label for="floatingSelect">Account to be replaced</label>
                     </div>
                     <em>The CSV file must be prepared in a special way for the import. Take a look at the documentation !</em>
@@ -42,6 +43,7 @@
         </div>
     </div>
 
+    <!-- Binance Importation -->
     <div class="accordion-item">
         <h2 class="accordion-header" id="h_bin">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c_bin" aria-expanded="true" aria-controls="c_bin">
@@ -69,7 +71,7 @@
                         <label for="floatingInput">Transaction Type</label>
                     </div>
                     <div class="form-floating mb-3 binanceTf">
-                        <select class="form-select" id="floatingSelect" name="ac_type" required>
+                        <select class="form-select" id="floatingSelect" name="transf_acc" required>
                             <option value="Manual">Manual (Crypto Only)</option>
                             {% for a in accounts %}
                                 <option value="{{a.unique}}">{{a.name}}</option>
@@ -88,6 +90,7 @@
         </div>
     </div>
 
+    <!-- Degiro Importation -->
     <div class="accordion-item">
         <h2 class="accordion-header" id="h_degi">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c_degi" aria-expanded="true" aria-controls="c_degi">
@@ -109,7 +112,7 @@
                         <label for="floatingInput">Transaction Type (Change operations for Transfers)</label>
                     </div>
                     <div class="form-floating mb-3 degiroTf">
-                        <select class="form-select" id="floatingSelect" name="ac_type" required>
+                        <select class="form-select" id="floatingSelect" name="bank_acc" required>
                             {% for a in accounts %}
                                 <option value="{{a.unique}}">{{a.name}}</option>
                             {% endfor %}
@@ -127,6 +130,7 @@
         </div>
     </div>
 
+    <!-- EstateGuru Importation -->
     <div class="accordion-item">
         <h2 class="accordion-header" id="h_estate">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c_estate" aria-expanded="true" aria-controls="c_estate">
@@ -137,7 +141,7 @@
             <div class="accordion-body">
                 <form action="{% url 'website-importation' account=account.unique %}" method="POST" enctype="multipart/form-data">
                     <div class="form-floating mb-3">
-                        <select class="form-select" id="floatingSelect" name="bk_acc" required>
+                        <select class="form-select" id="floatingSelect" name="bank_acc" required>
                             {% for a in accounts %}
                                 <option value="{{a.unique}}">{{a.name}}</option>
                             {% endfor %}
@@ -155,6 +159,7 @@
         </div>
     </div>
 
+    <!-- Gate.io Importation -->
     <div class="accordion-item">
         <h2 class="accordion-header" id="h_gate">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c_gate" aria-expanded="true" aria-controls="c_gate">
@@ -177,7 +182,7 @@
                         <label for="floatingInput">Transaction Type (Change operations for Transfers)</label>
                     </div>
                     <div class="form-floating mb-3 gateioTf">
-                        <select class="form-select" id="floatingSelect" name="ac_type" required>
+                        <select class="form-select" id="floatingSelect" name="transf_acc" required>
                             <option value="Manual">Manual (Crypto Only)</option>
                             {% for a in accounts %}
                                 <option value="{{a.unique}}">{{a.name}}</option>
@@ -196,6 +201,7 @@
         </div>
     </div>
 
+    <!-- InteractiveBrokers Importation -->
     <div class="accordion-item">
         <h2 class="accordion-header" id="h_inter">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c_inter" aria-expanded="true" aria-controls="c_inter">
@@ -216,7 +222,7 @@
                         <label for="floatingInput">Transaction Type (Change operations for Transfers)</label>
                     </div>
                     <div class="form-floating mb-3">
-                        <select class="form-select" id="floatingSelect" name="ac_type_ba">
+                        <select class="form-select" id="floatingSelect" name="bank_acc">
                             <option value="EMPTY">None</option>
                             {% for a in accounts %}
                                 <option value="{{a.unique}}">{{a.name}}</option>
@@ -225,7 +231,7 @@
                         <label for="floatingSelect">Bank Account</label>
                     </div>
                     <div class="form-floating mb-3">
-                        <select class="form-select" id="floatingSelect" name="ac_type_ia">
+                        <select class="form-select" id="floatingSelect" name="ib_acc">
                             <option value="EMPTY">None</option>
                             {% for a in accounts %}
                                 <option value="{{a.unique}}">{{a.name}}</option>
