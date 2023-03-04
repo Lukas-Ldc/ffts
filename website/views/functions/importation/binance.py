@@ -26,55 +26,24 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
 
         # The user wants to import transactions
         if table == "Transactions":
-            file_temp = deepcopy(file)
-            new_transa = False
 
-            # TODO: Remove old transaction importer (and deepcopy)
-            for column in csvreader(StringIO(file_temp.read().decode('UTF-8')), delimiter=','):
-                try:
-                    if len(str(column[7])) > 0:
-                        new_transa = True
-                except IndexError:
-                    pass
-                break
-
-            if new_transa:
-                for column in csvreader(StringIO(file.read().decode('UTF-8')), delimiter=','):
-                    add_transaction(
-                        request,
-                        True,
-                        acc,
-                        "",
-                        tr_type,
-                        column[0],
-                        unit_gaver_v2(column[1], column[2], column[7], acc_unit)[0],
-                        unit_gaver_v2(column[1], column[2], column[7], acc_unit)[1],
-                        float_gaver(column[5]) if column[2] == "BUY" else float_gaver(column[4]),
-                        float_gaver(column[4]) if column[2] == "BUY" else float_gaver(column[5]),
-                        float_gaver(column[3]),
-                        float_gaver(column[6]),
-                        column[7],
-                        ""
-                    )
-
-            else:
-                for column in csvreader(StringIO(file.read().decode('UTF-8')), delimiter=','):
-                    add_transaction(
-                        request,
-                        True,
-                        acc,
-                        "",
-                        tr_type,
-                        column[0],
-                        unit_gaver(column[5]) if column[2] == "BUY" else unit_gaver(column[4]),
-                        unit_gaver(column[4]) if column[2] == "BUY" else unit_gaver(column[5]),
-                        float_gaver(column[5]) if column[2] == "BUY" else float_gaver(column[4]),
-                        float_gaver(column[4]) if column[2] == "BUY" else float_gaver(column[5]),
-                        float_gaver(column[3]),
-                        float_gaver(column[6]),
-                        unit_gaver(column[6]),
-                        ""
-                    )
+            for column in csvreader(StringIO(file.read().decode('UTF-8')), delimiter=','):
+                add_transaction(
+                    request,
+                    True,
+                    acc,
+                    "",
+                    tr_type,
+                    column[0],
+                    unit_gaver(column[1], column[2], column[7], acc_unit)[0],
+                    unit_gaver(column[1], column[2], column[7], acc_unit)[1],
+                    float_gaver(column[5]) if column[2] == "BUY" else float_gaver(column[4]),
+                    float_gaver(column[4]) if column[2] == "BUY" else float_gaver(column[5]),
+                    float_gaver(column[3]),
+                    float_gaver(column[6]),
+                    column[7],
+                    ""
+                )
 
         # The user wants to import crypto deposits or withdrawals
         elif table == "CryptoDeposit" or table == "CryptoWithdrawal":
@@ -294,15 +263,7 @@ def float_remover(number: float):
     return round(number, 10)
 
 
-def unit_gaver(unit: str):
-    """# TODO: To be removed"""
-    if unit is None or unit == "":
-        return "?"
-    else:
-        return resub(r'[0-9.,]', '', unit)
-
-
-def unit_gaver_v2(pair: str, way: str, fee_u: str, acc_u: str):
+def unit_gaver(pair: str, way: str, fee_u: str, acc_u: str):
     """Separates a pair (BTCUSDT) into two different tickers (BTC, USDT).
     Using the unit account, the fee unit: else retrun
 
