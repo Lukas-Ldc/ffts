@@ -17,6 +17,7 @@ def documentation_view(request):
 
     # Web page rendering
     context = {
-        'page': 'documentation',
+        'file': 'documentation',
+        'title': f"Documentation - {request.user.username}",
     }
     return render(request, "documentation.html", context)

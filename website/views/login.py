@@ -28,7 +28,8 @@ def login_view(request):
 
     # Web page rendering
     context = {
-        'page': 'login',
+        'file': 'login',
+        'title': "Login",
         'log': login_message,
     }
     return render(request, "login.html", context)

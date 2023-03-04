@@ -98,7 +98,8 @@ def importation_view(request, account):
 
         # Web page rendering
         context = {
-            'page': 'importation',
+            'file': 'importation',
+            'title': f"Importation - {the_account.name}",
             'account': the_account,
             'tr_types': tr_types,
             'accounts': accounts,

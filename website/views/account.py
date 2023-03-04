@@ -143,7 +143,8 @@ def account_view(request, name):
 
         # Web page rendering
         context = {
-            'page': 'account',
+            'file': 'account',
+            'title': f"Account - {account.name}",
             'account': account,
             'data': data,
             'overview': overview,

@@ -56,7 +56,8 @@ def accounts_view(request):
 
     # Web page rendering
     context = {
-        'page': 'accounts',
+        'file': 'accounts',
+        'title': f"Accounts - {request.user.username}",
         'accounts': user_accounts,
         'groups': user_acc_groups,
         'user': request.user.username,

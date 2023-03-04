@@ -145,7 +145,8 @@ def transactions_view(request, account):
 
         # Web page rendering
         context = {
-            'page': 'transactions',
+            'file': 'transactions',
+            'title': f"Transactions - {the_account.name}",
             'transactions': transactions,
             'account_': the_account,
             'types': tr_types,

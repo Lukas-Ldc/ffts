@@ -133,7 +133,8 @@ def transfers_view(request, account):
 
         # Web page rendering
         context = {
-            'page': 'transfers',
+            'file': 'transfers',
+            'title': f"Transfers - {the_account.name}",
             'transfers': transfers,
             'account_': the_account,
             'account': account,
