@@ -39,12 +39,13 @@ def add_account(request: HttpRequest, name: str, tyype: str, group: str, unit: s
     return new_acc
 
 
-def add_transaction(request: HttpRequest, antidup: bool, account: str, market: str, tyype: str, date: str, iinput: str, output: str, amount_in: str, amount_out: str, price: str, fee: str, fee_unit: str, comment: str):
+def add_transaction(request: HttpRequest, antidup: bool, dayfirst: bool, account: str, market: str, tyype: str, date: str, iinput: str, output: str, amount_in: str, amount_out: str, price: str, fee: str, fee_unit: str, comment: str):
     """Add a new transaction
 
     Args:
         request (HttpRequest): The HTTP request made to create the transaction
         antidup (bool): Check for duplicate in the database and update the existing if found
+        dayfirst (bool): In the date the day is before the month
         account (str): The account which made the transaction
         market (str): The market
         tyype (str): The type
@@ -71,7 +72,7 @@ def add_transaction(request: HttpRequest, antidup: bool, account: str, market: s
     try:
         old_tr = Transaction.objects.all().filter(
             account__exact=the_account,
-            date__exact=date_checker(date),
+            date__exact=date_checker(date, dayfirst),
             input__exact=normal_data(iinput),
             output__exact=normal_data(output),
             amountIn__exact=correct_number(amount_in),
@@ -82,7 +83,7 @@ def add_transaction(request: HttpRequest, antidup: bool, account: str, market: s
 
     # If duplicate, update transaction (only the rows not used for unique detection)
     if old_tr and antidup:
-        return mod_transaction(request, old_tr.id, market, tyype, str(old_tr.date), old_tr.input, old_tr.output, old_tr.amountIn, old_tr.amountOut, price, fee, fee_unit, comment)
+        return mod_transaction(request, dayfirst, old_tr.id, market, tyype, str(old_tr.date), old_tr.input, old_tr.output, old_tr.amountIn, old_tr.amountOut, price, fee, fee_unit, comment)
 
     # Else add the new transaction
     else:
@@ -90,7 +91,7 @@ def add_transaction(request: HttpRequest, antidup: bool, account: str, market: s
             account=the_account,
             market=normal_data(market),
             type=normal_data(tyype),
-            date=date_checker(date),
+            date=date_checker(date, dayfirst),
             input=normal_data(iinput),
             output=normal_data(output),
             amountIn=correct_number(amount_in),
@@ -103,12 +104,13 @@ def add_transaction(request: HttpRequest, antidup: bool, account: str, market: s
         return new_tf
 
 
-def add_transfer(request: HttpRequest, antidup: bool, source: str, destination: str, date: str, unit: str, amount: str, fee: str, fee_unit: str, comment: str):
+def add_transfer(request: HttpRequest, antidup: bool, dayfirst: bool, source: str, destination: str, date: str, unit: str, amount: str, fee: str, fee_unit: str, comment: str):
     """Add a new transfer
 
     Args:
         request (HttpRequest): The HTTP request made to create the transfer
         antidup (bool): Check for duplicate in the database and update the existing if found
+        dayfirst (bool): In the date the day is before the month
         source (str): The source
         destination (str): The destination
         date (str): The date
@@ -140,7 +142,7 @@ def add_transfer(request: HttpRequest, antidup: bool, source: str, destination: 
         old_tf = Transfer.objects.all().filter(
             source__exact=the_source,
             destination__exact=the_destination,
-            date__exact=date_checker(date),
+            date__exact=date_checker(date, dayfirst),
             unit__exact=normal_data(unit),
             amount__exact=correct_number(amount)
         )[0]
@@ -149,14 +151,14 @@ def add_transfer(request: HttpRequest, antidup: bool, source: str, destination: 
 
     # If duplicate, update transfer (only the rows not used for unique detection)
     if old_tf and antidup:
-        return mod_transfer(request, old_tf.id, old_tf.source, old_tf.destination, str(old_tf.date), old_tf.unit, old_tf.amount, fee, fee_unit, comment)
+        return mod_transfer(request, dayfirst, old_tf.id, old_tf.source, old_tf.destination, str(old_tf.date), old_tf.unit, old_tf.amount, fee, fee_unit, comment)
 
     # Else add the new transfer
     else:
         new_tr = Transfer.objects.create(
             source=the_source,
             destination=the_destination,
-            date=date_checker(date),
+            date=date_checker(date, dayfirst),
             unit=normal_data(unit),
             amount=correct_number(amount),
             fee=correct_number(fee),
@@ -202,11 +204,12 @@ def mod_account(request: HttpRequest, name: str, tyype: str, group: str, unit: s
     return the_acc
 
 
-def mod_transaction(request: HttpRequest, iid: int, market: str, tyype: str, date: str, iinput: str, output: str, amount_in: str, amount_out: str, price: str, fee: str, fee_unit: str, comment: str):
+def mod_transaction(request: HttpRequest, dayfirst: bool, iid: int, market: str, tyype: str, date: str, iinput: str, output: str, amount_in: str, amount_out: str, price: str, fee: str, fee_unit: str, comment: str):
     """Modify a transaction
 
     Args:
         request (HttpRequest): The HTTP request made to modify the transaction
+        dayfirst (bool): In the date the day is before the month
         iid (int): ID of the transaction to modify
         market (str): The new market
         tyype (str): The new type
@@ -241,7 +244,7 @@ def mod_transaction(request: HttpRequest, iid: int, market: str, tyype: str, dat
     if empty_checker(tyype):
         the_tr.type = "" if str(tyype) == EMPTY else normal_data(tyype)
     if empty_checker(date):
-        the_tr.date = the_tr.date if str(date) == EMPTY else date_checker(date)
+        the_tr.date = the_tr.date if str(date) == EMPTY else date_checker(date, dayfirst)
     if empty_checker(iinput):
         the_tr.input = the_tr.input if str(iinput) == EMPTY else normal_data(iinput)
     if empty_checker(output):
@@ -262,11 +265,12 @@ def mod_transaction(request: HttpRequest, iid: int, market: str, tyype: str, dat
     return the_tr
 
 
-def mod_transfer(request: HttpRequest, iid: int, source: str, destination: str, date: str, unit: str, amount: str, fee: str, fee_unit: str, comment: str):
+def mod_transfer(request: HttpRequest, dayfirst: bool, iid: int, source: str, destination: str, date: str, unit: str, amount: str, fee: str, fee_unit: str, comment: str):
     """Modify a transfer
 
     Args:
         request (HttpRequest): The HTTP request made to modify the transfer
+        dayfirst (bool): In the date the day is before the month
         iid (int): The ID of the transfer to modify
         source (str): The new source
         destination (str): The new destination
@@ -326,7 +330,7 @@ def mod_transfer(request: HttpRequest, iid: int, source: str, destination: str, 
     if empty_checker(destination):
         the_tf.destination = the_tf.destination if str(destination) == EMPTY else new_destination
     if empty_checker(date):
-        the_tf.date = the_tf.date if str(date) == EMPTY else date_checker(date)
+        the_tf.date = the_tf.date if str(date) == EMPTY else date_checker(date, dayfirst)
     if empty_checker(unit):
         the_tf.unit = the_tf.unit if str(unit) == EMPTY else correct_number(unit)
     if empty_checker(amount):
@@ -448,17 +452,17 @@ def acc_type_checker(tyype: str):
     return str("")
 
 
-def date_checker(date: str):
+def date_checker(date: str, dayf: bool = False):
     """Transforms any date in an ISO date
 
     Args:
         date (str): The non ISO date
+        dayf (bool): Day or month first (if True: 03 is day in 03-02-2020 or 2020-03-02)
 
     Returns:
         str: The ISO date
     """
-    # FIXME: dayfirst:bool month or day first if parse confused
-    return parser.parse(date).isoformat()
+    return parser.parse(date, dayfirst=dayf).isoformat()
 
 
 def correct_number(number: str):

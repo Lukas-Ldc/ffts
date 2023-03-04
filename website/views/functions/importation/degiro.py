@@ -23,6 +23,7 @@ def degiro_importer(file, table: str, tr_type: str, bank_acc: str, acc: str, req
                 add_transaction(
                     request,
                     True,
+                    True,
                     acc,
                     column[4],
                     tr_type,
@@ -48,6 +49,7 @@ def degiro_importer(file, table: str, tr_type: str, bank_acc: str, acc: str, req
                     add_transfer(
                         request,
                         True,
+                        True,
                         bank_acc,
                         acc,
                         column[0] + ' ' + column[1],
@@ -62,6 +64,7 @@ def degiro_importer(file, table: str, tr_type: str, bank_acc: str, acc: str, req
                 elif column[5] == "WITHDRAWAL" or column[5] == "Retrait flatex":
                     add_transfer(
                         request,
+                        True,
                         True,
                         acc,
                         bank_acc,
@@ -79,6 +82,7 @@ def degiro_importer(file, table: str, tr_type: str, bank_acc: str, acc: str, req
                     if change:
                         mod_transaction(
                             request,
+                            True,
                             last.id,
                             None,
                             None,
@@ -97,6 +101,7 @@ def degiro_importer(file, table: str, tr_type: str, bank_acc: str, acc: str, req
                     else:
                         last = add_transaction(
                             request,
+                            True,
                             True,
                             acc,
                             "",
@@ -117,6 +122,7 @@ def degiro_importer(file, table: str, tr_type: str, bank_acc: str, acc: str, req
                     if change:
                         mod_transaction(
                             request,
+                            True,
                             last.id,
                             None,
                             None,
@@ -135,6 +141,7 @@ def degiro_importer(file, table: str, tr_type: str, bank_acc: str, acc: str, req
                     else:
                         last = add_transaction(
                             request,
+                            True,
                             True,
                             acc,
                             "",

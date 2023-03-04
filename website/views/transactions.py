@@ -74,6 +74,7 @@ def transactions_view(request, account):
                 add_transaction(
                     request,
                     False,
+                    False,
                     account,
                     request.POST['market'],
                     request.POST['type'],
@@ -93,6 +94,7 @@ def transactions_view(request, account):
                 for tr_id in str(request.POST['id']).split(','):
                     mod_transaction(
                         request,
+                        False,
                         tr_id,
                         request.POST['market'],
                         request.POST['type'],

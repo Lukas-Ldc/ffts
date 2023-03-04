@@ -71,6 +71,7 @@ def transfers_view(request, account):
                 add_transfer(
                     request,
                     False,
+                    False,
                     request.POST['source'],
                     request.POST['destination'],
                     request.POST['date'],
@@ -86,6 +87,7 @@ def transfers_view(request, account):
                 for tr_id in str(request.POST['id']).split(','):
                     mod_transfer(
                         request,
+                        False,
                         tr_id,
                         request.POST['source'],
                         request.POST['destination'],

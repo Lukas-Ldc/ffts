@@ -31,6 +31,7 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                 add_transaction(
                     request,
                     True,
+                    False,
                     acc,
                     "",
                     tr_type,
@@ -51,6 +52,7 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                 add_transfer(
                     request,
                     True,
+                    False,
                     acc_gaver(table, "s", transf_acc, column[5], acc),
                     acc_gaver(table, "d", transf_acc, column[5], acc),
                     column[0],
@@ -68,6 +70,7 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                     add_transfer(
                         request,
                         True,
+                        False,
                         acc_gaver(table, "s", transf_acc, "", acc),
                         acc_gaver(table, "d", transf_acc, "", acc),
                         column[0],
@@ -90,6 +93,7 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                         add_transaction(
                             request,
                             True,
+                            False,
                             acc,
                             "",
                             tr_type,
@@ -109,6 +113,7 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                     add_transaction(
                         request,
                         True,
+                        False,
                         acc,
                         "",
                         tr_type,
@@ -125,7 +130,6 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
 
                 # Locked interest (if you cancel, you wont earn the past interest)
                 # If 2 subscriptions for the same asset overlap + one of them is canceled : wrong numbers saved
-                # TODO: remove old naming of col[3] for conditions
                 elif column[3] == "Simple Earn Locked Subscription" or column[3] == "POS savings purchase":
 
                     filte_temp = deepcopy(file_base)  # New copy for each subscription to start the read from the begining # TODO: optimisation possible ?
@@ -156,6 +160,7 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                                     add_transaction(
                                         request,
                                         True,
+                                        False,
                                         acc,
                                         "",
                                         tr_type,
@@ -192,6 +197,7 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                         add_transaction(
                             request,
                             True,
+                            False,
                             acc,
                             "",
                             tr_type,

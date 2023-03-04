@@ -23,6 +23,7 @@ def gateio_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, r
                 add_transaction(
                     request,
                     True,
+                    False,
                     acc,
                     "",
                     tr_type,
@@ -43,6 +44,7 @@ def gateio_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, r
                 add_transfer(
                     request,
                     True,
+                    False,
                     column[5] if transf_acc == "Manual" else transf_acc,
                     acc,
                     column[2],
@@ -71,6 +73,7 @@ def gateio_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, r
                         add_transaction(
                             request,
                             True,
+                            False,
                             acc,
                             "",
                             tr_type,

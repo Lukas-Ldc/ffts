@@ -23,6 +23,7 @@ def estateguru_importer(file, bank_acc: str, acc: str, req):
                 add_transfer(
                     req,
                     True,
+                    True,
                     bank_acc if column[5] == "Deposit" else acc,
                     acc if column[5] == "Deposit" else bank_acc,
                     column[3],
@@ -37,6 +38,7 @@ def estateguru_importer(file, bank_acc: str, acc: str, req):
             elif column[6] == "Approved":
                 add_transaction(
                     req,
+                    True,
                     True,
                     acc,
                     "",

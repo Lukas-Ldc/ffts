@@ -27,6 +27,7 @@ def ib_importer(file, tr_type: str, bank_acc: str, ib_acc: str, acc: str, reques
                 add_transaction(
                     request,
                     True,
+                    False,
                     acc,
                     "",
                     tr_type,
@@ -46,6 +47,7 @@ def ib_importer(file, tr_type: str, bank_acc: str, ib_acc: str, acc: str, reques
                 add_transaction(
                     request,
                     True,
+                    False,
                     acc,
                     "",
                     tr_type,
@@ -66,6 +68,7 @@ def ib_importer(file, tr_type: str, bank_acc: str, ib_acc: str, acc: str, reques
                 add_transfer(
                     request,
                     True,
+                    False,
                     acc_temp if float_gaver(column[5]) > 0 else acc,
                     acc if float_gaver(column[5]) > 0 else acc_temp,
                     column[3],
@@ -81,6 +84,7 @@ def ib_importer(file, tr_type: str, bank_acc: str, ib_acc: str, acc: str, reques
                 add_transaction(
                     request,
                     True,
+                    False,
                     acc,
                     "",
                     tr_type,
