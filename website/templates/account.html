@@ -11,63 +11,55 @@
     <a href="{% url 'website-importation' account=account.unique %}"><button type="button" class="btn btn-outline-secondary">Import into {{account.name}}</button></a>
 </div>
 
-<!-- Assets List --->
-<h3>Assets Overview</h3>
 <table class="table">
     <thead>
         <tr>
             <th scope="col">Unit</th>
             <th scope="col">Amount</th>
-            <th scope="col">Performance</th>
-            <th scope="col">Profit / Loss</th>
-            <th scope="col">Average Buy/Sold Price</th>
-            <th scope="col">Unit</th>
+            <th scope="col">TT Transaction In</th>
+            <th scope="col">TT Transaction Out</th>
+            <th scope="col">TT Transfer In</th>
+            <th scope="col">TT Transfer Out</th>
+            <th scope="col">TT Fee</th>
         </tr>
     </thead>
 
     <tbody>
-    {% for o in overview %}
+    {% for asset in volume_overview %}
         <tr>
-            {% if o.7 %}
-                <td style="font-weight: bold; text-decoration: underline;">{{o.0}}</td>
-            {% else %}
-                <td>{{o.0}}</td>
-            {% endif %}
-            <td>{{o.2.normalize}}</td>
-            <td>{{o.3.normalize|floatformat:2}} %</td>
-            <td>{{o.4.normalize|floatformat:2}}</td>
-            <td>{{o.5.normalize|floatformat:3}} / {{o.6.normalize|floatformat:3}}</td>
-            <td>{{o.1}}</td>
+            <th class="{% if asset.7 == 1 %}acc_unit{% endif %} {% if asset.1 == 0 %}zero_tt{% endif %}">{{ asset.0 }}</th>
+            <td>{{ asset.1 }}</td>
+            <td>{{ asset.2 }}</td>
+            <td>{{ asset.3 }}</td>
+            <td>{{ asset.4 }}</td>
+            <td>{{ asset.5 }}</td>
+            <td>{{ asset.6 }}</td>
         </tr>
     {% endfor %}
     </tbody>
 </table>
 
-<!-- Volume List --->
-<h3>Volume Overview</h3>
 <table class="table">
     <thead>
         <tr>
-            <th scope="col">Unit</th>
-            <th scope="col">[TR] Volume In</th>
-            <th scope="col">[TR] Volume Out</th>
-            <th scope="col">[TR] Fee Volume</th>
-            <th scope="col">[TF] Volume In</th>
-            <th scope="col">[TF] Volume Out</th>
-            <th scope="col">[TF] Fee Volume</th>
+            <th scope="col">Pair</th>
+            <th scope="col">Performance</th>
+            <th scope="col">Profit/Loss</th>
+            <th scope="col">Average Buy</th>
+            <th scope="col">Average Sell</th>
+            <th scope="col">Fee</th>
         </tr>
     </thead>
 
     <tbody>
-    {% for d in data %}
+    {% for asset in pairs_overview %}
         <tr>
-            <td>{{d.0}}</td>
-            <td>{{d.2.normalize}}</td>
-            <td>{{d.3.normalize}}</td>
-            <td>{{d.6.normalize}}</td>
-            <td>{{d.8.normalize}}</td>
-            <td>{{d.9.normalize}}</td>
-            <td>{{d.11.normalize}}</td>
+            <th>{{ asset.0 }}</th>
+            <td>{{ asset.1 }}%</td>
+            <td>{{ asset.2 }}</td>
+            <td>{{ asset.3 }}</td>
+            <td>{{ asset.4 }}</td>
+            <td>{{ asset.5 }}</td>
         </tr>
     {% endfor %}
     </tbody>
