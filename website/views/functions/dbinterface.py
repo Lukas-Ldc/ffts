@@ -7,7 +7,7 @@ from django.db.models import Q
 from django.http import HttpRequest
 from website.models import Transaction, Transfer, Account, Standard
 
-# Value used to clear a field during a modification
+# Value used to clear a field during a modification # TODO: not implemented correctly ?
 EMPTY = "0"
 
 

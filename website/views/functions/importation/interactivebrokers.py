@@ -1,6 +1,5 @@
 from io import StringIO
 from csv import reader as csvreader
-from website.models import Account
 from website.views.functions.dbinterface import add_transaction, add_transfer
 
 
@@ -18,7 +17,7 @@ def ib_importer(file, tr_type: str, bank_acc: str, ib_acc: str, acc: str, reques
 
     if file.name.endswith('.csv'):
 
-        forex_fee_unit = str(Account.objects.all().get(unique__exact=acc).unit).split(",")[0]
+        forex_fee_unit = None
 
         for column in csvreader(StringIO(file.read().decode('UTF-8')), delimiter=','):
 
@@ -36,9 +35,9 @@ def ib_importer(file, tr_type: str, bank_acc: str, ib_acc: str, acc: str, reques
                     str(column[5]).split(".")[0] if float_gaver(column[7]) > 0 else str(column[5]).split(".")[1],
                     float_gaver(column[10]) if float_gaver(column[7]) > 0 else float_gaver(column[7]),
                     float_gaver(column[7]) if float_gaver(column[7]) > 0 else float_gaver(column[10]),
-                    float_gaver(column[8]),
+                    float_gaver(column[8]),  # FIXME: [7] >0 or <0 prince or 1/price
                     float_gaver(column[11]),
-                    forex_fee_unit,
+                    str(column[5]).split(".")[0] if forex_fee_unit is None else forex_fee_unit,
                     column[3]
                 )
 
@@ -56,7 +55,7 @@ def ib_importer(file, tr_type: str, bank_acc: str, ib_acc: str, acc: str, reques
                     column[5] if float_gaver(column[7]) > 0 else column[4],
                     float_gaver(column[10]) if float_gaver(column[7]) > 0 else float_gaver(column[7]),
                     float_gaver(column[7]) if float_gaver(column[7]) > 0 else float_gaver(column[10]),
-                    float_gaver(column[8]),
+                    float_gaver(column[8]),  # FIXME: [7] >0 or <0 prince or 1/price
                     float_gaver(column[11]),
                     column[4] if len(column[4]) > 0 else "",
                     column[3]
@@ -109,6 +108,7 @@ def ib_importer(file, tr_type: str, bank_acc: str, ib_acc: str, acc: str, reques
 
 
 def float_gaver(number: str):
+    # TODO: probably not usefull
     """Returns a float from a string.
 
     Args:

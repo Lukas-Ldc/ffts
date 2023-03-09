@@ -27,15 +27,7 @@ def account_view(request, name):
         all_units, volume_overview, pairs_summ, pairs_overview = [], [], [], []
 
         # ---- Assets Volume Calculations ----
-
-        # Getting all existing units linked to this account amoung transfers and transactions
-        for transfer in transfers.values('unit').order_by('unit').distinct():
-            all_units.append(transfer.get('unit'))
-        for transaction in transactions.values('input').order_by('input').distinct():
-            all_units.append(transaction.get('input'))
-        for transaction in transactions.values('output').order_by('output').distinct():
-            all_units.append(transaction.get('output'))
-        all_units = set(all_units)
+        all_units = get_all_units(name)
 
         # Getting all the volume for each unit and the total amount in the account
         for unit in all_units:
@@ -161,6 +153,28 @@ def account_view(request, name):
 
     # Account + User did not matched
     return redirect('website-accounts')
+
+
+def get_all_units(account: str):
+    """Returns the list of all the existing units used in an account.
+
+    Args:
+        account (str): The account targeted
+
+    Returns:
+        list: The list of units
+    """
+    all_units = []
+    transfers = Transfer.objects.all().filter(Q(source__exact=account) | Q(destination__exact=account))
+    transactions = Transaction.objects.all().filter(account__exact=account)
+
+    for transfer in transfers.values('unit').order_by('unit').distinct():
+        all_units.append(transfer.get('unit'))
+    for transaction in transactions.values('input').order_by('input').distinct():
+        all_units.append(transaction.get('input'))
+    for transaction in transactions.values('output').order_by('output').distinct():
+        all_units.append(transaction.get('output'))
+    return list(set(all_units))
 
 
 def float_remover(number: float):

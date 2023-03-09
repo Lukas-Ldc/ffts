@@ -1,9 +1,14 @@
 from io import StringIO
 from copy import deepcopy
 from re import sub as resub
+from collections import Counter
 from csv import reader as csvreader
-from website.models import Account
+from django.db.models import Q
+from website.models import Account, Transaction
+from website.views.account import get_all_units
 from website.views.functions.dbinterface import add_transaction, add_transfer
+
+TRANSACTIONS = None
 
 
 def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, request):
@@ -20,14 +25,12 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
 
     if file.name.endswith('.csv'):
 
-        # Unit of the account
-        # FIXME: Multi units account will not work
-        acc_unit = Account.objects.all().get(unique__exact=acc).unit
-
         # The user wants to import transactions
         if table == "Transactions":
 
             for column in csvreader(StringIO(file.read().decode('UTF-8')), delimiter=','):
+                acc_unit = get_all_units(acc)
+
                 add_transaction(
                     request,
                     True,
@@ -36,8 +39,8 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                     "",
                     tr_type,
                     column[0],
-                    unit_gaver(column[1], column[2], column[7], acc_unit)[0],
-                    unit_gaver(column[1], column[2], column[7], acc_unit)[1],
+                    pair_spliter(column[1], column[2], column[7], acc_unit)[0],
+                    pair_spliter(column[1], column[2], column[7], acc_unit)[1],
                     float_gaver(column[5]) if column[2] == "BUY" else float_gaver(column[4]),
                     float_gaver(column[4]) if column[2] == "BUY" else float_gaver(column[5]),
                     float_gaver(column[3]),
@@ -98,13 +101,13 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                             "",
                             tr_type,
                             column[1],
-                            str(acc_unit).split(",")[0],
+                            pair_guesser(acc, column[4]),
                             column[4],
                             0,
                             column[5],
                             0,
                             0,
-                            0,
+                            "",
                             column[3] if column[3] == "Distribution" else "Flexible Interest"
                         )
 
@@ -124,7 +127,7 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                         no_neg_float(column[5]) if column[4] == "BNB" else 0,
                         0,
                         0,
-                        0,
+                        "",
                         "SAE BNB"
                     )
 
@@ -165,13 +168,13 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                                         "",
                                         tr_type,
                                         i[0],
-                                        str(acc_unit).split(",")[0],
+                                        pair_guesser(acc, col[4]),
                                         col[4],
                                         0,
                                         no_neg_float(i[1]),
                                         0,
                                         0,
-                                        0,
+                                        "",
                                         "Locked Subscription"
                                     )
                             break
@@ -269,33 +272,33 @@ def float_remover(number: float):
     return round(number, 10)
 
 
-def unit_gaver(pair: str, way: str, fee_u: str, acc_u: str):
-    """Separates a pair (BTCUSDT) into two different tickers (BTC, USDT).
-    Using the unit account, the fee unit: else retrun
+def pair_spliter(pair: str, way: str, fee_u: str, other_units: list = []):
+    """Separates a pair (BTCUSDT) into two different tickers (BTC, USDT) by comparing with given data.
 
     Args:
-        pair (str): The pair to spli (BTCUSDT)
+        pair (str): The pair to split (BTCUSDT)
         way (str): BUY or SELL
         fee_u (str): The unit of the fee
-        acc_u (str): The unit of the account
+        other_units (list): Other units that can help to split the pair
 
     Returns:
-        list: (INPUT, OUTPUT) or (PAIR, PAIR)
+        list: (INPUT, OUTPUT) or (PAIR, PAIR) if not guessed
     """
-    # TODO: Create database unit with all the account's transactions for more accuracy
-    unit1 = "##N/A##"
+    unit1 = None
 
-    # Trying to gess the unit according to the account or fee unit
-    for unit in [acc_u, fee_u]:
+    # Trying to gess the unit
+    units = [fee_u]
+    units.extend(other_units)
+    for unit in units:
         if str(pair).startswith(unit):
             unit1 = unit
             break
-        elif str(pair).endswith(unit):
+        if str(pair).endswith(unit):
             unit1 = unit
             break
 
     # Unit guessed
-    if unit1 != "##N/A##":
+    if unit1 is not None:
         unit2 = str(pair).replace(unit1, "")  # Removing unit guessed to get other unit
 
         if way == "BUY" and str(pair).startswith(unit1) or way == "SELL" and str(pair).startswith(unit2):
@@ -305,6 +308,34 @@ def unit_gaver(pair: str, way: str, fee_u: str, acc_u: str):
 
     # Not guessed
     return [pair, pair]
+
+
+def pair_guesser(account: str, unit: str):
+    """Analyses all the transactions of an account to find the pair generally used with a specified unit.
+
+    Args:
+        account (str): Transactions from this account are used
+        unit (str): The unit we want to guess the pair
+
+    Returns:
+        str: The guessed unit
+    """
+    global TRANSACTIONS
+
+    if TRANSACTIONS is None:
+        TRANSACTIONS = Transaction.objects.all().filter(account__exact=account)
+
+    opposites = []
+    for transaction in TRANSACTIONS.all().filter(Q(input__exact=unit) | Q(output__exact=unit)):
+        if transaction.input == unit:
+            opposites.append(transaction.output)
+        else:
+            opposites.append(transaction.input)
+
+    if len(opposites) > 0:
+        return Counter(opposites).most_common(1)[0][0]
+
+    return Account.objects.all().get(unique__exact=account).unit.split(",")[0]
 
 
 def acc_gaver(table: str, direction: str, acc_linked: str, manual_val: str, account: str):
