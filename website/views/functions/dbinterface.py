@@ -7,9 +7,6 @@ from django.db.models import Q
 from django.http import HttpRequest
 from website.models import Transaction, Transfer, Account, Standard
 
-# Value used to clear a field during a modification # TODO: not implemented correctly ?
-EMPTY = "0"
-
 
 def add_account(request: HttpRequest, name: str, tyype: str, group: str, unit: str, gmt: int, comment: str):
     """Create a new account
@@ -33,7 +30,7 @@ def add_account(request: HttpRequest, name: str, tyype: str, group: str, unit: s
         user=request.user,
         group=normal_data(group),
         unit=normal_data(unit),
-        gmt=int(gmt) if empty_checker(gmt) else 0,
+        gmt=int(gmt) if not str_empty(gmt) else 0,
         comment=normal_data(comment)
     )
     return new_acc
@@ -190,16 +187,11 @@ def mod_account(request: HttpRequest, name: str, tyype: str, group: str, unit: s
         return False
 
     # Modification of the account
-    if empty_checker(tyype):
-        the_acc.type = "" if str(tyype) == EMPTY else acc_type_checker(tyype)
-    if empty_checker(group):
-        the_acc.group = "" if str(group) == EMPTY else normal_data(group)
-    if empty_checker(unit):
-        the_acc.unit = "" if str(unit) == EMPTY else normal_data(unit)
-    if empty_checker(gmt):
-        the_acc.gmt = 0 if str(gmt) == EMPTY else int(gmt)
-    if empty_checker(comment):
-        the_acc.comment = "" if str(comment) == EMPTY else normal_data(comment)
+    the_acc.type = empty_or_value(the_acc.type, acc_type_checker(tyype), True)
+    the_acc.group = empty_or_value(the_acc.group, normal_data(group), True)
+    the_acc.unit = empty_or_value(the_acc.unit, normal_data(unit), False)
+    the_acc.gmt = empty_or_value(the_acc.gmt, normal_data(gmt), True)
+    the_acc.comment = empty_or_value(the_acc.comment, normal_data(comment), True)
     the_acc.save()
     return the_acc
 
@@ -239,28 +231,17 @@ def mod_transaction(request: HttpRequest, dayfirst: bool, iid: int, market: str,
         return False
 
     # Modification of the transaction
-    if empty_checker(market):
-        the_tr.market = "" if str(market) == EMPTY else normal_data(market)
-    if empty_checker(tyype):
-        the_tr.type = "" if str(tyype) == EMPTY else normal_data(tyype)
-    if empty_checker(date):
-        the_tr.date = the_tr.date if str(date) == EMPTY else date_checker(date, dayfirst)
-    if empty_checker(iinput):
-        the_tr.input = the_tr.input if str(iinput) == EMPTY else normal_data(iinput)
-    if empty_checker(output):
-        the_tr.output = the_tr.output if str(output) == EMPTY else normal_data(output)
-    if empty_checker(amount_in):
-        the_tr.amountIn = the_tr.amountIn if str(amount_in) == EMPTY else correct_number(amount_in)
-    if empty_checker(amount_out):
-        the_tr.amountOut = the_tr.amountOut if str(amount_out) == EMPTY else correct_number(amount_out)
-    if empty_checker(price):
-        the_tr.price = 0 if str(price) == EMPTY else correct_number(price)
-    if empty_checker(fee):
-        the_tr.fee = 0 if str(fee) == EMPTY else correct_number(fee)
-    if empty_checker(fee_unit):
-        the_tr.feeUnit = "" if str(fee_unit) == EMPTY else normal_data(fee_unit)
-    if empty_checker(comment):
-        the_tr.comment = "" if str(comment) == EMPTY else normal_data(comment)
+    the_tr.market = empty_or_value(the_tr.market, normal_data(market), True)
+    the_tr.type = empty_or_value(the_tr.type, normal_data(tyype), True)
+    the_tr.date = empty_or_value(the_tr.date, date_checker(date, dayfirst), False)
+    the_tr.input = empty_or_value(the_tr.input, normal_data(iinput), False)
+    the_tr.output = empty_or_value(the_tr.output, normal_data(output), False)
+    the_tr.amountIn = empty_or_value(the_tr.amountIn, correct_number(amount_in), False)
+    the_tr.amountOut = empty_or_value(the_tr.amountOut, correct_number(amount_out), False)
+    the_tr.price = empty_or_value(the_tr.price, correct_number(price), True)
+    the_tr.fee = empty_or_value(the_tr.fee, correct_number(fee), True)
+    the_tr.feeUnit = empty_or_value(the_tr.feeUnit, normal_data(fee_unit), True)
+    the_tr.comment = empty_or_value(the_tr.comment, normal_data(comment), True)
     the_tr.save()
     return the_tr
 
@@ -305,7 +286,7 @@ def mod_transfer(request: HttpRequest, dayfirst: bool, iid: int, source: str, de
         return False
 
     # Verifying if with the news accounts one of them still belongs to the user
-    if empty_checker(source):
+    if not str_empty(source):
         try:
             new_source = Account.objects.all().get(unique__exact=source)
         except Account.DoesNotExist:
@@ -313,7 +294,7 @@ def mod_transfer(request: HttpRequest, dayfirst: bool, iid: int, source: str, de
     else:
         new_source = the_source
 
-    if empty_checker(destination):
+    if not str_empty(destination):
         try:
             new_destination = Account.objects.all().get(unique__exact=destination)
         except Account.DoesNotExist:
@@ -325,22 +306,14 @@ def mod_transfer(request: HttpRequest, dayfirst: bool, iid: int, source: str, de
         return False
 
     # Modification of the transfer
-    if empty_checker(source):
-        the_tf.source = the_tf.source if str(source) == EMPTY else new_source
-    if empty_checker(destination):
-        the_tf.destination = the_tf.destination if str(destination) == EMPTY else new_destination
-    if empty_checker(date):
-        the_tf.date = the_tf.date if str(date) == EMPTY else date_checker(date, dayfirst)
-    if empty_checker(unit):
-        the_tf.unit = the_tf.unit if str(unit) == EMPTY else correct_number(unit)
-    if empty_checker(amount):
-        the_tf.amount = the_tf.amount if str(amount) == EMPTY else correct_number(amount)
-    if empty_checker(fee):
-        the_tf.fee = 0 if str(fee) == EMPTY else correct_number(fee)
-    if empty_checker(fee_unit):
-        the_tf.feeUnit = "" if str(fee_unit) == EMPTY else normal_data(fee_unit)
-    if empty_checker(comment):
-        the_tf.comment = "" if str(comment) == EMPTY else normal_data(comment)
+    the_tf.source = empty_or_value(the_tf.source, new_source, False)
+    the_tf.destination = empty_or_value(the_tf.destination, new_destination, False)
+    the_tf.date = empty_or_value(the_tf.date, date_checker(date, dayfirst), False)
+    the_tf.unit = empty_or_value(the_tf.unit, correct_number(unit), False)
+    the_tf.amount = empty_or_value(the_tf.amount, correct_number(amount), False)
+    the_tf.fee = empty_or_value(the_tf.fee, correct_number(fee), True)
+    the_tf.feeUnit = empty_or_value(the_tf.feeUnit, normal_data(fee_unit), True)
+    the_tf.comment = empty_or_value(the_tf.comment, normal_data(comment), True)
     the_tf.save()
     return the_tf
 
@@ -355,8 +328,11 @@ def del_account(request: HttpRequest, name: str):
     Returns:
         _bool_: True or error
     """
-    # TODO: Verify if the account belong to the user before
-    Account.objects.all().filter(user__exact=request.user, name__exact=name).delete()
+    try:
+        account = Account.objects.all().get(user__exact=request.user, name__exact=name)
+    except Account.DoesNotExist:
+        return False
+    account.delete()
     return True
 
 
@@ -422,7 +398,25 @@ def del_transfer(request: HttpRequest, iid: int):
     return True
 
 
-def empty_checker(string: str):
+def empty_or_value(old_value, new_value, can_none: bool):
+    """Replaces an old value by a new value under certain conditions.
+
+    Args:
+        old_value (str, float, int): The value that might be replaced
+        new_value (str, float, int): The new value
+        can_none (bool): The old value can be empty (if new_value = "0") or not
+    """
+    if str(new_value) == "0" and isinstance(old_value, str):
+        # "0" is the value cleaner for any string
+        if can_none:
+            old_value = ""
+    else:
+        if not str_empty(new_value):
+            old_value = new_value
+    return old_value
+
+
+def str_empty(string: str):
     """Verify if a string is empty
 
     Args:
@@ -431,11 +425,10 @@ def empty_checker(string: str):
     Returns:
         bool: True if not empty
     """
-    # TODO: inverted, not instinctive
     if string is not None:
         if len(str(string)) > 0:
-            return True
-    return False
+            return False
+    return True
 
 
 def acc_type_checker(tyype: str):
@@ -474,7 +467,7 @@ def correct_number(number: str):
     Returns:
         float: Returns the number or 0
     """
-    if empty_checker(number):
+    if not str_empty(number):
         return abs(float(str(number).replace(",", ".")))
     return 0
 
