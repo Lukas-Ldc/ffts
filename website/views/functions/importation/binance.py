@@ -41,10 +41,10 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                     column[0],
                     pair_spliter(column[1], column[2], column[7], acc_unit)[0],
                     pair_spliter(column[1], column[2], column[7], acc_unit)[1],
-                    float_gaver(column[5]) if column[2] == "BUY" else float_gaver(column[4]),
-                    float_gaver(column[4]) if column[2] == "BUY" else float_gaver(column[5]),
-                    float_gaver(column[3]),
-                    float_gaver(column[6]),
+                    float_cleaner(column[5]) if column[2] == "BUY" else float_cleaner(column[4]),
+                    float_cleaner(column[4]) if column[2] == "BUY" else float_cleaner(column[5]),
+                    float_cleaner(column[3]),
+                    float_cleaner(column[6]),
                     column[7],
                     ""
                 )
@@ -60,8 +60,8 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                     acc_gaver(table, "d", transf_acc, column[5], acc),
                     column[0],
                     column[1],
-                    float_gaver(column[3]),
-                    float_gaver(column[4]),
+                    float_cleaner(column[3]),
+                    float_cleaner(column[4]),
                     column[1],
                     "Via " + column[2]
                 )
@@ -78,8 +78,8 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                         acc_gaver(table, "d", transf_acc, "", acc),
                         column[0],
                         column[1],
-                        float_gaver(column[2]),
-                        float_gaver(column[6]),
+                        float_cleaner(column[2]),
+                        float_cleaner(column[6]),
                         column[1],
                         column[4]
                     )
@@ -123,8 +123,8 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                         column[1],
                         "#DUST#" if column[4] == "BNB" else column[4],
                         "BNB",
-                        0 if column[4] == "BNB" else no_neg_float(column[5]),
-                        no_neg_float(column[5]) if column[4] == "BNB" else 0,
+                        0 if column[4] == "BNB" else abs(float(column[5])),
+                        abs(float(column[5])) if column[4] == "BNB" else 0,
                         0,
                         0,
                         "",
@@ -135,7 +135,7 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                 # If 2 subscriptions for the same asset overlap + one of them is canceled : wrong numbers saved
                 elif column[3] == "Simple Earn Locked Subscription" or column[3] == "POS savings purchase":
 
-                    filte_temp = deepcopy(file_base)  # New copy for each subscription to start the read from the begining # TODO: optimisation possible ?
+                    filte_temp = deepcopy(file_base)  # New copy for each subscription to start the read from the begining
                     purchase_found = False  # The subscription has been found in the new copy
                     pos_interest = []  # The interest during the subscription
                     pos_purchase = 0  # The amount of the subscription
@@ -157,7 +157,7 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                         # Redemption has been found
                         elif col[4] == column[4] and purchase_found and (col[3] == "Simple Earn Locked Redemption" or col[3] == "POS savings redemption"):
                             # If not canceled (purchase amount == redemption amount)
-                            if str(pos_purchase).replace("-", "") == str(col[5]).replace("-", ""):
+                            if abs(float(pos_purchase)) == abs(float(col[5])):
                                 # Saving transactions (2 subscritpions overlap not a problem: anti-duplicate protection)
                                 for i in pos_interest:
                                     add_transaction(
@@ -171,7 +171,7 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                                         pair_guesser(acc, col[4]),
                                         col[4],
                                         0,
-                                        no_neg_float(i[1]),
+                                        abs(float(i[1])),
                                         0,
                                         0,
                                         "",
@@ -209,7 +209,7 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                             "BNB",
                             amount,
                             bnb,
-                            float_remover(float(amount) / float(bnb)),
+                            float_limiter(float(amount) / float(bnb)),
                             fee,
                             "BNB",
                             "SAE BNB"
@@ -218,7 +218,7 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                         pass
 
 
-def float_gaver(number: str):
+def float_cleaner(number: str):
     """Removes any letter and comma from a string
 
     Args:
@@ -233,26 +233,7 @@ def float_gaver(number: str):
         return float(resub(r'[A-Za-z,]', '', number))
 
 
-def no_neg_float(number: str or int or float):
-    """Transforms a negative number in a positive one
-
-    Args:
-        number (str or int or float): The element to convert
-
-    Returns:
-        float: The non negative float
-    """
-    if number is None or number == "":
-        return 0
-    else:
-        if str(number).startswith("-"):
-            return "{:.14f}".format(float(float(str(number)[1:])))
-        else:
-            return "{:.14f}".format(float(float(number)))
-    # TODO: Optimisation possible ?
-
-
-def float_remover(number: float):
+def float_limiter(number: float):
     """Depending on the size of the number, limits the number of digits after the decimal point
 
     Args:
@@ -351,7 +332,6 @@ def acc_gaver(table: str, direction: str, acc_linked: str, manual_val: str, acco
     Returns:
         Account: The account needed
     """
-    # TODO: combination of acc_linked and manual_val possible ?
     # Source needed for a deposit
     if str(table).endswith("Deposit") and direction == "s":
         if acc_linked == "Manual":

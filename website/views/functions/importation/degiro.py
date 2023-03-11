@@ -170,6 +170,6 @@ def change_price_giver(number: str):
         float: The new price
     """
     try:
-        return round(1 / float(number.replace(",", ".").replace("-", "")), 4)
+        return round(1 / abs(float(number.replace(",", "."))), 4)
     except ZeroDivisionError:
         return 0

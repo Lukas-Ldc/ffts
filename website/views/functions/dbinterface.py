@@ -466,7 +466,7 @@ def date_checker(date: str, dayf: bool = False):
 
 
 def correct_number(number: str):
-    """Transforms a string in a number (removes '-' and replace ',' by '.')
+    """Transforms a string in a number (absolute and replace ',' by '.')
 
     Args:
         number (str): The string to convert
@@ -475,7 +475,7 @@ def correct_number(number: str):
         float: Returns the number or 0
     """
     if empty_checker(number):
-        return float(str(number).replace(",", ".").replace("-", ""))
+        return abs(float(str(number).replace(",", ".")))
     return 0
 
 
