@@ -1,3 +1,4 @@
+from zoneinfo import available_timezones
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 
@@ -19,17 +20,23 @@ def login_view(request):
         # Trying to authenticate the user
         user_auth = authenticate(request, username=request.POST['user'], password=request.POST['pass'])
 
-        if user_auth is not None:
-            login(request, user_auth)
-            return redirect('website-accounts')
+        if request.POST['timezone'] in available_timezones():
+            request.session['timezone'] = request.POST['timezone']
+            if user_auth is not None:
+                login(request, user_auth)
+                return redirect('website-accounts')
+            else:
+                # Login or password incorect
+                login_message = 1
         else:
-            # Login or password incorect
-            login_message = 1
+            # Selected time zone not valid
+            login_message = 2
 
     # Web page rendering
     context = {
         'file': 'login',
         'title': "Login",
+        'timezones': sorted(available_timezones()),
         'log': login_message,
     }
     return render(request, "login.html", context)

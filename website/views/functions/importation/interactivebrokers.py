@@ -68,6 +68,7 @@ def ib_importer(file, tr_type: str, bank_acc: str, ib_acc: str, acc: str, reques
                     request,
                     True,
                     False,
+                    acc,
                     acc_temp if float_gaver(column[5]) > 0 else acc,
                     acc if float_gaver(column[5]) > 0 else acc_temp,
                     column[3],

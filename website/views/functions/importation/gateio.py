@@ -45,6 +45,7 @@ def gateio_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, r
                     request,
                     True,
                     False,
+                    acc,
                     column[5] if transf_acc == "Manual" else transf_acc,
                     acc,
                     column[2],

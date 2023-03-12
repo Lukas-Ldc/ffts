@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate
 from django.db.models import Q
 from django.http import HttpResponse
-from website.models import Transfer, Account, Standard
+from website.models import Transfer, Account
 from website.views.functions.authentication import authorized
 from website.views.functions.dbinterface import add_transfer, mod_transfer, del_transfer
 
@@ -39,23 +39,13 @@ def transfers_view(request, account):
                                         headers={'Content-Disposition': 'attachment; \
                                                   filename=ffts_"' + str(account).replace(" ", "_") + '_transfers_' + date + '.csv"'})
 
-                # Setting the right GMT string for the file output (+01, -05, ...)
-                gmt = str(Account.objects.all().get(user__exact=request.user, unique__exact=account).gmt)
-                if gmt[0] == "-" or gmt[0] == "+":
-                    if len(gmt) == 2:
-                        gmt = gmt[0] + "0" + gmt[1]  # '+1' to '+01'
-                else:
-                    gmt = "+" + gmt  # '1' to '+1'
-                    if len(gmt) == 2:
-                        gmt = gmt[0] + "0" + gmt[1]  # '+1' to '+01'
-
                 # Writting each transaction in the file
                 writer = csvwriter(response)
                 for trans in Transfer.objects.all().filter(Q(source__exact=account) | Q(destination__exact=account)).order_by('-date'):
                     writer.writerow([
                         acc_clean(trans.source),
                         acc_clean(trans.destination),
-                        str(trans.date).replace("+00:", gmt + ":"),
+                        str(trans.date),
                         trans.unit,
                         exp_num(trans.amount),
                         exp_num(trans.fee),
@@ -72,6 +62,7 @@ def transfers_view(request, account):
                     request,
                     False,
                     False,
+                    account,
                     request.POST['source'],
                     request.POST['destination'],
                     request.POST['date'],
@@ -88,6 +79,7 @@ def transfers_view(request, account):
                     mod_transfer(
                         request,
                         False,
+                        account,
                         tr_id,
                         request.POST['source'],
                         request.POST['destination'],
@@ -109,29 +101,6 @@ def transfers_view(request, account):
         the_account = Account.objects.all().get(user__exact=request.user, unique__exact=account)
         transfers = Transfer.objects.all().filter(Q(source__exact=account) | Q(destination__exact=account)).order_by('-date')
         accounts = Account.objects.all().filter(user__exact=request.user).order_by('name')
-
-        # Getting the account and the user GMT
-        try:
-            user_gmt = int(Standard.objects.all().get(type__exact='user_gmttime').name)
-        except Standard.DoesNotExist:
-            user_gmt = 0
-        try:
-            account_gmt = int(the_account.gmt)
-        except TypeError:
-            account_gmt = 0
-
-        # Modifying the date of the transactions according to the account and user GMT
-        for trans in transfers:
-            if str(trans.date)[11:19] != "00:00:00":
-                oldhour = int(str(trans.date)[11:13])
-                newhour = oldhour + (user_gmt - account_gmt)
-                if newhour > 23:
-                    newhour = newhour - 24
-                if oldhour < 10:
-                    oldhour = str("0") + str(oldhour)
-                if newhour < 10:
-                    newhour = str("0") + str(abs(newhour))
-                trans.date = datetime.strptime(str(trans.date)[:-6].replace(" " + str(oldhour) + ":", " " + str(newhour) + ":"), "%Y-%m-%d %H:%M:%S")
 
         # Web page rendering
         context = {

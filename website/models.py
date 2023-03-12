@@ -1,8 +1,15 @@
 """
 This module defines the database model.
 """
+from zoneinfo import available_timezones
 from django.db import models
 from django.contrib.auth.models import User
+
+Standard_Types = [
+    ('AccountType', 'AccountType'),
+    ('TransactionType', 'TransactionType')
+]
+TimeZones = [(tz, tz) for tz in sorted(available_timezones())]
 
 
 class Account(models.Model):
@@ -11,12 +18,14 @@ class Account(models.Model):
     type = models.CharField(max_length=50, null=True, blank=True)
     user = models.ForeignKey(User, to_field='username', on_delete=models.CASCADE)
     group = models.CharField(max_length=50, null=True, blank=True)
-    unit = models.CharField(max_length=30, null=True, blank=True)
-    gmt = models.DecimalField(max_digits=2, decimal_places=0, null=True, blank=True)
+    unit = models.CharField(max_length=30)
+    utc = models.CharField(max_length=50, choices=TimeZones)
     comment = models.CharField(max_length=255, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         self.unique = str(self.user) + '_' + str(self.name)
+        if self.utc not in available_timezones():
+            raise ValueError("Account UTC is not valid.")
         super().save(*args, **kwargs)
 
 
@@ -44,13 +53,6 @@ class Transaction(models.Model):
     fee = models.DecimalField(max_digits=30, decimal_places=15, null=True, blank=True)
     feeUnit = models.CharField(max_length=15, null=True, blank=True)
     comment = models.CharField(max_length=255, null=True, blank=True)
-
-
-Standard_Types = [
-    ('AccountType', 'AccountType'),
-    ('TransactionType', 'TransactionType'),
-    ('MyGMTtime', 'MyGMTtime'),
-]
 
 
 class Standard(models.Model):

@@ -3,12 +3,14 @@ The is the database module.
 Use the functions in this module to create, modify or delete accounts, transfers and transactions.
 """
 from dateutil import parser
+from zoneinfo import ZoneInfo
 from django.db.models import Q
 from django.http import HttpRequest
+from django.utils.timezone import is_aware
 from website.models import Transaction, Transfer, Account, Standard
 
 
-def add_account(request: HttpRequest, name: str, tyype: str, group: str, unit: str, gmt: int, comment: str):
+def add_account(request: HttpRequest, name: str, tyype: str, group: str, unit: str, utc: str, comment: str):
     """Create a new account
 
     Args:
@@ -17,7 +19,7 @@ def add_account(request: HttpRequest, name: str, tyype: str, group: str, unit: s
         tyype (str): The type of the account
         group (str): The group of the account
         unit (str): The unit(s) of the account
-        gmt (int): The GMT of the account
+        utc (str): The UTC of the account
         comment (str): The cpmment of the account
 
     Returns:
@@ -30,7 +32,7 @@ def add_account(request: HttpRequest, name: str, tyype: str, group: str, unit: s
         user=request.user,
         group=normal_data(group),
         unit=normal_data(unit),
-        gmt=int(gmt) if not str_empty(gmt) else 0,
+        utc=normal_data(utc),
         comment=normal_data(comment)
     )
     return new_acc
@@ -69,7 +71,7 @@ def add_transaction(request: HttpRequest, antidup: bool, dayfirst: bool, account
     try:
         old_tr = Transaction.objects.all().filter(
             account__exact=the_account,
-            date__exact=date_checker(date, dayfirst),
+            date__exact=date_checker(date, account, dayfirst),
             input__exact=normal_data(iinput),
             output__exact=normal_data(output),
             amountIn__exact=correct_number(amount_in),
@@ -88,7 +90,7 @@ def add_transaction(request: HttpRequest, antidup: bool, dayfirst: bool, account
             account=the_account,
             market=normal_data(market),
             type=normal_data(tyype),
-            date=date_checker(date, dayfirst),
+            date=date_checker(date, account, dayfirst),
             input=normal_data(iinput),
             output=normal_data(output),
             amountIn=correct_number(amount_in),
@@ -101,13 +103,14 @@ def add_transaction(request: HttpRequest, antidup: bool, dayfirst: bool, account
         return new_tf
 
 
-def add_transfer(request: HttpRequest, antidup: bool, dayfirst: bool, source: str, destination: str, date: str, unit: str, amount: str, fee: str, fee_unit: str, comment: str):
+def add_transfer(request: HttpRequest, antidup: bool, dayfirst: bool, utc_acc: str, source: str, destination: str, date: str, unit: str, amount: str, fee: str, fee_unit: str, comment: str):
     """Add a new transfer
 
     Args:
         request (HttpRequest): The HTTP request made to create the transfer
         antidup (bool): Check for duplicate in the database and update the existing if found
         dayfirst (bool): In the date the day is before the month
+        utc_acc (str): The account from which the UTC is used.
         source (str): The source
         destination (str): The destination
         date (str): The date
@@ -139,7 +142,7 @@ def add_transfer(request: HttpRequest, antidup: bool, dayfirst: bool, source: st
         old_tf = Transfer.objects.all().filter(
             source__exact=the_source,
             destination__exact=the_destination,
-            date__exact=date_checker(date, dayfirst),
+            date__exact=date_checker(date, utc_acc, dayfirst),
             unit__exact=normal_data(unit),
             amount__exact=correct_number(amount)
         )[0]
@@ -148,14 +151,14 @@ def add_transfer(request: HttpRequest, antidup: bool, dayfirst: bool, source: st
 
     # If duplicate, update transfer (only the rows not used for unique detection)
     if old_tf and antidup:
-        return mod_transfer(request, dayfirst, old_tf.id, old_tf.source, old_tf.destination, str(old_tf.date), old_tf.unit, old_tf.amount, fee, fee_unit, comment)
+        return mod_transfer(request, dayfirst, utc_acc, old_tf.id, old_tf.source, old_tf.destination, str(old_tf.date), old_tf.unit, old_tf.amount, fee, fee_unit, comment)
 
     # Else add the new transfer
     else:
         new_tr = Transfer.objects.create(
             source=the_source,
             destination=the_destination,
-            date=date_checker(date, dayfirst),
+            date=date_checker(date, utc_acc, dayfirst),
             unit=normal_data(unit),
             amount=correct_number(amount),
             fee=correct_number(fee),
@@ -165,7 +168,7 @@ def add_transfer(request: HttpRequest, antidup: bool, dayfirst: bool, source: st
         return new_tr
 
 
-def mod_account(request: HttpRequest, name: str, tyype: str, group: str, unit: str, gmt: str, comment: str):
+def mod_account(request: HttpRequest, name: str, tyype: str, group: str, unit: str, utc: str, comment: str):
     """Modify an account
 
     Args:
@@ -174,7 +177,7 @@ def mod_account(request: HttpRequest, name: str, tyype: str, group: str, unit: s
         tyype (str): The new type
         group (str): The new group
         unit (str): The new unit
-        gmt (str): The new GMT
+        utc (str): The new UTC
         comment (str): The new comment
 
     Returns:
@@ -190,7 +193,7 @@ def mod_account(request: HttpRequest, name: str, tyype: str, group: str, unit: s
     the_acc.type = empty_or_value(the_acc.type, acc_type_checker(tyype), True)
     the_acc.group = empty_or_value(the_acc.group, normal_data(group), True)
     the_acc.unit = empty_or_value(the_acc.unit, normal_data(unit), False)
-    the_acc.gmt = empty_or_value(the_acc.gmt, normal_data(gmt), True)
+    the_acc.utc = empty_or_value(the_acc.utc, normal_data(utc), False)
     the_acc.comment = empty_or_value(the_acc.comment, normal_data(comment), True)
     the_acc.save()
     return the_acc
@@ -233,7 +236,7 @@ def mod_transaction(request: HttpRequest, dayfirst: bool, iid: int, market: str,
     # Modification of the transaction
     the_tr.market = empty_or_value(the_tr.market, normal_data(market), True)
     the_tr.type = empty_or_value(the_tr.type, normal_data(tyype), True)
-    the_tr.date = empty_or_value(the_tr.date, date_checker(date, dayfirst), False)
+    the_tr.date = empty_or_value(the_tr.date, date_checker(date, the_tr.account.unique, dayfirst), False)
     the_tr.input = empty_or_value(the_tr.input, normal_data(iinput), False)
     the_tr.output = empty_or_value(the_tr.output, normal_data(output), False)
     the_tr.amountIn = empty_or_value(the_tr.amountIn, correct_number(amount_in), False)
@@ -246,12 +249,13 @@ def mod_transaction(request: HttpRequest, dayfirst: bool, iid: int, market: str,
     return the_tr
 
 
-def mod_transfer(request: HttpRequest, dayfirst: bool, iid: int, source: str, destination: str, date: str, unit: str, amount: str, fee: str, fee_unit: str, comment: str):
+def mod_transfer(request: HttpRequest, dayfirst: bool, utc_acc: str, iid: int, source: str, destination: str, date: str, unit: str, amount: str, fee: str, fee_unit: str, comment: str):
     """Modify a transfer
 
     Args:
         request (HttpRequest): The HTTP request made to modify the transfer
         dayfirst (bool): In the date the day is before the month
+        utc_acc (str): The account from which the UTC is used.
         iid (int): The ID of the transfer to modify
         source (str): The new source
         destination (str): The new destination
@@ -308,7 +312,7 @@ def mod_transfer(request: HttpRequest, dayfirst: bool, iid: int, source: str, de
     # Modification of the transfer
     the_tf.source = empty_or_value(the_tf.source, new_source, False)
     the_tf.destination = empty_or_value(the_tf.destination, new_destination, False)
-    the_tf.date = empty_or_value(the_tf.date, date_checker(date, dayfirst), False)
+    the_tf.date = empty_or_value(the_tf.date, date_checker(date, utc_acc, dayfirst), False)
     the_tf.unit = empty_or_value(the_tf.unit, correct_number(unit), False)
     the_tf.amount = empty_or_value(the_tf.amount, correct_number(amount), False)
     the_tf.fee = empty_or_value(the_tf.fee, correct_number(fee), True)
@@ -445,17 +449,24 @@ def acc_type_checker(tyype: str):
     return str("")
 
 
-def date_checker(date: str, dayf: bool = False):
-    """Transforms any date in an ISO date
+def date_checker(date: str, account: str, dayf: bool = False):
+    """Transforms any date in a datetime object
 
     Args:
         date (str): The non ISO date
+        account(str): The account in which the data will be saved
         dayf (bool): Day or month first (if True: 03 is day in 03-02-2020 or 2020-03-02)
 
     Returns:
         str: The ISO date
     """
-    return parser.parse(date, dayfirst=dayf).isoformat()
+    if not str_empty(date):
+        final_date = parser.parse(date, dayfirst=dayf)
+        if not is_aware(final_date):
+            timezone = ZoneInfo(Account.objects.all().get(unique__exact=account).utc)
+            final_date = final_date.replace(tzinfo=timezone)
+        return final_date
+    return None
 
 
 def correct_number(number: str):

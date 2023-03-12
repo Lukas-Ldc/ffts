@@ -38,16 +38,6 @@ def transactions_view(request, account):
                                         headers={'Content-Disposition': 'attachment; \
                                                   filename=ffts_"' + str(account).replace(" ", "_") + '_transactions_' + date + '.csv"'})
 
-                # Setting the right GMT string for the file output (+01, -05, ...)
-                gmt = str(Account.objects.all().get(user__exact=request.user, unique__exact=account).gmt)
-                if gmt[0] == "-" or gmt[0] == "+":
-                    if len(gmt) == 2:
-                        gmt = gmt[0] + "0" + gmt[1]  # '+1' to '+01'
-                else:
-                    gmt = "+" + gmt  # '1' to '+1'
-                    if len(gmt) == 2:
-                        gmt = gmt[0] + "0" + gmt[1]  # '+1' to '+01'
-
                 # Writting each transaction in the file
                 writer = csvwriter(response)
                 for trans in Transaction.objects.all().filter(account__exact=account).order_by('-date'):
@@ -55,7 +45,7 @@ def transactions_view(request, account):
                         acc_clean(trans.account),
                         trans.market,
                         trans.type,
-                        str(trans.date).replace("+00:", gmt + ":"),
+                        str(trans.date),
                         trans.input,
                         trans.output,
                         exp_num(trans.amountIn),
@@ -119,31 +109,6 @@ def transactions_view(request, account):
         the_account = Account.objects.all().get(user__exact=request.user, unique__exact=account)
         transactions = Transaction.objects.all().filter(account__exact=account).order_by('-date', 'type', 'input', 'output')
         tr_types = Standard.objects.all().filter(type__exact='TransactionType').order_by('name')
-
-        # Getting the account and the user GMT
-        try:
-            user_gmt = int(Standard.objects.all().get(type__exact='user_gmttime').name)
-        except Standard.DoesNotExist:
-            user_gmt = 0
-        try:
-            account_gmt = int(the_account.gmt)
-        except TypeError:
-            account_gmt = 0
-
-        # Modifying the date of the transactions according to the account and user GMT
-        for trans in transactions:
-            if str(trans.date)[11:19] != "00:00:00":  # Skipping 00:00:00, default hour when not set # TODO: Is it really set by default ?
-                oldhour = int(str(trans.date)[11:13])
-                newhour = oldhour + (user_gmt - account_gmt)
-
-                if newhour > 23:
-                    newhour = newhour - 24
-                if oldhour < 10:
-                    oldhour = str("0") + str(oldhour)
-                if newhour < 10:
-                    newhour = str("0") + str(abs(newhour))
-
-                trans.date = datetime.strptime(str(trans.date)[:-6].replace(f" {str(oldhour)}:", f" {str(newhour)}:"), "%Y-%m-%d %H:%M:%S")
 
         # Web page rendering
         context = {

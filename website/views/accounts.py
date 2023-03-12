@@ -1,3 +1,4 @@
+from zoneinfo import available_timezones
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate
 from website.models import Account, Standard
@@ -28,7 +29,7 @@ def accounts_view(request):
                 request.POST['type'],
                 request.POST['group'],
                 request.POST['unit'],
-                request.POST['gmt'],
+                request.POST['utc'],
                 request.POST['comment']
             )
 
@@ -40,7 +41,7 @@ def accounts_view(request):
                 request.POST['type'],
                 request.POST['group'],
                 request.POST['unit'],
-                request.POST['gmt'],
+                request.POST['utc'],
                 request.POST['comment']
             )
 
@@ -63,5 +64,6 @@ def accounts_view(request):
         'user': request.user.username,
         'staff': request.user.is_staff,
         'types': acc_types,
+        'timezones': sorted(available_timezones())
     }
     return render(request, "accounts.html", context)

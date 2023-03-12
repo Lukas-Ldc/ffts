@@ -24,6 +24,7 @@ def estateguru_importer(file, bank_acc: str, acc: str, req):
                     req,
                     True,
                     True,
+                    acc,
                     bank_acc if column[5] == "Deposit" else acc,
                     acc if column[5] == "Deposit" else bank_acc,
                     column[3],

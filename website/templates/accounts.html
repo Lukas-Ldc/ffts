@@ -36,9 +36,9 @@
             <th scope="col">Name</th>
             <th scope="col">Type</th>
             <th scope="col">Unit</th>
-            <th scope="col">GMT</th>
-            <th scope="col">Transactions</th>
-            <th scope="col">Transfers</th>
+            <th scope="col">UTC</th>
+            <th scope="col">TR</th>
+            <th scope="col">TF</th>
             <th scope="col">Comment</th>
         </tr>
     </thead>
@@ -54,7 +54,7 @@
                 </td>
                 <td>{{ a.type }}</td>
                 <td>{{ a.unit }}</td>
-                <td>{{ a.gmt }}</td>
+                <td>{{ a.utc }}</td>
                 <td>
                     <a href="{% url 'website-transactions' account=a.unique %}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-plus-slash-minus" viewBox="0 0 16 16">
@@ -81,6 +81,12 @@
 </table>
 
 <!-- Modals from Clinking on Buttons -->
+<datalist id="tz-list">
+    {% for tz in timezones %}
+        <option value="{{tz}}">{{tz}}</option>
+    {% endfor %}
+</datalist>
+
 <datalist id="accountsList">
     {% for a in accounts %}
         <option value="{{a.name}}">
@@ -125,8 +131,8 @@
                             <label for="floatingInput">Unit *</label>
                         </div>
                         <div class="form-floating mb-3">
-                            <input type="number" class="form-control" id="floatingInput" name="gmt">
-                            <label for="floatingInput">GMT</label>
+                            <input type="text" class="form-control" id="floatingInput" name="utc" list="tz-list" autocomplete="off" required>
+                            <label for="floatingInput">UTC *</label>
                         </div>
                         <div class="form-floating mb-3">
                             <input type="text" class="form-control" id="floatingInput" name="comment" autocomplete="off">
@@ -174,8 +180,8 @@
                             <label for="floatingInput">Change the unit</label>
                         </div>
                         <div class="form-floating mb-3">
-                            <input type="number" class="form-control" id="floatingInput" name="gmt">
-                            <label for="floatingInput">Change the GMT</label>
+                            <input type="text" class="form-control" id="floatingInput" name="utc" list="tz-list" autocomplete="off">
+                            <label for="floatingInput">Change the UTC</label>
                         </div>
                         <div class="form-floating mb-3">
                             <input type="text" class="form-control" id="floatingInput" name="comment" autocomplete="off">
