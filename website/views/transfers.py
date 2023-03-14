@@ -141,4 +141,6 @@ def exp_num(number: float):
     Returns:
         float or int: The cleaned number
     """
-    return number.quantize(Decimal(1)) if number == number.to_integral() else number.normalize()
+    if number is not None:
+        return number.quantize(Decimal(1)) if number == number.to_integral() else number.normalize()
+    return ""

@@ -51,8 +51,8 @@
             <td>{{ t.unit }}</td>
             <td>{{ t.amount.normalize }}</td>
             <td>{{ t.fee.normalize }}</td>
-            <td>{{ t.feeUnit }}</td>
-            <td>{{ t.comment }}</td>
+            <td>{{ t.feeUnit|default:'' }}</td>
+            <td>{{ t.comment|default:'' }}</td>
         </tr>
     {% endfor %}
     </tbody>

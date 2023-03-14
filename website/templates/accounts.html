@@ -32,7 +32,7 @@
 
     <thead>
         <tr>
-            <th scope="col">{{ g.group }}</th>
+            <th scope="col">{{ g.group|default:'' }}</th>
             <th scope="col">Name</th>
             <th scope="col">Type</th>
             <th scope="col">Unit</th>
@@ -52,7 +52,7 @@
                 <td>
                     <a href="{% url 'website-account' name=a.unique %}" data-bs-toggle="tooltip">{{ a.name }}</a>
                 </td>
-                <td>{{ a.type }}</td>
+                <td>{{ a.type|default:'' }}</td>
                 <td>{{ a.unit }}</td>
                 <td>{{ a.utc }}</td>
                 <td>
@@ -70,7 +70,7 @@
                         </svg>
                     </a>
                 </td>
-                <td>{{ a.comment }}</td>
+                <td>{{ a.comment|default:'' }}</td>
             </tr>
             {% endif %}
         {% endfor %}

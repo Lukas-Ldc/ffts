@@ -48,8 +48,8 @@ def transactions_view(request, account):
                         str(trans.date),
                         trans.input,
                         trans.output,
-                        exp_num(trans.amountIn),
-                        exp_num(trans.amountOut),
+                        exp_num(trans.amount_in),
+                        exp_num(trans.amount_out),
                         exp_num(trans.price),
                         exp_num(trans.fee),
                         trans.feeUnit,
@@ -149,4 +149,6 @@ def exp_num(number: float):
     Returns:
         float or int: The cleaned number
     """
-    return number.quantize(Decimal(1)) if number == number.to_integral() else number.normalize()
+    if number is not None:
+        return number.quantize(Decimal(1)) if number == number.to_integral() else number.normalize()
+    return ""

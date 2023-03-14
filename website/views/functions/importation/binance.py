@@ -244,15 +244,15 @@ def float_limiter(number: float):
     Returns:
         float: The cleaned number
     """
-    if number > 1000:
-        return round(number, 2)
     if number > 100:
-        return round(number, 4)
+        return round(number, 3)
     if number > 10:
         return round(number, 6)
     if number > 1:
         return round(number, 8)
-    return round(number, 10)
+    if number > 0.1:
+        return round(number, 10)
+    return round(number, 15)
 
 
 def pair_spliter(pair: str, way: str, fee_u: str, other_units: list = []):

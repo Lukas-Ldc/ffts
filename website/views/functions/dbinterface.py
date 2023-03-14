@@ -74,15 +74,15 @@ def add_transaction(request: HttpRequest, antidup: bool, dayfirst: bool, account
             date__exact=date_checker(date, account, dayfirst),
             input__exact=normal_data(iinput),
             output__exact=normal_data(output),
-            amountIn__exact=correct_number(amount_in),
-            amountOut__exact=correct_number(amount_out)
+            amount_in__exact=correct_number(amount_in),
+            amount_out__exact=correct_number(amount_out)
         )[0]
     except IndexError:
         old_tr = False
 
     # If duplicate, update transaction (only the rows not used for unique detection)
     if old_tr and antidup:
-        return mod_transaction(request, dayfirst, old_tr.id, market, tyype, str(old_tr.date), old_tr.input, old_tr.output, old_tr.amountIn, old_tr.amountOut, price, fee, fee_unit, comment)
+        return mod_transaction(request, dayfirst, old_tr.id, market, tyype, str(old_tr.date), old_tr.input, old_tr.output, old_tr.amount_in, old_tr.amount_out, price, fee, fee_unit, comment)
 
     # Else add the new transaction
     else:
@@ -93,8 +93,8 @@ def add_transaction(request: HttpRequest, antidup: bool, dayfirst: bool, account
             date=date_checker(date, account, dayfirst),
             input=normal_data(iinput),
             output=normal_data(output),
-            amountIn=correct_number(amount_in),
-            amountOut=correct_number(amount_out),
+            amount_in=correct_number(amount_in),
+            amount_out=correct_number(amount_out),
             price=correct_number(price),
             fee=correct_number(fee),
             feeUnit=normal_data(fee_unit),
@@ -239,8 +239,8 @@ def mod_transaction(request: HttpRequest, dayfirst: bool, iid: int, market: str,
     the_tr.date = empty_or_value(the_tr.date, date_checker(date, the_tr.account.unique, dayfirst), False)
     the_tr.input = empty_or_value(the_tr.input, normal_data(iinput), False)
     the_tr.output = empty_or_value(the_tr.output, normal_data(output), False)
-    the_tr.amountIn = empty_or_value(the_tr.amountIn, correct_number(amount_in), False)
-    the_tr.amountOut = empty_or_value(the_tr.amountOut, correct_number(amount_out), False)
+    the_tr.amount_in = empty_or_value(the_tr.amount_in, correct_number(amount_in), False)
+    the_tr.amount_out = empty_or_value(the_tr.amount_out, correct_number(amount_out), False)
     the_tr.price = empty_or_value(the_tr.price, correct_number(price), True)
     the_tr.fee = empty_or_value(the_tr.fee, correct_number(fee), True)
     the_tr.feeUnit = empty_or_value(the_tr.feeUnit, normal_data(fee_unit), True)
@@ -476,20 +476,22 @@ def correct_number(number: str):
         number (str): The string to convert
 
     Returns:
-        float: Returns the number or 0
+        float: Returns the number or None
     """
     if not str_empty(number):
-        return abs(float(str(number).replace(",", ".")))
-    return 0
+        return abs(float(number))
+    return None
 
 
 def normal_data(data):
     """Return a string from anything
 
     Args:
-        data (): The data to convert
+        data (Any): The data to convert
 
     Returns:
-        str: The data converted to a string
+        str: The data converted to a string or None
     """
-    return str(data)
+    if not str_empty(data):
+        return str(data)
+    return None

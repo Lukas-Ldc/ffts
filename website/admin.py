@@ -16,7 +16,7 @@ class TransferInterface(admin.ModelAdmin):
 
 
 class TransactionInterface(admin.ModelAdmin):
-    list_display = ['id', 'account', 'market', 'type', 'date', 'input', 'output', 'amountIn', 'amountOut', 'price', 'fee', 'feeUnit', 'comment']
+    list_display = ['id', 'account', 'market', 'type', 'date', 'input', 'output', 'amount_in', 'amount_out', 'price', 'fee', 'feeUnit', 'comment']
     search_fields = ['id', 'account', 'market', 'type', 'date', 'input', 'output', 'comment']
 
 

@@ -48,17 +48,17 @@
     {% for t in transactions %}
         <tr>
             <th scope="row">{{ t.id }}</th>
-            <td>{{ t.market }}</td>
-            <td>{{ t.type }}</td>
+            <td>{{ t.market|default:'' }}</td>
+            <td>{{ t.type|default:'' }}</td>
             <td>{{ t.date }}</td>
             <td>{{ t.input }}</td>
             <td>{{ t.output }}</td>
-            <td>{{ t.amountIn.normalize }}</td>
-            <td>{{ t.amountOut.normalize }}</td>
+            <td>{{ t.amount_in.normalize }}</td>
+            <td>{{ t.amount_out.normalize }}</td>
             <td>{{ t.price.normalize }}</td>
             <td>{{ t.fee.normalize }}</td>
-            <td>{{ t.feeUnit }}</td>
-            <td>{{ t.comment }}</td>
+            <td>{{ t.feeUnit|default:'' }}</td>
+            <td>{{ t.comment|default:'' }}</td>
         </tr>
     {% endfor %}
     </tbody>

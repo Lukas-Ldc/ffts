@@ -18,7 +18,7 @@ class Account(models.Model):
     type = models.CharField(max_length=50, null=True, blank=True)
     user = models.ForeignKey(User, to_field='username', on_delete=models.CASCADE)
     group = models.CharField(max_length=50, null=True, blank=True)
-    unit = models.CharField(max_length=30)
+    unit = models.CharField(max_length=50)
     utc = models.CharField(max_length=50, choices=TimeZones)
     comment = models.CharField(max_length=255, null=True, blank=True)
 
@@ -35,9 +35,17 @@ class Transfer(models.Model):
     date = models.DateTimeField()
     unit = models.CharField(max_length=15)
     amount = models.DecimalField(max_digits=30, decimal_places=15)
-    fee = models.DecimalField(max_digits=30, decimal_places=15, null=True, blank=True)
+    fee = models.DecimalField(max_digits=30, decimal_places=15, default=0)
     feeUnit = models.CharField(max_length=15, null=True, blank=True)
     comment = models.CharField(max_length=255, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        self.amount = abs(self.amount)
+        if str_empty(self.fee):
+            self.fee = 0
+        else:
+            self.fee = abs(self.fee)
+        super().save(*args, **kwargs)
 
 
 class Transaction(models.Model):
@@ -47,14 +55,60 @@ class Transaction(models.Model):
     date = models.DateTimeField()
     input = models.CharField(max_length=15)
     output = models.CharField(max_length=15)
-    amountIn = models.DecimalField(max_digits=30, decimal_places=15)
-    amountOut = models.DecimalField(max_digits=30, decimal_places=15)
-    price = models.DecimalField(max_digits=30, decimal_places=15, null=True, blank=True)
-    fee = models.DecimalField(max_digits=30, decimal_places=15, null=True, blank=True)
+    amount_in = models.DecimalField(max_digits=30, decimal_places=15)
+    amount_out = models.DecimalField(max_digits=30, decimal_places=15)
+    price = models.DecimalField(max_digits=30, decimal_places=15)
+    fee = models.DecimalField(max_digits=30, decimal_places=15, default=0)
     feeUnit = models.CharField(max_length=15, null=True, blank=True)
     comment = models.CharField(max_length=255, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        self.amount_in = abs(self.amount_in)
+        self.amount_out = abs(self.amount_out)
+        if str_empty(self.price):
+            self.price = float_limiter(self.amount_in / self.amount_out)
+        else:
+            self.price = abs(self.price)
+        if str_empty(self.fee):
+            self.fee = 0
+        else:
+            self.fee = abs(self.fee)
+        super().save(*args, **kwargs)
 
 
 class Standard(models.Model):
     type = models.CharField(max_length=30, choices=Standard_Types)
     name = models.CharField(max_length=30)
+
+
+def float_limiter(number: float):
+    """Depending on the size of the number, limits the number of digits after the decimal point
+
+    Args:
+        number (float): The number to clean
+
+    Returns:
+        float: The cleaned number
+    """
+    if number > 10:
+        return round(number, 3)
+    if number > 1:
+        return round(number, 4)
+    if number > 0.1:
+        return round(number, 6)
+    return round(number, 10)
+
+
+def str_empty(string: str):
+    """Verify if a string is empty
+
+    Args:
+        string (str): The string to check
+
+    Returns:
+        bool: True if not empty
+    """
+    if string is not None:
+        if len(str(string)) > 0:
+            return False
+    return True

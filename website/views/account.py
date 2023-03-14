@@ -44,12 +44,12 @@ def account_view(request, name):
                 table[4] = table[4] + transfer.amount
             # Transactions In
             for transaction in transactions.all().filter(input__exact=unit):
-                table[0] = table[0] - transaction.amountIn
-                table[1] = table[1] + transaction.amountIn
+                table[0] = table[0] - transaction.amount_in
+                table[1] = table[1] + transaction.amount_in
             # Transactions Out
             for transaction in transactions.all().filter(output__exact=unit):
-                table[0] = table[0] + transaction.amountOut
-                table[2] = table[2] + transaction.amountOut
+                table[0] = table[0] + transaction.amount_out
+                table[2] = table[2] + transaction.amount_out
             # Transfer Fee
             for transfer in transfers.all().filter(source__exact=account, feeUnit__exact=unit):
                 table[0] = table[0] - transfer.fee
@@ -99,11 +99,11 @@ def account_view(request, name):
 
             # Filling the table
             if transaction.input == table[0].split("/")[0]:
-                table[1] = table[1] + float(transaction.amountIn)
-                table[2] = table[2] + float(transaction.amountOut)
+                table[1] = table[1] + float(transaction.amount_in)
+                table[2] = table[2] + float(transaction.amount_out)
             else:
-                table[3] = table[3] + float(transaction.amountIn)
-                table[4] = table[4] + float(transaction.amountOut)
+                table[3] = table[3] + float(transaction.amount_in)
+                table[4] = table[4] + float(transaction.amount_out)
 
             if transaction.feeUnit == table[0].split("/")[0]:
                 table[5] = table[5] + float(transaction.fee)
