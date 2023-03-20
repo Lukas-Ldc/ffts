@@ -20,41 +20,45 @@ def gateio_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, r
         # The user wants to add transactions
         if table == "Transactions":
             for column in csvreader(StringIO(file.read().decode('UTF-16')), delimiter='\t'):
-                add_transaction(
-                    request,
-                    True,
-                    False,
-                    acc,
-                    "",
-                    tr_type,
-                    column[2],
-                    column[5].split('/')[1] if column[3] == "Buy" else column[5].split('/')[0],
-                    column[5].split('/')[0] if column[3] == "Buy" else column[5].split('/')[1],
-                    column[8] if column[3] == "Buy" else column[7],
-                    column[7] if column[3] == "Buy" else column[8],
-                    column[6],
-                    column[9].split(" ")[0],
-                    column[9].split(" ")[1],
-                    ""
-                )
+
+                if len(column) > 0 and not column[0].startswith("No"):
+                    add_transaction(
+                        request,
+                        True,
+                        False,
+                        acc,
+                        "",
+                        tr_type,
+                        column[2],
+                        column[5].split('/')[1] if column[3] == "Buy" else column[5].split('/')[0],
+                        column[5].split('/')[0] if column[3] == "Buy" else column[5].split('/')[1],
+                        column[8] if column[3] == "Buy" else column[7],
+                        column[7] if column[3] == "Buy" else column[8],
+                        column[6],
+                        column[9].split(" ")[0],
+                        column[9].split(" ")[1],
+                        ""
+                    )
 
         # The user wants to add deposits of crypto
         elif table == "CryptoDeposit":
             for column in csvreader(StringIO(file.read().decode('UTF-16')), delimiter='\t'):
-                add_transfer(
-                    request,
-                    True,
-                    False,
-                    acc,
-                    column[5] if transf_acc == "Manual" else transf_acc,
-                    acc,
-                    column[2],
-                    column[3],
-                    column[4],
-                    0,
-                    "",
-                    ""
-                )
+
+                if len(column) > 0 and not column[0].startswith("Order"):
+                    add_transfer(
+                        request,
+                        True,
+                        False,
+                        acc,
+                        column[5] if transf_acc == "Manual" else transf_acc,
+                        acc,
+                        column[2],
+                        column[3],
+                        column[4],
+                        0,
+                        "",
+                        ""
+                    )
 
     elif file.name.endswith('.html'):
 

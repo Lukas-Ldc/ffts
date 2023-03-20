@@ -31,70 +31,96 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
             for column in csvreader(StringIO(file.read().decode('UTF-8')), delimiter=','):
                 acc_unit = get_all_units(acc)
 
-                add_transaction(
-                    request,
-                    True,
-                    False,
-                    acc,
-                    "",
-                    tr_type,
-                    column[0],
-                    pair_spliter(column[1], column[2], column[7], acc_unit)[0],
-                    pair_spliter(column[1], column[2], column[7], acc_unit)[1],
-                    float_cleaner(column[5]) if column[2] == "BUY" else float_cleaner(column[4]),
-                    float_cleaner(column[4]) if column[2] == "BUY" else float_cleaner(column[5]),
-                    float_cleaner(column[3]),
-                    float_cleaner(column[6]),
-                    column[7],
-                    ""
-                )
+                if len(column) > 0 and not column[0].startswith("Date"):
+                    add_transaction(
+                        request,
+                        True,
+                        False,
+                        acc,
+                        "",
+                        tr_type,
+                        column[0],
+                        pair_spliter(column[1], column[2], column[7], acc_unit)[0],
+                        pair_spliter(column[1], column[2], column[7], acc_unit)[1],
+                        float_cleaner(column[5]) if column[2] == "BUY" else float_cleaner(column[4]),
+                        float_cleaner(column[4]) if column[2] == "BUY" else float_cleaner(column[5]),
+                        float_cleaner(column[3]),
+                        float_cleaner(column[6]),
+                        column[7],
+                        ""
+                    )
 
         # The user wants to import crypto deposits or withdrawals
         elif table == "CryptoDeposit" or table == "CryptoWithdrawal":
             for column in csvreader(StringIO(file.read().decode('UTF-8')), delimiter=','):
-                add_transfer(
-                    request,
-                    True,
-                    False,
-                    acc,
-                    acc_gaver(table, "s", transf_acc, column[5], acc),
-                    acc_gaver(table, "d", transf_acc, column[5], acc),
-                    column[0],
-                    column[1],
-                    float_cleaner(column[3]),
-                    float_cleaner(column[4]),
-                    column[1],
-                    "Via " + column[2]
-                )
 
-        # The user wants to import fiat deposits or withdrawals
-        elif table == "FiatDeposit" or table == "FiatWithdrawal":
-            for column in csvreader(StringIO(file.read().decode('UTF-8')), delimiter=','):
-                if column[3] == "Successful":
+                if len(column) > 0 and not column[0].startswith("Date"):
                     add_transfer(
                         request,
                         True,
                         False,
                         acc,
-                        acc_gaver(table, "s", transf_acc, "", acc),
-                        acc_gaver(table, "d", transf_acc, "", acc),
+                        acc_gaver(table, "s", transf_acc, column[5], acc),
+                        acc_gaver(table, "d", transf_acc, column[5], acc),
                         column[0],
                         column[1],
-                        float_cleaner(column[2]),
-                        float_cleaner(column[6]),
+                        float_cleaner(column[3]),
+                        float_cleaner(column[4]),
                         column[1],
-                        column[4]
+                        "Via " + column[2]
                     )
+
+        # The user wants to import fiat deposits or withdrawals
+        elif table == "FiatDeposit" or table == "FiatWithdrawal":
+            for column in csvreader(StringIO(file.read().decode('UTF-8')), delimiter=','):
+
+                if len(column) > 0 and not column[0].startswith("Date"):
+                    if column[3] == "Successful":
+                        add_transfer(
+                            request,
+                            True,
+                            False,
+                            acc,
+                            acc_gaver(table, "s", transf_acc, "", acc),
+                            acc_gaver(table, "d", transf_acc, "", acc),
+                            column[0],
+                            column[1],
+                            float_cleaner(column[2]),
+                            float_cleaner(column[6]),
+                            column[1],
+                            column[4]
+                        )
 
         # The user wants to import interests & dust
         elif table == "Other" or table == "OtherBnb":
             file_base = deepcopy(file)  # Making a copy to be able to read in parallel if PoS
 
             for column in csvreader(StringIO(file.read().decode('UTF-8')), delimiter=','):
+                if len(column) > 0 and not column[0].startswith("User_ID"):
 
-                # Simple interest (cancel anytime, what you've earned is earned) or distribution
-                if column[3] == "Distribution" or column[3] == "Simple Earn Flexible Interest" or column[3] == "Savings Interest":
-                    if not (len(column[4]) > 3 and str(column[4]).startswith('LD')):
+                    # Simple interest (cancel anytime, what you've earned is earned) or distribution
+                    if column[3] == "Distribution" or column[3] == "Simple Earn Flexible Interest" or column[3] == "Savings Interest":
+                        if not (len(column[4]) > 3 and str(column[4]).startswith('LD')):
+                            add_transaction(
+                                request,
+                                True,
+                                False,
+                                acc,
+                                "",
+                                tr_type,
+                                column[1],
+                                pair_guesser(acc, column[4]),
+                                column[4],
+                                0,
+                                column[5],
+                                0,
+                                0,
+                                "",
+                                column[3] if column[3] == "Distribution" else "Flexible Interest"
+                            )
+
+                    # Dust (not the best way: output and input separated in 2 transactions)
+                    elif column[3] == "Small assets exchange BNB" and table == "OtherBnb":
                         add_transaction(
                             request,
                             True,
@@ -103,83 +129,63 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                             "",
                             tr_type,
                             column[1],
-                            pair_guesser(acc, column[4]),
-                            column[4],
-                            0,
-                            column[5],
+                            "#DUST#" if column[4] == "BNB" else column[4],
+                            "BNB",
+                            0 if column[4] == "BNB" else abs(float(column[5])),
+                            abs(float(column[5])) if column[4] == "BNB" else 0,
                             0,
                             0,
                             "",
-                            column[3] if column[3] == "Distribution" else "Flexible Interest"
+                            "SAE BNB"
                         )
 
-                # Dust (not the best way: output and input separated in 2 transactions)
-                elif column[3] == "Small assets exchange BNB" and table == "OtherBnb":
-                    add_transaction(
-                        request,
-                        True,
-                        False,
-                        acc,
-                        "",
-                        tr_type,
-                        column[1],
-                        "#DUST#" if column[4] == "BNB" else column[4],
-                        "BNB",
-                        0 if column[4] == "BNB" else abs(float(column[5])),
-                        abs(float(column[5])) if column[4] == "BNB" else 0,
-                        0,
-                        0,
-                        "",
-                        "SAE BNB"
-                    )
+                    # Locked interest (if you cancel, you wont earn the past interest)
+                    # If 2 subscriptions for the same asset overlap + one of them is canceled : wrong numbers saved
+                    elif column[3] == "Simple Earn Locked Subscription" or column[3] == "POS savings purchase":
 
-                # Locked interest (if you cancel, you wont earn the past interest)
-                # If 2 subscriptions for the same asset overlap + one of them is canceled : wrong numbers saved
-                elif column[3] == "Simple Earn Locked Subscription" or column[3] == "POS savings purchase":
+                        filte_temp = deepcopy(file_base)  # New copy for each subscription to start the read from the begining
+                        purchase_found = False  # The subscription has been found in the new copy
+                        pos_interest = []  # The interest during the subscription
+                        pos_purchase = 0  # The amount of the subscription
 
-                    filte_temp = deepcopy(file_base)  # New copy for each subscription to start the read from the begining
-                    purchase_found = False  # The subscription has been found in the new copy
-                    pos_interest = []  # The interest during the subscription
-                    pos_purchase = 0  # The amount of the subscription
+                        for col in csvreader(StringIO(filte_temp.read().decode('UTF-8')), delimiter=','):
 
-                    for col in csvreader(StringIO(filte_temp.read().decode('UTF-8')), delimiter=','):
+                            # If subscription found and interest from the subscription asset
+                            if col[4] == column[4] and purchase_found and (col[3] == "Simple Earn Locked Rewards" or col[3] == "POS savings interest"):
+                                temp = []
+                                for ccol in [col[1], col[5]]:
+                                    temp.append(ccol)
+                                pos_interest.append(temp)
 
-                        # If subscription found and interest from the subscription asset
-                        if col[4] == column[4] and purchase_found and (col[3] == "Simple Earn Locked Rewards" or col[3] == "POS savings interest"):
-                            temp = []
-                            for ccol in [col[1], col[5]]:
-                                temp.append(ccol)
-                            pos_interest.append(temp)
+                            # Trying to find the subscription
+                            elif col[1] == column[1] and col[4] == column[4] and (col[3] == "Simple Earn Locked Subscription" or col[3] == "POS savings purchase"):
+                                purchase_found = True
+                                pos_purchase = col[5]
 
-                        # Trying to find the subscription
-                        elif col[1] == column[1] and col[4] == column[4] and (col[3] == "Simple Earn Locked Subscription" or col[3] == "POS savings purchase"):
-                            purchase_found = True
-                            pos_purchase = col[5]
-
-                        # Redemption has been found
-                        elif col[4] == column[4] and purchase_found and (col[3] == "Simple Earn Locked Redemption" or col[3] == "POS savings redemption"):
-                            # If not canceled (purchase amount == redemption amount)
-                            if abs(float(pos_purchase)) == abs(float(col[5])):
-                                # Saving transactions (2 subscritpions overlap not a problem: anti-duplicate protection)
-                                for i in pos_interest:
-                                    add_transaction(
-                                        request,
-                                        True,
-                                        False,
-                                        acc,
-                                        "",
-                                        tr_type,
-                                        i[0],
-                                        pair_guesser(acc, col[4]),
-                                        col[4],
-                                        0,
-                                        abs(float(i[1])),
-                                        0,
-                                        0,
-                                        "",
-                                        "Locked Subscription"
-                                    )
-                            break
+                            # Redemption has been found
+                            elif col[4] == column[4] and purchase_found and (col[3] == "Simple Earn Locked Redemption" or col[3] == "POS savings redemption"):
+                                # If not canceled (purchase amount == redemption amount)
+                                if abs(float(pos_purchase)) == abs(float(col[5])):
+                                    # Saving transactions (2 subscritpions overlap not a problem: anti-duplicate protection)
+                                    for i in pos_interest:
+                                        add_transaction(
+                                            request,
+                                            True,
+                                            False,
+                                            acc,
+                                            "",
+                                            tr_type,
+                                            i[0],
+                                            pair_guesser(acc, col[4]),
+                                            col[4],
+                                            0,
+                                            abs(float(i[1])),
+                                            0,
+                                            0,
+                                            "",
+                                            "Locked Subscription"
+                                        )
+                                break
 
     elif file.name.endswith('.html'):
 

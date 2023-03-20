@@ -479,7 +479,7 @@ def correct_number(number: str):
         float: Returns the number or None
     """
     if not str_empty(number):
-        return abs(float(number))
+        return abs(float(str(number).replace(",", ".")))
     return None
 
 

@@ -20,23 +20,25 @@ def degiro_importer(file, table: str, tr_type: str, bank_acc: str, acc: str, req
         # The user wants to import transactions
         if table == "Transactions":
             for column in csvreader(StringIO(file.read().decode('UTF-8')), delimiter=','):
-                add_transaction(
-                    request,
-                    True,
-                    True,
-                    acc,
-                    column[4],
-                    tr_type,
-                    column[0] + ' ' + column[1],
-                    column[10] if float(column[6]) > 0 else column[2],
-                    column[2] if float(column[6]) > 0 else column[10],
-                    column[9] if float(column[6]) > 0 else column[6],
-                    column[6] if float(column[6]) > 0 else column[9],
-                    column[7],
-                    column[14],
-                    column[15] if len(column[15]) > 0 else "",
-                    ""
-                )
+
+                if len(column) > 0 and column[0][0].isdigit():
+                    add_transaction(
+                        request,
+                        True,
+                        True,
+                        acc,
+                        column[4],
+                        tr_type,
+                        column[0] + ' ' + column[1],
+                        column[10] if float(column[6]) > 0 else column[2],
+                        column[2] if float(column[6]) > 0 else column[10],
+                        column[9] if float(column[6]) > 0 else column[6],
+                        column[6] if float(column[6]) > 0 else column[9],
+                        column[7],
+                        column[14],
+                        column[15] if len(column[15]) > 0 else "",
+                        ""
+                    )
 
         # The user wants to import transfers
         elif table == "Transfers":
