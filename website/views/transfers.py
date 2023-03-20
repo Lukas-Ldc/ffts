@@ -1,6 +1,7 @@
 from csv import writer as csvwriter
 from decimal import Decimal
 from datetime import datetime
+from zoneinfo import ZoneInfo
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate
 from django.db.models import Q
@@ -41,15 +42,19 @@ def transfers_view(request, account):
 
                 # Writting each transaction in the file
                 writer = csvwriter(response)
+                header = [str(field).split(".")[-1].replace("_", " ").title() for field in Transfer._meta.fields]
+                header.remove("Id")
+                writer.writerow(header)
+
                 for trans in Transfer.objects.all().filter(Q(source__exact=account) | Q(destination__exact=account)).order_by('-date'):
                     writer.writerow([
                         acc_clean(trans.source),
                         acc_clean(trans.destination),
-                        str(trans.date),
+                        str(trans.date.astimezone(ZoneInfo(request.session.get('timezone')))),
                         trans.unit,
                         exp_num(trans.amount),
                         exp_num(trans.fee),
-                        trans.feeUnit,
+                        trans.fee_unit,
                         trans.comment
                     ])
 
@@ -65,7 +70,7 @@ def transfers_view(request, account):
                     account,
                     request.POST['source'],
                     request.POST['destination'],
-                    request.POST['date'],
+                    f"{request.POST['date']}{request.session['utc_int']}",
                     request.POST['unit'],
                     request.POST['amount'],
                     request.POST['fee'],
@@ -83,7 +88,7 @@ def transfers_view(request, account):
                         tr_id,
                         request.POST['source'],
                         request.POST['destination'],
-                        request.POST['date'],
+                        f"{request.POST['date']}{request.session['utc_int']}",
                         request.POST['unit'],
                         request.POST['amount'],
                         request.POST['fee'],

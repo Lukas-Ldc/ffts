@@ -97,7 +97,7 @@ def add_transaction(request: HttpRequest, antidup: bool, dayfirst: bool, account
             amount_out=correct_number(amount_out),
             price=correct_number(price),
             fee=correct_number(fee),
-            feeUnit=normal_data(fee_unit),
+            fee_unit=normal_data(fee_unit),
             comment=normal_data(comment)
         )
         return new_tf
@@ -162,7 +162,7 @@ def add_transfer(request: HttpRequest, antidup: bool, dayfirst: bool, utc_acc: s
             unit=normal_data(unit),
             amount=correct_number(amount),
             fee=correct_number(fee),
-            feeUnit=normal_data(fee_unit),
+            fee_unit=normal_data(fee_unit),
             comment=normal_data(comment)
         )
         return new_tr
@@ -243,7 +243,7 @@ def mod_transaction(request: HttpRequest, dayfirst: bool, iid: int, market: str,
     the_tr.amount_out = empty_or_value(the_tr.amount_out, correct_number(amount_out), False)
     the_tr.price = empty_or_value(the_tr.price, correct_number(price), True)
     the_tr.fee = empty_or_value(the_tr.fee, correct_number(fee), True)
-    the_tr.feeUnit = empty_or_value(the_tr.feeUnit, normal_data(fee_unit), True)
+    the_tr.fee_unit = empty_or_value(the_tr.fee_unit, normal_data(fee_unit), True)
     the_tr.comment = empty_or_value(the_tr.comment, normal_data(comment), True)
     the_tr.save()
     return the_tr
@@ -316,7 +316,7 @@ def mod_transfer(request: HttpRequest, dayfirst: bool, utc_acc: str, iid: int, s
     the_tf.unit = empty_or_value(the_tf.unit, correct_number(unit), False)
     the_tf.amount = empty_or_value(the_tf.amount, correct_number(amount), False)
     the_tf.fee = empty_or_value(the_tf.fee, correct_number(fee), True)
-    the_tf.feeUnit = empty_or_value(the_tf.feeUnit, normal_data(fee_unit), True)
+    the_tf.fee_unit = empty_or_value(the_tf.fee_unit, normal_data(fee_unit), True)
     the_tf.comment = empty_or_value(the_tf.comment, normal_data(comment), True)
     the_tf.save()
     return the_tf
@@ -484,7 +484,7 @@ def correct_number(number: str):
 
 
 def normal_data(data):
-    """Return a string from anything
+    """Return a string from anything and removes any comma.
 
     Args:
         data (Any): The data to convert
@@ -493,5 +493,5 @@ def normal_data(data):
         str: The data converted to a string or None
     """
     if not str_empty(data):
-        return str(data)
+        return str(data).replace(",", ".")
     return None

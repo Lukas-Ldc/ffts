@@ -36,7 +36,7 @@ class Transfer(models.Model):
     unit = models.CharField(max_length=15)
     amount = models.DecimalField(max_digits=30, decimal_places=15)
     fee = models.DecimalField(max_digits=30, decimal_places=15, default=0)
-    feeUnit = models.CharField(max_length=15, null=True, blank=True)
+    fee_unit = models.CharField(max_length=15, null=True, blank=True)
     comment = models.CharField(max_length=255, null=True, blank=True)
 
     def save(self, *args, **kwargs):
@@ -59,7 +59,7 @@ class Transaction(models.Model):
     amount_out = models.DecimalField(max_digits=30, decimal_places=15)
     price = models.DecimalField(max_digits=30, decimal_places=15)
     fee = models.DecimalField(max_digits=30, decimal_places=15, default=0)
-    feeUnit = models.CharField(max_length=15, null=True, blank=True)
+    fee_unit = models.CharField(max_length=15, null=True, blank=True)
     comment = models.CharField(max_length=255, null=True, blank=True)
 
     def save(self, *args, **kwargs):

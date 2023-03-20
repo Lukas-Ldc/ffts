@@ -1,6 +1,7 @@
 from csv import writer as csvwriter
 from decimal import Decimal
 from datetime import datetime
+from zoneinfo import ZoneInfo
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate
 from django.http import HttpResponse
@@ -40,19 +41,23 @@ def transactions_view(request, account):
 
                 # Writting each transaction in the file
                 writer = csvwriter(response)
+                header = [str(field).split(".")[-1].replace("_", " ").title() for field in Transaction._meta.fields]
+                header.remove("Id")
+                writer.writerow(header)
+
                 for trans in Transaction.objects.all().filter(account__exact=account).order_by('-date'):
                     writer.writerow([
                         acc_clean(trans.account),
                         trans.market,
                         trans.type,
-                        str(trans.date),
+                        str(trans.date.astimezone(ZoneInfo(request.session.get('timezone')))),
                         trans.input,
                         trans.output,
                         exp_num(trans.amount_in),
                         exp_num(trans.amount_out),
                         exp_num(trans.price),
                         exp_num(trans.fee),
-                        trans.feeUnit,
+                        trans.fee_unit,
                         trans.comment
                     ])
 
@@ -68,7 +73,7 @@ def transactions_view(request, account):
                     account,
                     request.POST['market'],
                     request.POST['type'],
-                    request.POST['date'],
+                    f"{request.POST['date']}{request.session['utc_int']}",
                     request.POST['input'],
                     request.POST['output'],
                     request.POST['amountin'],
@@ -88,7 +93,7 @@ def transactions_view(request, account):
                         tr_id,
                         request.POST['market'],
                         request.POST['type'],
-                        request.POST['date'],
+                        f"{request.POST['date']}{request.session['utc_int']}",
                         request.POST['input'],
                         request.POST['output'],
                         request.POST['amountin'],

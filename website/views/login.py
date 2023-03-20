@@ -1,4 +1,5 @@
-from zoneinfo import available_timezones
+from datetime import datetime
+from zoneinfo import available_timezones, ZoneInfo
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 
@@ -22,6 +23,7 @@ def login_view(request):
 
         if request.POST['timezone'] in available_timezones():
             request.session['timezone'] = request.POST['timezone']
+            request.session['utc_int'] = str(datetime.now().astimezone(ZoneInfo(request.session.get('timezone'))))[-6:]
             if user_auth is not None:
                 login(request, user_auth)
                 return redirect('website-accounts')

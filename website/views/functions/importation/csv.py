@@ -19,38 +19,42 @@ def csv_importer(file, table: str, transf_acc: str, acc: str, request):
         # The user wants to import transactions
         if table == "Transactions":
             for column in csvreader(StringIO(file.read().decode('UTF-8')), delimiter=','):
-                add_transaction(
-                    request,
-                    True,
-                    False,
-                    acc,
-                    column[1],
-                    column[2],
-                    column[3],
-                    column[4],
-                    column[5],
-                    column[6],
-                    column[7],
-                    column[8],
-                    column[9],
-                    column[10],
-                    column[11]
-                )
+
+                if len(column) > 0 and not column[0].startswith("Account,"):
+                    add_transaction(
+                        request,
+                        True,
+                        False,
+                        acc,
+                        column[1],
+                        column[2],
+                        column[3],
+                        column[4],
+                        column[5],
+                        column[6],
+                        column[7],
+                        column[8],
+                        column[9],
+                        column[10],
+                        column[11]
+                    )
 
         # The user wants to import transfers
         elif table == "Transfers":
             for column in csvreader(StringIO(file.read().decode('UTF-8')), delimiter=','):
-                add_transfer(
-                    request,
-                    True,
-                    False,
-                    acc,
-                    column[0] if transf_acc != column[0] else acc,
-                    column[1] if transf_acc != column[1] else acc,
-                    column[2],
-                    column[3],
-                    column[4],
-                    column[5],
-                    column[6],
-                    column[7]
-                )
+
+                if len(column) > 0 and not column[0].startswith("Source,"):
+                    add_transfer(
+                        request,
+                        True,
+                        False,
+                        acc,
+                        column[0] if transf_acc != column[0] else acc,
+                        column[1] if transf_acc != column[1] else acc,
+                        column[2],
+                        column[3],
+                        column[4],
+                        column[5],
+                        column[6],
+                        column[7]
+                    )

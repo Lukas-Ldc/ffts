@@ -51,11 +51,11 @@ def account_view(request, name):
                 table[0] = table[0] + transaction.amount_out
                 table[2] = table[2] + transaction.amount_out
             # Transfer Fee
-            for transfer in transfers.all().filter(source__exact=account, feeUnit__exact=unit):
+            for transfer in transfers.all().filter(source__exact=account, fee_unit__exact=unit):
                 table[0] = table[0] - transfer.fee
                 table[5] = table[5] + transfer.fee
             # Transaction Fee
-            for transaction in transactions.all().filter(feeUnit__exact=unit):
+            for transaction in transactions.all().filter(fee_unit__exact=unit):
                 table[0] = table[0] - transaction.fee
                 table[5] = table[5] + transaction.fee
             # Saving results
@@ -105,9 +105,9 @@ def account_view(request, name):
                 table[3] = table[3] + float(transaction.amount_in)
                 table[4] = table[4] + float(transaction.amount_out)
 
-            if transaction.feeUnit == table[0].split("/")[0]:
+            if transaction.fee_unit == table[0].split("/")[0]:
                 table[5] = table[5] + float(transaction.fee)
-            elif transaction.feeUnit == table[0].split("/")[1]:
+            elif transaction.fee_unit == table[0].split("/")[1]:
                 table[6] = table[6] + float(transaction.fee)
 
             # Saving the results
