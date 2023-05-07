@@ -4,7 +4,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpRequest
 from website.models import Transaction, Account, Standard
 from website.views.functions.authentication import authorized
 from website.views.functions.dbinterface import add_transaction, mod_transaction, del_transaction
@@ -31,38 +31,7 @@ def transactions_view(request, account):
 
             # The user wants to export the transactions
             if "export" in request.POST:
-
-                # Date used in the file name
-                date = datetime.now().strftime("%Y/%m/%d-%H-%M")
-                # Creating the file and putting it in an HTTP response
-                response = HttpResponse(content_type='text/csv',
-                                        headers={'Content-Disposition': 'attachment; \
-                                                  filename=ffts_"' + str(account).replace(" ", "_") + '_transactions_' + date + '.csv"'})
-
-                # Writting each transaction in the file
-                writer = csvwriter(response)
-                header = [str(field).split(".")[-1].replace("_", " ").title() for field in Transaction._meta.fields]
-                header.remove("Id")
-                writer.writerow(header)
-
-                for trans in Transaction.objects.all().filter(account__exact=account).order_by('-date'):
-                    writer.writerow([
-                        acc_clean(trans.account),
-                        trans.market,
-                        trans.type,
-                        str(trans.date.astimezone(ZoneInfo(request.session.get('timezone')))),
-                        trans.input,
-                        trans.output,
-                        exp_num(trans.amount_in),
-                        exp_num(trans.amount_out),
-                        exp_num(trans.price),
-                        exp_num(trans.fee),
-                        trans.fee_unit,
-                        trans.comment
-                    ])
-
-                # Returning the file to download
-                return response
+                return transactions_export(account, request)
 
             # The user wants to add a transaction
             if "add_transaction" in request.POST:
@@ -128,6 +97,49 @@ def transactions_view(request, account):
 
     # Account + User did not matched
     return redirect('website-accounts')
+
+
+def transactions_export(account: Account, request: HttpRequest):
+    """Exports in a CSV all the transactions of an account.
+
+    Args:
+        account (Account): The account linked to the transactions
+        request (HttpRequest): The request made to get the export
+
+    Returns:
+        HttpResponse: The CSV file
+    """
+    # Date used in the file name
+    date = datetime.now().strftime("%Y/%m/%d-%H-%M")
+    # Creating the file and putting it in an HTTP response
+    response = HttpResponse(content_type='text/csv',
+                            headers={'Content-Disposition': 'attachment; \
+                                        filename=ffts_"' + str(account).replace(" ", "_") + '_transactions_' + date + '.csv"'})
+
+    # Writting each transaction in the file
+    writer = csvwriter(response)
+    header = [str(field).split(".")[-1].replace("_", " ").title() for field in Transaction._meta.fields]
+    header.remove("Id")
+    writer.writerow(header)
+
+    for trans in Transaction.objects.all().filter(account__exact=account).order_by('-date'):
+        writer.writerow([
+            acc_clean(trans.account),
+            trans.market,
+            trans.type,
+            str(trans.date.astimezone(ZoneInfo(request.session.get('timezone')))),
+            trans.input,
+            trans.output,
+            exp_num(trans.amount_in),
+            exp_num(trans.amount_out),
+            exp_num(trans.price),
+            exp_num(trans.fee),
+            trans.fee_unit,
+            trans.comment
+        ])
+
+    # Returning the file to download
+    return response
 
 
 def acc_clean(account: str):
