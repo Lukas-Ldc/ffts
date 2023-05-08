@@ -62,7 +62,7 @@ def transactions_view(request, account):
                         tr_id,
                         request.POST['market'],
                         request.POST['type'],
-                        f"{request.POST['date']}{request.session['utc_int']}",
+                        f"{request.POST['date']}{request.session['utc_int']}" if len(request.POST['date']) > 0 else "",
                         request.POST['input'],
                         request.POST['output'],
                         request.POST['amountin'],

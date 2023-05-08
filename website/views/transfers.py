@@ -61,7 +61,7 @@ def transfers_view(request, account):
                         tr_id,
                         request.POST['source'],
                         request.POST['destination'],
-                        f"{request.POST['date']}{request.session['utc_int']}",
+                        f"{request.POST['date']}{request.session['utc_int']}" if len(request.POST['date']) > 0 else "",
                         request.POST['unit'],
                         request.POST['amount'],
                         request.POST['fee'],
