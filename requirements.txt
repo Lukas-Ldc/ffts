@@ -1,4 +1,0 @@
-datetime
-Django
-pathlib
-python-dateutil

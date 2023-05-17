@@ -25,14 +25,18 @@ The importation page:
 
 <img src="/static/website/img/readme/ffts_importation.png?raw=true" alt="The login page" width="800">
 
-### How to install
-You need <a href="https://www.python.org/downloads/" target="_blank">Python</a> and <a href="https://pypi.org/project/Django/" target="_blank">Django</a>.
+### How to install and use
+You need to have <a href="https://www.python.org/" target="_blank">Python</a> and <a href="https://python-poetry.org/" target="_blank">Poetry</a> installed.
 
-Download the source code, open a terminal in the root folder of the project and run the following commands:
-
+Install the environment and configure the server:
 ```
-python3 manage.py makemigrations
-python3 manage.py migrate
-python3 manage.py createsuperuser
-python3 manage.py runserver
+poetry install
+poetry run python manage.py makemigrations
+poetry run python manage.py migrate
+poetry run python manage.py createsuperuser
+```
+
+Start the server:
+```
+poetry run python manage.py runserver
 ```
