@@ -19,7 +19,7 @@
                 <li>Name [Mandatory] (ex : Interactive Brokers) <i>Cannot be changed (do a back-up before trying !).</i></li>
                 <li>Type [Optional] (ex : Broker) <i>Mandatory: In the Django admin menu, go to the standards table to add an account type.</i></li>
                 <li>Group [Optional] (ex : Long Term Investments).</li>
-                <li>Unit [Mandatory] (ex : USD,EUR) <i>Every transaction should be against an account unit (for correct calculations in the account page)</i>.</li>
+                <li>Unit [Mandatory] (ex : USD,EUR) <i>Every transaction should be against an account unit (for correct calculations in the account page). The first unit can sometimes be used as the one by default in some calculations, rank them by importance.</i></li>
                 <li>UTC [Mandatory] (ex : Europe/Paris) <i>When you import transactions and transfers without UTC, the date will be saved according to this UTC.</i></li>
                 <li>Comment [Optional] (ex : Anything).</li>
             </ul>
@@ -135,15 +135,18 @@
                 <li>Fiat deposit : Wallet > Overview > Transaction History > Fiat > Withdrawal > Export Withdrawal History</li>
                 <li>Fiat withdrawal : Wallet > Overview > Transaction History > Fiat > Withdrawal > Export Withdrawal History</li>
                 <li>POS/Savings Interests & Small BNB Conversions : Wallet > Overview > Transaction History > Generate all statements</li>
-                <li>POS/Savings Interests Only : Wallet > Overview > Transaction History > Generate all statements (Spot & Savings are enough).</li>
+                <li>POS/Savings Interests Only : Wallet > Overview > Transaction History > Generate all statements</li>
                 <li>BNB Conversions (HTML Extract) : Wallet > Fiat & Spot > Convert Small Balance to BNB > Convert History, then copy the body of the page (source code) in a HTML file and import it (remove line breaks if not working).</li>
+                <li>Binance C2C Transfer : Wallet > Overview > Transaction History > Generate all statements</li>
             </ul>
             <p>Depending on the type of importation, you can have the followings parameters:</p>
             <ul>
                 <li>Transaction Type : the type that must be associated with the imported data (ex : trade, interest, ...).</li>
                 <li>Depost/Withdrawal Account Linked : the account where the transfers are coming/going (manual : the address column has been replaced with the names of the accounts).</li>
             </ul>
-            <p>For the locked subscription (POS Interests) : will only import the interests after redemption/refund detected. Moreover, for the same asset, if you have more than one stake which overlap and one of them has been cancelled before the redemption date, the numbers won't be correct.</p>
+            <p>For the locked subscription (POS Interests) : will only import the interests after subscription + redemption detected in the same CSV.
+            If you have more than one stake for the same asset which overlap and one of them has been cancelled, the numbers won't be correct.
+            If you have for the same asset a flexible and a locked subscription, the numbers won't be correct. (Remove in "binance.py" : "Simple Earn Flexible Redemption" from "stacked_out")</p>
             <hr />
 
             <!-- Importation : Degiro -->

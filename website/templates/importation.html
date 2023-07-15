@@ -63,6 +63,7 @@
                             <option value="OtherBnb">PoS/Savings Interests & Small BNB Conversions</option>
                             <option value="Other">PoS/Savings Interests Only</option>
                             <option value="BnbHtml">BNB Conversions (HTML Extract)</option>
+                            <option value="C2C">Binance C2C Transfer</option>
                         </select>
                         <label for="floatingSelect">Type</label>
                     </div>
@@ -72,7 +73,7 @@
                     </div>
                     <div class="form-floating mb-3 binanceTf">
                         <select class="form-select" id="floatingSelect" name="transf_acc" required>
-                            <option value="Manual">Manual (Crypto Only)</option>
+                            <option value="Manual">Manual (Crypto D/W Only)</option>
                             {% for a in accounts %}
                                 <option value="{{a.unique}}">{{a.name}}</option>
                             {% endfor %}
@@ -183,7 +184,7 @@
                     </div>
                     <div class="form-floating mb-3 gateioTf">
                         <select class="form-select" id="floatingSelect" name="transf_acc" required>
-                            <option value="Manual">Manual (Crypto Only)</option>
+                            <option value="Manual">Manual (Crypto D/W Only)</option>
                             {% for a in accounts %}
                                 <option value="{{a.unique}}">{{a.name}}</option>
                             {% endfor %}

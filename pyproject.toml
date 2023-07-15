@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ffts-django"
-version = "0.1.0"
+version = "0.1.1"
 description = "This web app helps you track easily your accounts. Add transactions, transfers and import data from any website using (or creating) an importation model. Internet connection is not used, and you can always export your data in CSV files. You can also have multiple users."
 authors = ["Lukas-Ldc <78859408+Lukas-Ldc@users.noreply.github.com>"]
 license = "GNU Affero General Public License v3.0"
@@ -12,6 +12,7 @@ django = "^4.2.1"
 datetime = "^5.1"
 pathlib = "^1.0.1"
 python-dateutil = "^2.8.2"
+beautifulsoup4 = "^4.12.2"
 
 [tool.poetry.group.linters]
 optional = true

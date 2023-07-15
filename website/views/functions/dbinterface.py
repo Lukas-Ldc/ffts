@@ -493,5 +493,5 @@ def normal_data(data):
         str: The data converted to a string or None
     """
     if not str_empty(data):
-        return str(data).replace(",", ".")
+        return str(data)
     return None

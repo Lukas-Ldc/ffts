@@ -20,7 +20,7 @@ def estateguru_importer(file, bank_acc: str, acc: str, req):
             if len(column) > 0 and not column[0].startswith('"ID"'):
                 # Adding a deposit or a withdrawal
                 # Not sure about "Withdrawal" keyword, to confirm (never made one)
-                if column[6] == "Approved" and column[5] == "Deposit" or column[5] == "Withdrawal":
+                if column[6] == "Approved" and (column[5] == "Deposit" or column[5] == "Withdrawal"):
                     add_transfer(
                         req,
                         True,

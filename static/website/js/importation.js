@@ -9,7 +9,7 @@ function degiro(val) {
 }
 
 function binance(val) {
-    if (val.target.value === "CryptoDeposit" | val.target.value === "CryptoWithdrawal" | val.target.value === "FiatDeposit" | val.target.value === "FiatWithdrawal") {
+    if (val.target.value === "CryptoDeposit" | val.target.value === "CryptoWithdrawal" | val.target.value === "FiatDeposit" | val.target.value === "FiatWithdrawal" | val.target.value === "C2C") {
         document.querySelectorAll(".binanceTf").forEach(a=>a.style.display = "block");
         document.querySelectorAll(".binanceTa").forEach(a=>a.style.display = "none");
     } else {
@@ -19,7 +19,7 @@ function binance(val) {
 }
 
 function gateio(val) {
-    if (val.target.value === "CryptoDeposit" | val.target.value === "CryptoWithdrawal" | val.target.value === "FiatDeposit" | val.target.value === "FiatWithdrawal") {
+    if (val.target.value === "CryptoDeposit") {
         document.querySelectorAll(".gateioTf").forEach(a=>a.style.display = "block");
         document.querySelectorAll(".gateioTa").forEach(a=>a.style.display = "none");
     } else {

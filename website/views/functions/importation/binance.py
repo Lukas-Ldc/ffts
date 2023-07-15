@@ -3,6 +3,7 @@ from copy import deepcopy
 from re import sub as resub
 from collections import Counter
 from csv import reader as csvreader
+from bs4 import BeautifulSoup
 from django.db.models import Q
 from website.models import Account, Transaction
 from website.views.account import get_all_units
@@ -91,9 +92,30 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                             column[4]
                         )
 
+        elif table == "C2C":
+            for column in csvreader(StringIO(file.read().decode('UTF-8')), delimiter=','):
+                if column[3] == "C2C Transfer":
+                    add_transfer(
+                        request,
+                        True,
+                        False,
+                        acc,
+                        transf_acc if float_cleaner(column[5]) > 0  else acc,
+                        acc if float_cleaner(column[5]) > 0  else transf_acc,
+                        column[1],
+                        column[4],
+                        float_cleaner(column[5]),
+                        0,
+                        "",
+                        "C2C"
+                    )
+
         # The user wants to import interests & dust
         elif table == "Other" or table == "OtherBnb":
             file_base = deepcopy(file)  # Making a copy to be able to read in parallel if PoS
+            stacked_in = ["Simple Earn Locked Subscription", "POS savings purchase", "Staking Purchase"]
+            stacked_out = ["Simple Earn Locked Redemption", "POS savings redemption", "Staking Redemption", "Simple Earn Flexible Redemption"]
+            stacked_interest = ["Simple Earn Locked Rewards", "POS savings interest", "Staking Rewards"]
 
             for column in csvreader(StringIO(file.read().decode('UTF-8')), delimiter=','):
                 if len(column) > 0 and not column[0].startswith("User_ID"):
@@ -141,88 +163,88 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
 
                     # Locked interest (if you cancel, you wont earn the past interest)
                     # If 2 subscriptions for the same asset overlap + one of them is canceled : wrong numbers saved
-                    elif column[3] == "Simple Earn Locked Subscription" or column[3] == "POS savings purchase":
-
-                        filte_temp = deepcopy(file_base)  # New copy for each subscription to start the read from the begining
+                    elif column[3] in stacked_in:
+                        filte_temp = deepcopy(file_base)  # New copy for each subscription to start to read from the begining
                         purchase_found = False  # The subscription has been found in the new copy
                         pos_interest = []  # The interest during the subscription
                         pos_purchase = 0  # The amount of the subscription
+                        purchase_count = 0  # The number of purchase of the same asset (that overlap) : will add them all, so if one is cancelled it will be added too in the transactions
+                        overlap = False  # At least two purchase for the same asset for locked subscription
 
                         for col in csvreader(StringIO(filte_temp.read().decode('UTF-8')), delimiter=','):
 
                             # If subscription found and interest from the subscription asset
-                            if col[4] == column[4] and purchase_found and (col[3] == "Simple Earn Locked Rewards" or col[3] == "POS savings interest"):
+                            if col[4] == column[4] and purchase_found and col[3] in stacked_interest:
                                 temp = []
                                 for ccol in [col[1], col[5]]:
                                     temp.append(ccol)
                                 pos_interest.append(temp)
 
                             # Trying to find the subscription
-                            elif col[1] == column[1] and col[4] == column[4] and (col[3] == "Simple Earn Locked Subscription" or col[3] == "POS savings purchase"):
-                                purchase_found = True
-                                pos_purchase = col[5]
+                            elif col[3] in stacked_in and col[4] == column[4]:
+                                if col[1] == column[1]:
+                                    purchase_found = True
+                                    pos_purchase = abs(float_cleaner(col[5]))
+                                if purchase_found:
+                                    purchase_count += 1
+                                    if purchase_count > 1:
+                                        overlap = True
 
                             # Redemption has been found
-                            elif col[4] == column[4] and purchase_found and (col[3] == "Simple Earn Locked Redemption" or col[3] == "POS savings redemption"):
-                                # If not canceled (purchase amount == redemption amount)
-                                if abs(float(pos_purchase)) == abs(float(col[5])):
-                                    # Saving transactions (2 subscritpions overlap not a problem: anti-duplicate protection)
-                                    for i in pos_interest:
-                                        add_transaction(
-                                            request,
-                                            True,
-                                            False,
-                                            acc,
-                                            "",
-                                            tr_type,
-                                            i[0],
-                                            pair_guesser(acc, col[4]),
-                                            col[4],
-                                            0,
-                                            abs(float(i[1])),
-                                            0,
-                                            0,
-                                            "",
-                                            "Locked Subscription"
-                                        )
-                                break
+                            elif col[4] == column[4] and col[3] in stacked_out and purchase_found:
+                                purchase_count -= 1
+                                # If purchase from the same asset overlap, add them all or the ones after a redemption will never be added
+                                if purchase_count == 0:
+                                    # If not canceled (redemption amount >= purchase amount) or if same asset stacked overlap (no way to know if cancelled)
+                                    if abs(float(col[5])) >= pos_purchase or overlap:
+                                        # Saving transactions (2 subscritpions overlap not a problem: anti-duplicate protection)
+                                        for i in pos_interest:
+                                            add_transaction(
+                                                request,
+                                                True,
+                                                False,
+                                                acc,
+                                                "",
+                                                tr_type,
+                                                i[0],
+                                                pair_guesser(acc, col[4]),
+                                                col[4],
+                                                0,
+                                                abs(float(i[1])),
+                                                0,
+                                                0,
+                                                "",
+                                                "Locked Subscription"
+                                            )
+                                    break
 
     elif file.name.endswith('.html'):
 
         # The user wants to import dust
         if table == "BnbHtml":
-
-            for html in file:
-                # For each dust conversion
-                for line in str(html).split("css-1f50q6c"):
-
+            html_sae = BeautifulSoup(file, 'html.parser').find(class_="css-i0kxe").find_all(class_="css-18x6nki")[0]
+            for sae_group in html_sae.find_all(class_="css-18x6nki"):
+                for sae in sae_group.find_all(class_="css-1f50q6c"):
+                    sae = sae.find_all(class_=True)
                     try:
-                        # Extracting the data from the HTML
-                        temp_l = line.split("css-vurnku")[0]
-                        time = temp_l.split('<div data-type="table-min-row" class="css-1uzrl9p">')[1].split("</div>")[0]
-                        coin = temp_l.split('<div data-type="table-min-row" class="css-vjfjtb">')[1].split("</div>")[0]
-                        amount = temp_l.split('<div data-type="table-min-row" class="css-vjfjtb">')[2].split("</div>")[0]
-                        fee = temp_l.split('<div data-type="table-min-row" class="css-1dm9igw">')[1].split("</div>")[0]
-                        bnb = temp_l.split('<div data-type="table-min-row" class="css-1dm9igw">')[2].split("</div>")[0]
-
                         add_transaction(
-                            request,
-                            True,
-                            False,
-                            acc,
-                            "",
-                            tr_type,
-                            time,
-                            coin,
-                            "BNB",
-                            amount,
-                            bnb,
-                            float_limiter(float(amount) / float(bnb)),
-                            fee,
-                            "BNB",
-                            "SAE BNB"
-                        )
-                    except IndexError:
+                                request,
+                                True,
+                                False,
+                                acc,
+                                "",
+                                tr_type,
+                                sae[0].get_text(strip=True),
+                                sae[1].get_text(strip=True),
+                                "BNB",
+                                sae[2].get_text(strip=True),
+                                sae[4].get_text(strip=True),
+                                float_limiter(float(sae[2].get_text(strip=True)) / float(sae[4].get_text(strip=True))),
+                                sae[3].get_text(strip=True),
+                                "BNB",
+                                "SAE"
+                            )
+                    except KeyError:
                         pass
 
 
@@ -301,6 +323,7 @@ def pair_spliter(pair: str, way: str, fee_u: str, other_units: list = []):
 
 def pair_guesser(account: str, unit: str):
     """Analyses all the transactions of an account to find the pair generally used with a specified unit.
+    If an account unit is gaven, it will give another account unit in return (the one detected or the first in the account list).
 
     Args:
         account (str): Transactions from this account are used
@@ -310,6 +333,7 @@ def pair_guesser(account: str, unit: str):
         str: The guessed unit
     """
     global TRANSACTIONS
+    account_units = Account.objects.all().get(unique__exact=account).unit
 
     if TRANSACTIONS is None:
         TRANSACTIONS = Transaction.objects.all().filter(account__exact=account)
@@ -322,9 +346,13 @@ def pair_guesser(account: str, unit: str):
             opposites.append(transaction.input)
 
     if len(opposites) > 0:
-        return Counter(opposites).most_common(1)[0][0]
+        guess = Counter(opposites).most_common(1)[0][0]
+        if unit in account_units and guess in account_units:
+            return guess
+        if unit not in account_units:
+            return guess
 
-    return Account.objects.all().get(unique__exact=account).unit.split(",")[0]
+    return account_units.split(",")[0]
 
 
 def acc_gaver(table: str, direction: str, acc_linked: str, manual_val: str, account: str):
