@@ -7,17 +7,17 @@ from .models import Account, Transfer, Transaction, Standard
 
 class AccountInterface(admin.ModelAdmin):
     list_display = ['unique', 'name', 'type', 'user', 'group', 'unit', 'utc', 'comment']
-    search_fields = ['unqiue', 'name', 'type', 'user', 'group', 'unit', 'utc', 'comment']
+    search_fields = ['name', 'group', 'unit', 'utc', 'comment']
 
 
 class TransferInterface(admin.ModelAdmin):
     list_display = ['id', 'source', 'destination', 'date', 'unit', 'amount', 'fee', 'fee_unit', 'comment']
-    search_fields = ['id', 'source', 'destination', 'date', 'unit', 'comment']
+    search_fields = ['id', 'date', 'unit', 'comment']
 
 
 class TransactionInterface(admin.ModelAdmin):
     list_display = ['id', 'account', 'market', 'type', 'date', 'input', 'output', 'amount_in', 'amount_out', 'price', 'fee', 'fee_unit', 'comment']
-    search_fields = ['id', 'account', 'market', 'type', 'date', 'input', 'output', 'comment']
+    search_fields = ['id', 'market', 'type', 'date', 'input', 'output', 'fee_unit', 'comment']
 
 
 class StandardInterface(admin.ModelAdmin):
