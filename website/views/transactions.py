@@ -1,7 +1,7 @@
 from csv import writer as csvwriter
 from decimal import Decimal
 from datetime import datetime
-from zoneinfo import ZoneInfo
+from zoneinfo import ZoneInfo, available_timezones
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate
 from django.http import HttpResponse, HttpRequest
@@ -38,11 +38,12 @@ def transactions_view(request, account):
                 add_transaction(
                     request,
                     False,
-                    False,
+                    True,
+                    request.POST['timezone'],
                     account,
                     request.POST['market'],
                     request.POST['type'],
-                    f"{request.POST['date']}{request.session['utc_int']}",
+                    request.POST['date'],
                     request.POST['input'],
                     request.POST['output'],
                     request.POST['amountin'],
@@ -58,11 +59,11 @@ def transactions_view(request, account):
                 for tr_id in str(request.POST['id']).split(','):
                     mod_transaction(
                         request,
-                        False,
+                        True,
                         tr_id,
                         request.POST['market'],
                         request.POST['type'],
-                        f"{request.POST['date']}{request.session['utc_int']}" if len(request.POST['date']) > 0 else "",
+                        request.POST['date'],
                         request.POST['input'],
                         request.POST['output'],
                         request.POST['amountin'],
@@ -92,6 +93,7 @@ def transactions_view(request, account):
             'account_': the_account,
             'types': tr_types,
             'account': account,
+            'timezones': sorted(available_timezones()),
         }
         return render(request, "transactions.html", context)
 

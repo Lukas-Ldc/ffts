@@ -58,10 +58,17 @@
     </tbody>
 </table>
 
-<!-- Modals from Clinking on Buttons -->
+<!-- Accounts list -->
 <datalist id="accountsList">
     {% for a in accounts %}
         <option value="{{a.unique}}">
+    {% endfor %}
+</datalist>
+
+<!-- TimeZone List -->
+<datalist id="tz-list">
+    {% for tz in timezones %}
+        <option value="{{tz}}">{{tz}}</option>
     {% endfor %}
 </datalist>
 
@@ -85,7 +92,11 @@
                     </div>
                     <div class="form-floating mb-3">
                         <input type="datetime-local" class="form-control" id="floatingInput" name="date" required value="2000-01-01T00:00">
-                        <label for="floatingInput">Date *</label>
+                        <label for="floatingInput">Date (day first) *</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="floatingInput" name="timezone" required value="{{account_.utc}}" list="tz-list">
+                        <label for="floatingInput">Time Zone *</label>
                     </div>
                     <div class="form-floating mb-3">
                         <input type="text" class="form-control" id="floatingInput" name="unit" required>
@@ -141,7 +152,11 @@
                     </div>
                     <div class="form-floating mb-3">
                         <input type="datetime-local" class="form-control" id="floatingInput" name="date">
-                        <label for="floatingInput">Date</label>
+                        <label for="floatingInput">Date (day first)</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="floatingInput" name="timezone" required value="{{account_.utc}}" list="tz-list">
+                        <label for="floatingInput">Time Zone *</label>
                     </div>
                     <div class="form-floating mb-3">
                         <input type="text" class="form-control" id="floatingInput" name="unit">

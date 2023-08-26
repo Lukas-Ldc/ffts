@@ -1,7 +1,7 @@
 from csv import writer as csvwriter
 from decimal import Decimal
 from datetime import datetime
-from zoneinfo import ZoneInfo
+from zoneinfo import ZoneInfo, available_timezones
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate
 from django.db.models import Q
@@ -39,11 +39,12 @@ def transfers_view(request, account):
                 add_transfer(
                     request,
                     False,
-                    False,
+                    True,
+                    request.POST['timezone'],
                     account,
                     request.POST['source'],
                     request.POST['destination'],
-                    f"{request.POST['date']}{request.session['utc_int']}",
+                    request.POST['date'],
                     request.POST['unit'],
                     request.POST['amount'],
                     request.POST['fee'],
@@ -56,12 +57,13 @@ def transfers_view(request, account):
                 for tr_id in str(request.POST['id']).split(','):
                     mod_transfer(
                         request,
-                        False,
+                        True,
+                        request.POST['timezone'],
                         account,
                         tr_id,
                         request.POST['source'],
                         request.POST['destination'],
-                        f"{request.POST['date']}{request.session['utc_int']}" if len(request.POST['date']) > 0 else "",
+                        request.POST['date'],
                         request.POST['unit'],
                         request.POST['amount'],
                         request.POST['fee'],
@@ -88,6 +90,7 @@ def transfers_view(request, account):
             'account_': the_account,
             'account': account,
             'accounts': accounts,
+            'timezones': sorted(available_timezones()),
         }
         return render(request, "transfers.html", context)
 

@@ -3,7 +3,7 @@ from csv import reader as csvreader
 from website.views.functions.dbinterface import add_transaction, add_transfer
 
 
-def gateio_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, request):
+def gateio_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, request, utc: str):
     """Import an Gate.io export
 
     Args:
@@ -13,6 +13,7 @@ def gateio_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, r
         transf_acc (str): The account linked to the transfer
         acc (str): The account that will receive the imported data
         request (HttpRequest): The request made to send the file
+        utc (str): The timezone of the data from the imported file
     """
 
     if file.name.endswith('.csv'):
@@ -26,6 +27,7 @@ def gateio_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, r
                         request,
                         True,
                         False,
+                        utc,
                         acc,
                         "",
                         tr_type,
@@ -49,7 +51,7 @@ def gateio_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, r
                         request,
                         True,
                         False,
-                        acc,
+                        utc,
                         column[5] if transf_acc == "Manual" else transf_acc,
                         acc,
                         column[2],
@@ -79,6 +81,7 @@ def gateio_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, r
                             request,
                             True,
                             False,
+                            utc,
                             acc,
                             "",
                             tr_type,

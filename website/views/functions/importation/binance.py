@@ -12,7 +12,7 @@ from website.views.functions.dbinterface import add_transaction, add_transfer
 TRANSACTIONS = None
 
 
-def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, request):
+def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, request, utc: str):
     """Import a binance export
 
     Args:
@@ -22,6 +22,7 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
         transf_acc (str): The account linked to the withdrawals & deposits
         acc (str): The account that will receive the imported data
         request (HttpRequest): The request made to send the file
+        utc (str): The timezone of the data from the imported file
     """
 
     if file.name.endswith('.csv'):
@@ -37,6 +38,7 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                         request,
                         True,
                         False,
+                        utc,
                         acc,
                         "",
                         tr_type,
@@ -60,7 +62,7 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                         request,
                         True,
                         False,
-                        acc,
+                        utc,
                         acc_gaver(table, "s", transf_acc, column[5], acc),
                         acc_gaver(table, "d", transf_acc, column[5], acc),
                         column[0],
@@ -81,7 +83,7 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                             request,
                             True,
                             False,
-                            acc,
+                            utc,
                             acc_gaver(table, "s", transf_acc, "", acc),
                             acc_gaver(table, "d", transf_acc, "", acc),
                             column[0],
@@ -99,7 +101,7 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                         request,
                         True,
                         False,
-                        acc,
+                        utc,
                         transf_acc if float_cleaner(column[5]) > 0  else acc,
                         acc if float_cleaner(column[5]) > 0  else transf_acc,
                         column[1],
@@ -127,6 +129,7 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                                 request,
                                 True,
                                 False,
+                                utc,
                                 acc,
                                 "",
                                 tr_type,
@@ -147,6 +150,7 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                             request,
                             True,
                             False,
+                            utc,
                             acc,
                             "",
                             tr_type,
@@ -203,6 +207,7 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                                                 request,
                                                 True,
                                                 False,
+                                                utc,
                                                 acc,
                                                 "",
                                                 tr_type,
@@ -231,6 +236,7 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                                 request,
                                 True,
                                 False,
+                                utc,
                                 acc,
                                 "",
                                 tr_type,

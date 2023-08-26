@@ -3,7 +3,7 @@ from csv import reader as csvreader
 from website.views.functions.dbinterface import add_transaction, add_transfer
 
 
-def ib_importer(file, tr_type: str, bank_acc: str, ib_acc: str, acc: str, request):
+def ib_importer(file, tr_type: str, bank_acc: str, ib_acc: str, acc: str, request, utc: str):
     """Import an InteractiveBrokers export
 
     Args:
@@ -13,6 +13,7 @@ def ib_importer(file, tr_type: str, bank_acc: str, ib_acc: str, acc: str, reques
         ib_acc (str): Internal IB account and making internal transfers
         acc (str): The account that will receive the imported data
         request (HttpRequest): The request made to send the file
+        utc (str): The timezone of the data from the imported file
     """
 
     if file.name.endswith('.csv'):
@@ -27,6 +28,7 @@ def ib_importer(file, tr_type: str, bank_acc: str, ib_acc: str, acc: str, reques
                     request,
                     True,
                     False,
+                    utc,
                     acc,
                     "",
                     tr_type,
@@ -47,6 +49,7 @@ def ib_importer(file, tr_type: str, bank_acc: str, ib_acc: str, acc: str, reques
                     request,
                     True,
                     False,
+                    utc,
                     acc,
                     "",
                     tr_type,
@@ -68,7 +71,7 @@ def ib_importer(file, tr_type: str, bank_acc: str, ib_acc: str, acc: str, reques
                     request,
                     True,
                     False,
-                    acc,
+                    utc,
                     acc_temp if float_gaver(column[5]) > 0 else acc,
                     acc if float_gaver(column[5]) > 0 else acc_temp,
                     column[3],
@@ -85,6 +88,7 @@ def ib_importer(file, tr_type: str, bank_acc: str, ib_acc: str, acc: str, reques
                     request,
                     True,
                     False,
+                    utc,
                     acc,
                     "",
                     tr_type,

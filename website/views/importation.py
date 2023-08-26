@@ -1,3 +1,4 @@
+from zoneinfo import available_timezones
 from django.shortcuts import render, redirect
 from website.models import Account, Standard
 from website.views.functions.authentication import authorized
@@ -35,7 +36,8 @@ def importation_view(request, account):
                     request.POST['type'],
                     request.POST['transf_acc'],
                     account,
-                    request
+                    request,
+                    request.POST['timezone'],
                 )
 
             # The user wants to import data from binance
@@ -46,7 +48,8 @@ def importation_view(request, account):
                     request.POST['tr_type'],
                     request.POST['transf_acc'],
                     account,
-                    request
+                    request,
+                    request.POST['timezone'],
                 )
 
             # The user wants to import data from Degiro
@@ -57,7 +60,8 @@ def importation_view(request, account):
                     request.POST['tr_type'],
                     request.POST['bank_acc'],
                     account,
-                    request
+                    request,
+                    request.POST['timezone'],
                 )
 
             # The user wants to import data from EstateGuru
@@ -66,7 +70,8 @@ def importation_view(request, account):
                     request.FILES['file'],
                     request.POST['bank_acc'],
                     account,
-                    request
+                    request,
+                    request.POST['timezone'],
                 )
 
             # The user wants to import data from Gate.io
@@ -77,7 +82,8 @@ def importation_view(request, account):
                     request.POST['tr_type'],
                     request.POST['transf_acc'],
                     account,
-                    request
+                    request,
+                    request.POST['timezone'],
                 )
 
             # The user wants to import data from InteractiveBrokers
@@ -88,7 +94,8 @@ def importation_view(request, account):
                     request.POST['bank_acc'],
                     request.POST['ib_acc'],
                     account,
-                    request
+                    request,
+                    request.POST['timezone'],
                 )
 
         # Web page context data
@@ -103,6 +110,7 @@ def importation_view(request, account):
             'account': the_account,
             'tr_types': tr_types,
             'accounts': accounts,
+            'timezones': sorted(available_timezones()),
         }
         return render(request, "importation.html", context)
 

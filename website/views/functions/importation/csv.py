@@ -3,7 +3,7 @@ from csv import reader as csvreader
 from website.views.functions.dbinterface import add_transaction, add_transfer
 
 
-def csv_importer(file, table: str, transf_acc: str, acc: str, request):
+def csv_importer(file, table: str, transf_acc: str, acc: str, request, utc: str):
     """Import an FFTS export
 
     Args:
@@ -12,6 +12,7 @@ def csv_importer(file, table: str, transf_acc: str, acc: str, request):
         transf_acc (str): The account to replace in a transfer (because there is source and destination)
         acc (str): The account that will receive the imported data
         request (HttpRequest): The request made to send the file
+        utc (str): The timezone of the data from the imported file
     """
 
     if file.name.endswith('.csv'):
@@ -20,11 +21,13 @@ def csv_importer(file, table: str, transf_acc: str, acc: str, request):
         if table == "Transactions":
             for column in csvreader(StringIO(file.read().decode('UTF-8')), delimiter=','):
 
-                if len(column) > 0 and not column[0].startswith("Account,"):
+                if len(column) > 0 and column[0] != "Account":
+                    print(column[0])
                     add_transaction(
                         request,
                         True,
                         False,
+                        utc,
                         acc,
                         column[1],
                         column[2],
@@ -43,12 +46,12 @@ def csv_importer(file, table: str, transf_acc: str, acc: str, request):
         elif table == "Transfers":
             for column in csvreader(StringIO(file.read().decode('UTF-8')), delimiter=','):
 
-                if len(column) > 0 and not column[0].startswith("Source,"):
+                if len(column) > 0 and not column[0] != "Source":
                     add_transfer(
                         request,
                         True,
                         False,
-                        acc,
+                        utc,
                         column[0] if transf_acc != column[0] else acc,
                         column[1] if transf_acc != column[1] else acc,
                         column[2],

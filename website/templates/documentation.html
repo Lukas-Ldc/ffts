@@ -16,12 +16,12 @@
                 If you have an administrator account, you will see a little server on the left of the title. You can access the Django admin menu from it.</p>
             <p>These are the differents parameters for an account:</p>
             <ul>
-                <li>Name [Mandatory] (ex : Interactive Brokers) <i>Cannot be changed (do a back-up before trying !).</i></li>
-                <li>Type [Optional] (ex : Broker) <i>Mandatory: In the Django admin menu, go to the standards table to add an account type.</i></li>
-                <li>Group [Optional] (ex : Long Term Investments).</li>
-                <li>Unit [Mandatory] (ex : USD,EUR) <i>Every transaction should be against an account unit (for correct calculations in the account page). The first unit can sometimes be used as the one by default in some calculations, rank them by importance.</i></li>
-                <li>UTC [Mandatory] (ex : Europe/Paris) <i>When you import transactions and transfers without UTC, the date will be saved according to this UTC.</i></li>
-                <li>Comment [Optional] (ex : Anything).</li>
+                <li>Name [Mandatory] (e.g. Interactive Brokers) <i>Cannot be changed (do a back-up before trying !).</i></li>
+                <li>Type [Optional] (e.g. Broker) <i>Mandatory: In the Django admin menu, go to the standards table to add an account type.</i></li>
+                <li>Group [Optional] (e.g. Long Term Investments).</li>
+                <li>Unit [Mandatory] (e.g. USD,EUR) <i>Every transaction should be against an account unit (for correct calculations in the account page). The first unit can sometimes be used as the one by default in some calculations, rank them by importance.</i></li>
+                <li>UTC [Mandatory] (e.g. Europe/Paris) <i>When you import transactions and transfers without UTC, the date will be saved according to this UTC.</i></li>
+                <li>Comment [Optional] (e.g. Anything).</li>
             </ul>
             <hr />
             <p>When you click on the name of an account in the accounts page, you land on the account page. In the title of the page, you can find the account name.
@@ -49,17 +49,18 @@
             <p>From this page, you can view, add, modify, delete and export transactions linked to the account.</p>
             <p>These are the differents parameters for a transaction:</p>
             <ul>
-                <li>Market [Optional] (ex : NASDAQ)</li>
-                <li>Type [Optional] (ex : Trade) <i>Optional: In the Django admin menu, go to the standards table to add a transaction type.</i></li>
-                <li>Date [Mandatory] (ex : 20/10/2020 10:30:05)</li>
-                <li>Input [Mandatory] (ex : USD)</li>
-                <li>Output [Mandatory] (ex : AAPL)</li>
-                <li>Amount In [Mandatory] (ex : 300)</li>
-                <li>Amount Out [Mandatory] (ex : 2)</li>
-                <li>Price [Optional] (ex : 150)</li>
-                <li>Fee [Optional] (ex : 2.5)</li>
-                <li>Fee Unit [Optional] (ex : USD)</li>
-                <li>Comment [Optional] (ex : Anything)</li>
+                <li>Market [Optional] (e.g. NASDAQ)</li>
+                <li>Type [Optional] (e.g. Trade) <i>Optional: In the Django admin menu, go to the standards table to add a transaction type.</i></li>
+                <li>Date [Mandatory] (e.g. 20/10/2020 10:30:05)</li>
+                <li>UTC [Mandatory] (e.g. Europe/Paris)</li>
+                <li>Input [Mandatory] (e.g. USD)</li>
+                <li>Output [Mandatory] (e.g. AAPL)</li>
+                <li>Amount In [Mandatory] (e.g. 300)</li>
+                <li>Amount Out [Mandatory] (e.g. 2)</li>
+                <li>Price [Optional] (e.g. 150)</li>
+                <li>Fee [Optional] (e.g. 2.5)</li>
+                <li>Fee Unit [Optional] (e.g. USD)</li>
+                <li>Comment [Optional] (e.g. Anything)</li>
             </ul>
             <p>You can modify or delete multiple transactions at once.</p>
         </div>
@@ -80,14 +81,15 @@
             <p>From this page, you can view, add, modify, delete and export transfers linked to the account.</p>
             <p>These are the differents parameters for a transfer:</p>
             <ul>
-                <li>Source [Mandatory] (ex : Bank Account)</li>
-                <li>Destination [Mandatory] (ex : Interactive Brokers)</li>
-                <li>Date [Mandatory] (ex : 20/10/2020 10:30:05)</li>
-                <li>Unit [Mandatory] (ex : USD)</li>
-                <li>Amount [Mandatory] (ex : 1000)</li>
-                <li>Fee [Optional] (ex : 1.5)</li>
-                <li>Fee Unit [Optional] (ex : USD)</li>
-                <li>Comment [Optional] (ex : Anything)</li>
+                <li>Source [Mandatory] (e.g. Bank Account)</li>
+                <li>Destination [Mandatory] (e.g. Interactive Brokers)</li>
+                <li>Date [Mandatory] (e.g. 20/10/2020 10:30:05)</li>
+                <li>UTC [Mandatory] (e.g. Europe/Paris)</li>
+                <li>Unit [Mandatory] (e.g. USD)</li>
+                <li>Amount [Mandatory] (e.g. 1000)</li>
+                <li>Fee [Optional] (e.g. 1.5)</li>
+                <li>Fee Unit [Optional] (e.g. USD)</li>
+                <li>Comment [Optional] (e.g. Anything)</li>
             </ul>
             <p>You can modify or delete multiple transfers at once. For each transfer, one of the accounts must belong to you (user login).</p>
         </div>
@@ -105,6 +107,7 @@
         <div class="accordion-body">
             <p>From the account page, click on the importation button to access the importation page.</p>
             <p>Select the importation model you want to use and follow the instructions. Don't hesitate to add your own model.</p>
+            <p>When importing a file, you choose an UTC. For each line, if the date is aware of the UTC (e.g. "2022-11-15 03:00:00+01:00"), it will prevail, else the selected UTC is used.</p>
             <hr />
 
             <!-- Importation : FFTS -->
@@ -141,7 +144,7 @@
             </ul>
             <p>Depending on the type of importation, you can have the followings parameters:</p>
             <ul>
-                <li>Transaction Type : the type that must be associated with the imported data (ex : trade, interest, ...).</li>
+                <li>Transaction Type : the type that must be associated with the imported data (e.g. trade, interest, ...).</li>
                 <li>Depost/Withdrawal Account Linked : the account where the transfers are coming/going (manual : the address column has been replaced with the names of the accounts).</li>
             </ul>
             <p>For the locked subscription (POS Interests) : will only import the interests after subscription + redemption detected in the same CSV.
@@ -176,7 +179,7 @@
             </ul>
             <p>Depending on the type of importation, you can have the followings parameters:</p>
             <ul>
-                <li>Transaction Type : the type that must be associated with the imported data (ex : trade, interest, ...).</li>
+                <li>Transaction Type : the type that must be associated with the imported data (e.g. trade, interest, ...).</li>
                 <li>Depost/Withdrawal Account Linked : the account where the transfers are coming/going (manual : the address column has been replaced with the names of the accounts).</li>
             </ul>
             <i>There are no other types of importation because I don't have any more data to analyse. Don't hesitate to contribute to the project.</i>
@@ -187,7 +190,7 @@
             <p>Protected against duplicates. There is only one type of importation : "Transactons + Transfers" : Performance & Reports > Activity > Format [CSV] + Language [English]</p>
             <p>You also have the following parameters:</p>
             <ul>
-                <li>Transaction Type : the type that must be associated with the imported data (ex : trade, interest, ...).</li>
+                <li>Transaction Type : the type that must be associated with the imported data (e.g. trade, interest, ...).</li>
                 <li>Bank account : assuming that every transfer is coming/going to this account (tagged "Electronic Fund Transfer").</li>
                 <li>Internal account (IB account) : assuming that every transfer is coming/going to this account (tagged "Internal Transfer").</li>
             </ul>

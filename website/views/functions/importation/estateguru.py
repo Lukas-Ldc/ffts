@@ -3,7 +3,7 @@ from csv import reader as csvreader
 from website.views.functions.dbinterface import add_transaction, add_transfer
 
 
-def estateguru_importer(file, bank_acc: str, acc: str, req):
+def estateguru_importer(file, bank_acc: str, acc: str, req, utc: str):
     """Import an EstateGuru export
 
     Args:
@@ -11,6 +11,7 @@ def estateguru_importer(file, bank_acc: str, acc: str, req):
         bank_acc (str): The account linked to the withdrawals & deposits
         acc (str): The account that will receive the imported data
         req (HttpRequest): The request made to send the file
+        utc (str): The timezone of the data from the imported file
     """
 
     if file.name.endswith('.csv'):
@@ -25,7 +26,7 @@ def estateguru_importer(file, bank_acc: str, acc: str, req):
                         req,
                         True,
                         True,
-                        acc,
+                        utc,
                         bank_acc if column[5] == "Deposit" else acc,
                         acc if column[5] == "Deposit" else bank_acc,
                         column[3],
@@ -42,6 +43,7 @@ def estateguru_importer(file, bank_acc: str, acc: str, req):
                         req,
                         True,
                         True,
+                        utc,
                         acc,
                         "",
                         column[5],
