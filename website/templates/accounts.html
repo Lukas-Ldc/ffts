@@ -24,6 +24,11 @@
     <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#deleteModal">
         Delete an Account
     </button>
+    <!-- Change user TimeZone-->
+    <form action="{% url 'website-accounts' %}" method="POST" id="form_utc">
+        <input type="text" name="change_timezone" required autocomplete="off" class="btn btn-outline-secondary" placeholder="Time Zone (Capital City, Continent)" value="{{user_tz}}" list="tz-list" onchange="this.form.submit()">
+        {% csrf_token %}
+    </form>
 </div>
 
 <!-- Accounts List -->

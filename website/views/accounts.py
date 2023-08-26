@@ -1,6 +1,7 @@
-from zoneinfo import available_timezones
+from zoneinfo import available_timezones, ZoneInfo, ZoneInfoNotFoundError
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
 from website.models import Account, Standard
 from website.views.functions.authentication import authorized
 from website.views.functions.dbinterface import add_account, mod_account, del_account
@@ -20,6 +21,14 @@ def accounts_view(request):
         return redirect('website-login')
 
     if request.method == 'POST':
+
+        if "change_timezone" in request.POST:
+            uzer = User.objects.get(username=request.user.username)
+            try:
+                uzer.last_name = ZoneInfo(request.POST['change_timezone'])  # Last Name for UTC storage (ugly but easy)
+                uzer.save()
+            except (ValueError, ZoneInfoNotFoundError):
+                pass
 
         # The user wants to create an account
         if "add_account" in request.POST:
@@ -64,6 +73,7 @@ def accounts_view(request):
         'user': request.user.username,
         'staff': request.user.is_staff,
         'types': acc_types,
-        'timezones': sorted(available_timezones())
+        'timezones': sorted(available_timezones()),
+        'user_tz': User.objects.get(username=request.user.username).last_name,
     }
     return render(request, "accounts.html", context)

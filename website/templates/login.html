@@ -1,13 +1,6 @@
 {% include "header.html" %}
 {% load static %}
 
-<!-- TimeZone List -->
-<datalist id="tz-list">
-    {% for tz in timezones %}
-        <option value="{{tz}}">{{tz}}</option>
-    {% endfor %}
-</datalist>
-
 <!-- Login form -->
 <form action="{% url 'website-login' %}" method="POST">
 
@@ -25,11 +18,6 @@
     <div class="form-floating">
         <input type="password" name="pass" required autocomplete="off" class="form-control" id="floatingInput" placeholder="">
         <label for="floatingInput">Password</label>
-    </div>
-
-    <div class="form-floating">
-        <input type="text" name="timezone" required autocomplete="off" class="form-control" id="floatingInput" placeholder="" list="tz-list">
-        <label for="floatingInput">Time Zone (Continent, City)</label>
     </div>
 
     <div>
@@ -52,14 +40,6 @@
 <div class="alert alert-danger d-flex align-items-center" role="alert">
     <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
     <div>Login or password incorrect.</div>
-</div>
-{% endif %}
-
-{% if log == 2 %}
-<!-- Incorrect Time Zone -->
-<div class="alert alert-danger d-flex align-items-center" role="alert">
-    <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
-    <div>The selected time zone is not valid (choose among the autocompleted list).</div>
 </div>
 {% endif %}
 

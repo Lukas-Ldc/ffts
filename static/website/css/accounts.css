@@ -3,7 +3,7 @@ table {
 }
 
 table tr th {
-    font-weight: 1000;   
+    font-weight: 1000;
 }
 
 #admin {
@@ -21,4 +21,12 @@ table tr th {
 
 a {
     text-decoration: none;
+}
+
+#form_utc {
+    display: inline;
+}
+
+#form_utc input {
+    cursor: text;
 }

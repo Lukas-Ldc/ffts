@@ -6,6 +6,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate
 from django.db.models import Q
 from django.http import HttpResponse, HttpRequest
+from django.contrib.auth.models import User
 from website.models import Transfer, Account
 from website.views.functions.authentication import authorized
 from website.views.functions.dbinterface import add_transfer, mod_transfer, del_transfer
@@ -125,7 +126,7 @@ def transfers_export(account: Account, request: HttpRequest):
         writer.writerow([
             acc_clean(trans.source),
             acc_clean(trans.destination),
-            str(trans.date.astimezone(ZoneInfo(request.session.get('timezone')))),
+            str(trans.date.astimezone(ZoneInfo(User.objects.get(username=request.user.username).last_name))),
             trans.unit,
             exp_num(trans.amount),
             exp_num(trans.fee),

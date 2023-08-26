@@ -5,6 +5,7 @@ from zoneinfo import ZoneInfo, available_timezones
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate
 from django.http import HttpResponse, HttpRequest
+from django.contrib.auth.models import User
 from website.models import Transaction, Account, Standard
 from website.views.functions.authentication import authorized
 from website.views.functions.dbinterface import add_transaction, mod_transaction, del_transaction
@@ -129,7 +130,7 @@ def transactions_export(account: Account, request: HttpRequest):
             acc_clean(trans.account),
             trans.market,
             trans.type,
-            str(trans.date.astimezone(ZoneInfo(request.session.get('timezone')))),
+            str(trans.date.astimezone(ZoneInfo(User.objects.get(username=request.user.username).last_name))),
             trans.input,
             trans.output,
             exp_num(trans.amount_in),
