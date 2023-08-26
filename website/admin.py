@@ -12,7 +12,7 @@ class AccountInterface(admin.ModelAdmin):
 
 class TransferInterface(admin.ModelAdmin):
     list_display = ['id', 'source', 'destination', 'date', 'unit', 'amount', 'fee', 'fee_unit', 'comment']
-    search_fields = ['id', 'date', 'unit', 'comment']
+    search_fields = ['id', 'date', 'unit', 'fee_unit', 'comment']
 
 
 class TransactionInterface(admin.ModelAdmin):
