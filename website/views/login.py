@@ -16,7 +16,7 @@ def login_view(request):
 
     login_message = 0
 
-    if request.method == 'POST':
+    if request.method == "POST":
 
         # Trying to authenticate the user
         user_auth = authenticate(request, username=request.POST['user'], password=request.POST['pass'])

@@ -29,14 +29,14 @@ def transfers_view(request, account):
     # If the account belongs to the user who made the request
     if Account.objects.all().filter(user__exact=request.user, unique__exact=account).exists():
 
-        if request.method == 'POST':
+        if request.method == "POST":
 
             # The user wants to export the transfers
-            if "export" in request.POST:
+            if "export" in request.POST.keys():
                 return transfers_export(account, request)
 
             # The user wants to add a transfer
-            if "add_transfer" in request.POST:
+            if "add_transfer" in request.POST.keys():
                 add_transfer(
                     request,
                     False,
@@ -53,7 +53,7 @@ def transfers_view(request, account):
                 )
 
             # The user wants to modify transfers
-            if "modify_transfer" in request.POST:
+            if "modify_transfer" in request.POST.keys():
                 for tr_id in str(request.POST['id']).split(','):
                     mod_transfer(
                         request,
@@ -71,7 +71,7 @@ def transfers_view(request, account):
                     )
 
             # The user wants to delete transfers
-            if "delete_transfer" in request.POST:
+            if "delete_transfer" in request.POST.keys():
                 if authenticate(request, username=request.user.username, password=request.POST['pass']):
                     for tr_id in str(request.POST['id']).split(','):
                         del_transfer(request, tr_id)

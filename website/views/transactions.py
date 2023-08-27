@@ -28,14 +28,14 @@ def transactions_view(request, account):
     # If the account belongs to the user who made the request
     if Account.objects.all().filter(user__exact=request.user, unique__exact=account).exists():
 
-        if request.method == 'POST':
+        if request.method == "POST":
 
             # The user wants to export the transactions
-            if "export" in request.POST:
+            if "export" in request.POST.keys():
                 return transactions_export(account, request)
 
             # The user wants to add a transaction
-            if "add_transaction" in request.POST:
+            if "add_transaction" in request.POST.keys():
                 add_transaction(
                     request,
                     False,
@@ -56,7 +56,7 @@ def transactions_view(request, account):
                 )
 
             # The user wants to modify transactions
-            if "modify_transaction" in request.POST:
+            if "modify_transaction" in request.POST.keys():
                 for tr_id in str(request.POST['id']).split(','):
                     mod_transaction(
                         request,
@@ -77,7 +77,7 @@ def transactions_view(request, account):
                     )
 
             # The user wants to delete transactions
-            if "delete_transaction" in request.POST:
+            if "delete_transaction" in request.POST.keys():
                 if authenticate(request, username=request.user.username, password=request.POST['pass']):
                     for tr_id in str(request.POST['id']).split(','):
                         del_transaction(request, tr_id)

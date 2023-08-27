@@ -27,10 +27,10 @@ def importation_view(request, account):
     # If the account belongs to the user who made the request
     if Account.objects.all().filter(user__exact=request.user, unique__exact=account).exists():
 
-        if request.POST:
+        if request.method == "POST":
 
             # The user wants to import a CSV file
-            if "import_csv" in request.POST:
+            if "import_csv" in request.POST.keys():
                 csv_importer(
                     request.FILES['file'],
                     request.POST['type'],
@@ -41,7 +41,7 @@ def importation_view(request, account):
                 )
 
             # The user wants to import data from binance
-            elif "import_binance" in request.POST:
+            elif "import_binance" in request.POST.keys():
                 binance_importer(
                     request.FILES['file'],
                     request.POST['type'],
@@ -53,7 +53,7 @@ def importation_view(request, account):
                 )
 
             # The user wants to import data from Degiro
-            elif "import_degiro" in request.POST:
+            elif "import_degiro" in request.POST.keys():
                 degiro_importer(
                     request.FILES['file'],
                     request.POST['type'],
@@ -65,7 +65,7 @@ def importation_view(request, account):
                 )
 
             # The user wants to import data from EstateGuru
-            elif "import_estateguru" in request.POST:
+            elif "import_estateguru" in request.POST.keys():
                 estateguru_importer(
                     request.FILES['file'],
                     request.POST['bank_acc'],
@@ -75,7 +75,7 @@ def importation_view(request, account):
                 )
 
             # The user wants to import data from Gate.io
-            elif "import_gateio" in request.POST:
+            elif "import_gateio" in request.POST.keys():
                 gateio_importer(
                     request.FILES['file'],
                     request.POST['type'],
@@ -87,7 +87,7 @@ def importation_view(request, account):
                 )
 
             # The user wants to import data from InteractiveBrokers
-            elif "import_ib" in request.POST:
+            elif "import_ib" in request.POST.keys():
                 ib_importer(
                     request.FILES['file'],
                     request.POST['tr_type'],

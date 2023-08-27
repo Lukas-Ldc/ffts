@@ -21,9 +21,9 @@ def accounts_view(request):
     if not authorized(request):
         return redirect('website-login')
 
-    if request.method == 'POST':
+    if request.method == "POST":
 
-        if "change_timezone" in request.POST:
+        if "change_timezone" in request.POST.keys():
             uzer = User.objects.get(username=request.user.username)
             try:
                 uzer.last_name = ZoneInfo(request.POST['change_timezone'])  # Last Name for UTC storage (ugly but easy)
@@ -32,7 +32,7 @@ def accounts_view(request):
                 pass
 
         # The user wants to create an account
-        if "add_account" in request.POST:
+        if "add_account" in request.POST.keys():
             add_account(
                 request,
                 True,
@@ -47,7 +47,7 @@ def accounts_view(request):
             )
 
         # The user wants to modify an account
-        if "modify_account" in request.POST:
+        if "modify_account" in request.POST.keys():
             mod_account(
                 request,
                 True,
@@ -62,7 +62,7 @@ def accounts_view(request):
             )
 
         # The user wants to delete an account
-        if "delete_account" in request.POST:
+        if "delete_account" in request.POST.keys():
             if authenticate(request, username=request.user.username, password=request.POST['pass']):
                 del_account(request, request.POST['name'])
 
