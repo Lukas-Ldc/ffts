@@ -61,6 +61,7 @@ def transactions_view(request, account):
                     mod_transaction(
                         request,
                         True,
+                        request.POST['timezone'],
                         tr_id,
                         request.POST['market'],
                         request.POST['type'],
@@ -91,9 +92,8 @@ def transactions_view(request, account):
             'file': 'transactions',
             'title': f"Transactions - {the_account.name}",
             'transactions': transactions,
-            'account_': the_account,
+            'account': the_account,
             'types': tr_types,
-            'account': account,
             'timezones': sorted(available_timezones()),
         }
         return render(request, "transactions.html", context)
