@@ -66,7 +66,10 @@ class Transaction(models.Model):
         self.amount_in = abs(self.amount_in)
         self.amount_out = abs(self.amount_out)
         if str_empty(self.price):
-            self.price = float_limiter(self.amount_in / self.amount_out)
+            if self.amount_out != 0:
+                self.price = float_limiter(self.amount_in / self.amount_out)
+            else:
+                self.price = 0
         else:
             self.price = abs(self.price)
         if str_empty(self.fee):

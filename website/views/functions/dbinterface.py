@@ -243,7 +243,7 @@ def mod_transaction(request: HttpRequest, dayfirst: bool, utc: str, iid: int, ma
     the_tr.output = empty_or_value(the_tr.output, normal_data(output), False)
     the_tr.amount_in = empty_or_value(the_tr.amount_in, correct_number(amount_in), False)
     the_tr.amount_out = empty_or_value(the_tr.amount_out, correct_number(amount_out), False)
-    the_tr.price = empty_or_value(the_tr.price, correct_number(price), True)
+    the_tr.price = empty_or_value(the_tr.price, correct_number(price), False)
     the_tr.fee = empty_or_value(the_tr.fee, correct_number(fee), True)
     the_tr.fee_unit = empty_or_value(the_tr.fee_unit, normal_data(fee_unit), True)
     the_tr.comment = empty_or_value(the_tr.comment, normal_data(comment), True)

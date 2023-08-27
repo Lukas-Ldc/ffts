@@ -32,10 +32,10 @@
 </div>
 
 <!-- Accounts List -->
-<table class="table">
+<table class="table force-color">
 {% for g in groups %}
 
-    <thead>
+    <thead class="table-group-divider">
         <tr>
             <th scope="col">{{ g.group|default:'' }}</th>
             <th scope="col">Name</th>
@@ -48,7 +48,7 @@
         </tr>
     </thead>
 
-    <tbody>
+    <tbody class="table-group-divider">
     {% with g.group as last_group %}
         {% for a in accounts %}
             {% if last_group == a.group %}

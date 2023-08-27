@@ -11,7 +11,7 @@
     <a href="{% url 'website-importation' account=account.unique %}"><button type="button" class="btn btn-outline-secondary">Import into {{account.name}}</button></a>
 </div>
 
-<table class="table">
+<table class="table force-color">
     <thead>
         <tr>
             <th scope="col">Unit</th>
@@ -24,7 +24,7 @@
         </tr>
     </thead>
 
-    <tbody>
+    <tbody class="table-group-divider">
     {% for asset in volume_overview %}
         <tr>
             <th class="{% if asset.7 == 1 %}acc_unit{% endif %} {% if asset.1 == 0 %}zero_tt{% endif %}">{{ asset.0 }}</th>
@@ -39,7 +39,7 @@
     </tbody>
 </table>
 
-<table class="table">
+<table class="table force-color">
     <thead>
         <tr>
             <th scope="col">Pair</th>
@@ -51,7 +51,7 @@
         </tr>
     </thead>
 
-    <tbody>
+    <tbody class="table-group-divider">
     {% for asset in pairs_overview %}
         <tr>
             <th>{{ asset.0 }}</th>
