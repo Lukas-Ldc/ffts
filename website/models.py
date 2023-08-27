@@ -20,6 +20,8 @@ class Account(models.Model):
     group = models.CharField(max_length=50, null=True, blank=True)
     unit = models.CharField(max_length=50)
     utc = models.CharField(max_length=50, choices=TimeZones)
+    open_date = models.DateField(null=True, blank=True)
+    close_date = models.DateField(null=True, blank=True)
     comment = models.CharField(max_length=255, null=True, blank=True)
 
     def save(self, *args, **kwargs):

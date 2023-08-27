@@ -4,22 +4,26 @@ Use the functions in this module to create, modify or delete accounts, transfers
 """
 from zoneinfo import ZoneInfo, available_timezones
 from dateutil import parser
+from datetime import datetime
 from django.db.models import Q
 from django.http import HttpRequest
 from django.utils.timezone import is_aware
 from website.models import Transaction, Transfer, Account, Standard
 
 
-def add_account(request: HttpRequest, name: str, tyype: str, group: str, unit: str, utc: str, comment: str):
+def add_account(request: HttpRequest, dayfirst: bool, name: str, tyype: str, group: str, unit: str, utc: str, open_d: str, close_d: str, comment: str):
     """Create a new account
 
     Args:
         request (HttpRequest): The HTTP request made to create the account
+        dayfirst (bool): In the date the day is at the left of the month
         name (str): The name of the account
         tyype (str): The type of the account
         group (str): The group of the account
         unit (str): The unit(s) of the account
         utc (str): The UTC of the account
+        open_d (str): The openning date of the account
+        close_d (str): The closing date of the account
         comment (str): The cpmment of the account
 
     Returns:
@@ -33,6 +37,8 @@ def add_account(request: HttpRequest, name: str, tyype: str, group: str, unit: s
         group=normal_data(group),
         unit=normal_data(unit),
         utc=normal_data(utc),
+        open_date=date_checker(open_d, utc, dayfirst),
+        close_date=date_checker(close_d, utc, dayfirst),
         comment=normal_data(comment)
     )
     return new_acc
@@ -169,11 +175,12 @@ def add_transfer(request: HttpRequest, antidup: bool, dayfirst: bool, utc: str, 
         return new_tr
 
 
-def mod_account(request: HttpRequest, name: str, tyype: str, group: str, unit: str, utc: str, comment: str):
+def mod_account(request: HttpRequest, dayfirst: bool, name: str, tyype: str, group: str, unit: str, utc: str, open_d: str, close_d: str, comment: str):
     """Modify an account
 
     Args:
         request (HttpRequest): The HTTP request made to modify the account
+        dayfirst (bool): In the date the day is at the left of the month
         name (str): The name of the account to modify
         tyype (str): The new type
         group (str): The new group
@@ -195,6 +202,8 @@ def mod_account(request: HttpRequest, name: str, tyype: str, group: str, unit: s
     the_acc.group = empty_or_value(the_acc.group, normal_data(group), True)
     the_acc.unit = empty_or_value(the_acc.unit, normal_data(unit), False)
     the_acc.utc = empty_or_value(the_acc.utc, normal_data(utc), False)
+    the_acc.open_date = empty_or_value(the_acc.open_date, date_checker(open_d, utc, dayfirst), True)
+    the_acc.close_date = empty_or_value(the_acc.close_date, date_checker(close_d, utc, dayfirst), True)
     the_acc.comment = empty_or_value(the_acc.comment, normal_data(comment), True)
     the_acc.save()
     return the_acc
@@ -405,18 +414,21 @@ def del_transfer(request: HttpRequest, iid: int):
 
 
 def empty_or_value(old_value, new_value, can_none: bool):
-    """Replaces an old value by a new value under certain conditions.
+    """Replaces an old value by a new value under certains conditions.
 
     Args:
-        old_value (str, float, int): The value that might be replaced
-        new_value (str, float, int): The new value
+        old_value: The value that might be replaced
+        new_value: The new value
         can_none (bool): The old value can be empty (if new_value = "0") or not
     """
-    if str(new_value) == "0" and isinstance(old_value, str) and can_none:
-        return ""  # "0" is the value cleaner for any string
-    else:
-        if not str_empty(new_value):
-            return new_value
+    if can_none:
+        if str(new_value) == "0" and isinstance(old_value, str):
+            return ""  # "0" is the value cleaner for a string
+        elif isinstance(new_value, datetime) and new_value.year == 1:
+            return None  # Year = 0001 is the value cleaner for a date
+
+    if not str_empty(new_value):
+        return new_value
     return old_value
 
 
@@ -449,7 +461,7 @@ def acc_type_checker(tyype: str):
     return str("")
 
 
-def date_checker(date: str, utc: str, dayf: bool = False):
+def date_checker(date: str, utc: str, dayf: bool):
     """Transforms any date in a datetime object
 
     Args:

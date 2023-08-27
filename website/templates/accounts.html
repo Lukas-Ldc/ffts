@@ -42,8 +42,8 @@
             <th scope="col">Type</th>
             <th scope="col">Unit</th>
             <th scope="col">UTC</th>
-            <th scope="col">TR</th>
-            <th scope="col">TF</th>
+            <th scope="col">Opened</th>
+            <th scope="col">Closed</th>
             <th scope="col">Comment</th>
         </tr>
     </thead>
@@ -60,21 +60,8 @@
                 <td>{{ a.type|default:'' }}</td>
                 <td>{{ a.unit }}</td>
                 <td>{{ a.utc }}</td>
-                <td>
-                    <a href="{% url 'website-transactions' account=a.unique %}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-plus-slash-minus" viewBox="0 0 16 16">
-                            <path d="m1.854 14.854 13-13a.5.5 0 0 0-.708-.708l-13 13a.5.5 0 0 0 .708.708ZM4 1a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 4 1Zm5 11a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5A.5.5 0 0 1 9 12Z"/>
-                        </svg>
-                    </a>
-                </td>
-                <td>
-                    <a href="{% url 'website-transfers' account=a.unique %}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-shuffle" viewBox="0 0 16 16">
-                            <path fill-rule="evenodd" d="M0 3.5A.5.5 0 0 1 .5 3H1c2.202 0 3.827 1.24 4.874 2.418.49.552.865 1.102 1.126 1.532.26-.43.636-.98 1.126-1.532C9.173 4.24 10.798 3 13 3v1c-1.798 0-3.173 1.01-4.126 2.082A9.624 9.624 0 0 0 7.556 8a9.624 9.624 0 0 0 1.317 1.918C9.828 10.99 11.204 12 13 12v1c-2.202 0-3.827-1.24-4.874-2.418A10.595 10.595 0 0 1 7 9.05c-.26.43-.636.98-1.126 1.532C4.827 11.76 3.202 13 1 13H.5a.5.5 0 0 1 0-1H1c1.798 0 3.173-1.01 4.126-2.082A9.624 9.624 0 0 0 6.444 8a9.624 9.624 0 0 0-1.317-1.918C4.172 5.01 2.796 4 1 4H.5a.5.5 0 0 1-.5-.5z"/>
-                            <path d="M13 5.466V1.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384l-2.36 1.966a.25.25 0 0 1-.41-.192zm0 9v-3.932a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384l-2.36 1.966a.25.25 0 0 1-.41-.192z"/>
-                        </svg>
-                    </a>
-                </td>
+                <td>{{ a.open_date|default:'' }}</td>
+                <td>{{ a.close_date|default:'' }}</td>
                 <td>{{ a.comment|default:'' }}</td>
             </tr>
             {% endif %}
@@ -140,6 +127,14 @@
                             <label for="floatingInput">UTC *</label>
                         </div>
                         <div class="form-floating mb-3">
+                            <input type="date" class="form-control" id="floatingInput" name="open_date" autocomplete="off" value="{{today}}">
+                            <label for="floatingInput">Opening Date</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="date" class="form-control" id="floatingInput" name="close_date" autocomplete="off">
+                            <label for="floatingInput">Closing Date</label>
+                        </div>
+                        <div class="form-floating mb-3">
                             <input type="text" class="form-control" id="floatingInput" name="comment" autocomplete="off">
                             <label for="floatingInput">Comment</label>
                         </div>
@@ -187,6 +182,14 @@
                         <div class="form-floating mb-3">
                             <input type="text" class="form-control" id="floatingInput" name="utc" list="tz-list" autocomplete="off">
                             <label for="floatingInput">Change the UTC</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="date" class="form-control" id="floatingInput" name="open_date" autocomplete="off">
+                            <label for="floatingInput">Change the opening Date</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="date" class="form-control" id="floatingInput" name="close_date" autocomplete="off">
+                            <label for="floatingInput">Change the closing Date</label>
                         </div>
                         <div class="form-floating mb-3">
                             <input type="text" class="form-control" id="floatingInput" name="comment" autocomplete="off">

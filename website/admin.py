@@ -6,8 +6,8 @@ from .models import Account, Transfer, Transaction, Standard
 
 
 class AccountInterface(admin.ModelAdmin):
-    list_display = ['unique', 'name', 'type', 'user', 'group', 'unit', 'utc', 'comment']
-    search_fields = ['name', 'group', 'unit', 'utc', 'comment']
+    list_display = ['unique', 'name', 'type', 'user', 'group', 'unit', 'utc', 'open_date', 'close_date', 'comment']
+    search_fields = ['name', 'group', 'unit', 'utc', 'open_date', 'close_date', 'comment']
 
 
 class TransferInterface(admin.ModelAdmin):

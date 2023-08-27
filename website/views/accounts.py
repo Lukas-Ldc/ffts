@@ -1,4 +1,5 @@
 from zoneinfo import available_timezones, ZoneInfo, ZoneInfoNotFoundError
+from datetime import datetime
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
@@ -34,11 +35,14 @@ def accounts_view(request):
         if "add_account" in request.POST:
             add_account(
                 request,
+                True,
                 request.POST['name'],
                 request.POST['type'],
                 request.POST['group'],
                 request.POST['unit'],
                 request.POST['utc'],
+                request.POST['open_date'],
+                request.POST['close_date'],
                 request.POST['comment']
             )
 
@@ -46,11 +50,14 @@ def accounts_view(request):
         if "modify_account" in request.POST:
             mod_account(
                 request,
+                True,
                 request.POST['name'],
                 request.POST['type'],
                 request.POST['group'],
                 request.POST['unit'],
                 request.POST['utc'],
+                request.POST['open_date'],
+                request.POST['close_date'],
                 request.POST['comment']
             )
 
@@ -75,5 +82,6 @@ def accounts_view(request):
         'types': acc_types,
         'timezones': sorted(available_timezones()),
         'user_tz': User.objects.get(username=request.user.username).last_name,
+        'today': datetime.now().strftime("%Y-%m-%d")
     }
     return render(request, "accounts.html", context)
