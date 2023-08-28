@@ -127,7 +127,7 @@ def transactions_export(account: Account, request: HttpRequest):
 
     for trans in Transaction.objects.all().filter(account__exact=account).order_by('-date'):
         writer.writerow([
-            acc_clean(trans.account),
+            trans.account.unique,
             trans.market,
             trans.type,
             str(trans.date.astimezone(ZoneInfo(User.objects.get(username=request.user.username).last_name))),
@@ -143,19 +143,6 @@ def transactions_export(account: Account, request: HttpRequest):
 
     # Returning the file to download
     return response
-
-
-def acc_clean(account: str):
-    """Cleans an account object name:
-    "Account object (acc_name)" -> "acc_name"
-
-    Args:
-        account (str): The account object name
-
-    Returns:
-        str: The account name
-    """
-    return str(account).replace("Account object (", "")[:-1]
 
 
 def exp_num(number: float):

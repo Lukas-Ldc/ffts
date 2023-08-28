@@ -121,8 +121,8 @@ def transfers_export(account: Account, request: HttpRequest):
 
     for trans in Transfer.objects.all().filter(Q(source__exact=account) | Q(destination__exact=account)).order_by('-date'):
         writer.writerow([
-            acc_clean(trans.source),
-            acc_clean(trans.destination),
+            trans.source.unique,
+            trans.destination.unique,
             str(trans.date.astimezone(ZoneInfo(User.objects.get(username=request.user.username).last_name))),
             trans.unit,
             exp_num(trans.amount),
@@ -133,19 +133,6 @@ def transfers_export(account: Account, request: HttpRequest):
 
     # Returning the file to download
     return response
-
-
-def acc_clean(account: str):
-    """Cleans an account object name:
-    "Account object (acc_name)" -> "acc_name"
-
-    Args:
-        account (str): The account object name
-
-    Returns:
-        str: The account name
-    """
-    return str(account).replace("Account object (", "")[:-1]
 
 
 def exp_num(number: float):

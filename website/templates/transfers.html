@@ -45,8 +45,8 @@
     {% for t in transfers %}
         <tr>
             <th scope="row">{{ t.id }}</th>
-            <td>{{ t.source|cut:"Account object ("|slice:"-1" }}</td>
-            <td>{{ t.destination|cut:"Account object ("|slice:"-1" }}</td>
+            <td>{{ t.source.unique }}</td>
+            <td>{{ t.destination.unique }}</td>
             <td>{{ t.date }}</td>
             <td>{{ t.unit }}</td>
             <td>{{ t.amount.normalize }}</td>
