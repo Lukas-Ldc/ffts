@@ -1,14 +1,16 @@
+from django.http import HttpRequest
 from django.shortcuts import render, redirect
 from django.db.models import Q
 from website.models import Transfer, Transaction, Account
 from website.views.functions.authentication import authorized
 
 
-def account_view(request, name):
+def account_view(request: HttpRequest, name: str):
     """The view for the account page
 
     Args:
         request (HttpRequest): The request for the account page
+        name (str): The name of the account
 
     Returns:
         HttpResponse: The account page

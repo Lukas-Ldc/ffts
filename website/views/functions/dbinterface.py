@@ -507,7 +507,7 @@ def normal_data(data):
     """Return a string from anything and removes any comma.
 
     Args:
-        data (Any): The data to convert
+        data: The data to convert
 
     Returns:
         str: The data converted to a string or None

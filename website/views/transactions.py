@@ -11,7 +11,7 @@ from website.views.functions.authentication import authorized
 from website.views.functions.dbinterface import add_transaction, mod_transaction, del_transaction
 
 
-def transactions_view(request, account):
+def transactions_view(request: HttpRequest, account: str):
     """The view for the transaction page
 
     Args:

@@ -1,8 +1,9 @@
+from django.http import HttpRequest
 from django.shortcuts import render, redirect
 from website.views.functions.authentication import authorized
 
 
-def documentation_view(request):
+def documentation_view(request: HttpRequest):
     """The view for the documentation page
 
     Args:

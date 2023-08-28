@@ -1,4 +1,5 @@
 from zoneinfo import available_timezones
+from django.http import HttpRequest
 from django.shortcuts import render, redirect
 from website.models import Account, Standard
 from website.views.functions.authentication import authorized
@@ -10,7 +11,7 @@ from website.views.functions.importation.gateio import gateio_importer
 from website.views.functions.importation.interactivebrokers import ib_importer
 
 
-def importation_view(request, account):
+def importation_view(request: HttpRequest, account: str):
     """The view for the importation page
 
     Args:

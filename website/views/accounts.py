@@ -1,5 +1,6 @@
 from zoneinfo import available_timezones, ZoneInfo, ZoneInfoNotFoundError
 from datetime import datetime
+from django.http import HttpRequest
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
@@ -8,7 +9,7 @@ from website.views.functions.authentication import authorized
 from website.views.functions.dbinterface import add_account, mod_account, del_account
 
 
-def accounts_view(request):
+def accounts_view(request: HttpRequest):
     """The view for the accounts page
 
     Args:

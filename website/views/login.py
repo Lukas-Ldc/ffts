@@ -1,10 +1,11 @@
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+from django.http import HttpRequest
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 
 
-def login_view(request):
+def login_view(request: HttpRequest):
     """The view for the login page
 
     Args:

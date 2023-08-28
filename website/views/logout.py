@@ -1,8 +1,9 @@
+from django.http import HttpRequest
 from django.shortcuts import redirect
 from django.contrib.auth import logout
 
 
-def logout_view(request):
+def logout_view(request: HttpRequest):
     """The view for the logout page
 
     Args:

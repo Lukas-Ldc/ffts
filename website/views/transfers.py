@@ -12,7 +12,7 @@ from website.views.functions.authentication import authorized
 from website.views.functions.dbinterface import add_transfer, mod_transfer, del_transfer
 
 
-def transfers_view(request, account):
+def transfers_view(request: HttpRequest, account: str):
     """The view for the transfers page
 
     Args:
