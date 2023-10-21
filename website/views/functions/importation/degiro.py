@@ -1,6 +1,7 @@
 from io import StringIO
 from csv import reader as csvreader
 from website.views.functions.dbinterface import add_transaction, add_transfer, mod_transaction
+from website.views.functions.data_functions import strn, opposite
 
 
 def degiro_importer(file, table: str, tr_type: str, bank_acc: str, acc: str, request, utc: str):
@@ -119,7 +120,7 @@ def degiro_importer(file, table: str, tr_type: str, bank_acc: str, acc: str, req
                             column[7],
                             0,
                             column[8],
-                            change_price_giver(column[6]),
+                            opposite(strn(column[6], ".", True), 4),
                             0,
                             "",
                             ""
@@ -161,25 +162,9 @@ def degiro_importer(file, table: str, tr_type: str, bank_acc: str, acc: str, req
                             "TEMP",
                             column[8],
                             0,
-                            change_price_giver(column[6]),
+                            opposite(strn(column[6], ".", True), 4),
                             0,
                             "",
                             ""
                         )
                         change = True
-
-
-def change_price_giver(number: str):
-    """Give the price for a change operation.
-    Cleans the string and takes the opposite.
-
-    Args:
-        number (str): The basic price (inverted)
-
-    Returns:
-        float: The new price
-    """
-    try:
-        return round(1 / abs(float(number.replace(",", "."))), 4)
-    except ZeroDivisionError:
-        return 0

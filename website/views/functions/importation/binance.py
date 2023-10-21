@@ -1,15 +1,10 @@
 from io import StringIO
 from copy import deepcopy
-from re import sub as resub
-from collections import Counter
 from csv import reader as csvreader
 from bs4 import BeautifulSoup
-from django.db.models import Q
-from website.models import Account, Transaction
-from website.views.account import get_all_units
+from website.models import Account
+from website.views.functions.data_functions import float_limiter, float_str_cleaner, all_acc_units, pair_spliter, pair_guesser
 from website.views.functions.dbinterface import add_transaction, add_transfer
-
-TRANSACTIONS = None
 
 
 def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, request, utc: str):
@@ -31,7 +26,7 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
         if table == "Transactions":
 
             for column in csvreader(StringIO(file.read().decode('UTF-8')), delimiter=','):
-                acc_unit = get_all_units(acc)
+                acc_unit = all_acc_units(acc)
 
                 if len(column) > 0 and not column[0].startswith("Date"):
                     add_transaction(
@@ -45,10 +40,10 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                         column[0],
                         pair_spliter(column[1], column[2], column[7], acc_unit)[0],
                         pair_spliter(column[1], column[2], column[7], acc_unit)[1],
-                        float_cleaner(column[5]) if column[2] == "BUY" else float_cleaner(column[4]),
-                        float_cleaner(column[4]) if column[2] == "BUY" else float_cleaner(column[5]),
-                        float_cleaner(column[3]),
-                        float_cleaner(column[6]),
+                        float_str_cleaner(column[5]) if column[2] == "BUY" else float_str_cleaner(column[4]),
+                        float_str_cleaner(column[4]) if column[2] == "BUY" else float_str_cleaner(column[5]),
+                        float_str_cleaner(column[3]),
+                        float_str_cleaner(column[6]),
                         column[7],
                         ""
                     )
@@ -67,8 +62,8 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                         acc_gaver(table, "d", transf_acc, column[5], acc),
                         column[0],
                         column[1],
-                        float_cleaner(column[3]),
-                        float_cleaner(column[4]),
+                        float_str_cleaner(column[3]),
+                        float_str_cleaner(column[4]),
                         column[1],
                         "Via " + column[2]
                     )
@@ -88,8 +83,8 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                             acc_gaver(table, "d", transf_acc, "", acc),
                             column[0],
                             column[1],
-                            float_cleaner(column[2]),
-                            float_cleaner(column[6]),
+                            float_str_cleaner(column[2]),
+                            float_str_cleaner(column[6]),
                             column[1],
                             column[4]
                         )
@@ -102,11 +97,11 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                         True,
                         False,
                         utc,
-                        transf_acc if float_cleaner(column[5]) > 0  else acc,
-                        acc if float_cleaner(column[5]) > 0  else transf_acc,
+                        transf_acc if float_str_cleaner(column[5]) > 0  else acc,
+                        acc if float_str_cleaner(column[5]) > 0  else transf_acc,
                         column[1],
                         column[4],
-                        float_cleaner(column[5]),
+                        float_str_cleaner(column[5]),
                         0,
                         "",
                         "C2C"
@@ -188,7 +183,7 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                             elif col[3] in stacked_in and col[4] == column[4]:
                                 if col[1] == column[1]:
                                     purchase_found = True
-                                    pos_purchase = abs(float_cleaner(col[5]))
+                                    pos_purchase = abs(float_str_cleaner(col[5]))
                                 if purchase_found:
                                     purchase_count += 1
                                     if purchase_count > 1:
@@ -245,7 +240,7 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                                 "BNB",
                                 sae[2].get_text(strip=True),
                                 sae[4].get_text(strip=True),
-                                float_limiter(float(sae[2].get_text(strip=True)) / float(sae[4].get_text(strip=True))),
+                                float_limiter(float(sae[2].get_text(strip=True)) / float(sae[4].get_text(strip=True)), 1),
                                 sae[3].get_text(strip=True),
                                 "BNB",
                                 "SAE"
@@ -254,144 +249,26 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                         pass
 
 
-def float_cleaner(number: str):
-    """Removes any letter and comma from a string
-
-    Args:
-        number (str): The string to clean
-
-    Returns:
-        float: The cleaned number
-    """
-    if number is None or number == "":
-        return 0
-    else:
-        return float(resub(r'[A-Za-z,]', '', number))
-
-
-def float_limiter(number: float):
-    """Depending on the size of the number, limits the number of digits after the decimal point
-
-    Args:
-        number (float): The number to clean
-
-    Returns:
-        float: The cleaned number
-    """
-    if number > 100:
-        return round(number, 3)
-    if number > 10:
-        return round(number, 6)
-    if number > 1:
-        return round(number, 8)
-    if number > 0.1:
-        return round(number, 10)
-    return round(number, 15)
-
-
-def pair_spliter(pair: str, way: str, fee_u: str, other_units: list = []):
-    """Separates a pair (BTCUSDT) into two different tickers (BTC, USDT) by comparing with given data.
-
-    Args:
-        pair (str): The pair to split (BTCUSDT)
-        way (str): BUY or SELL
-        fee_u (str): The unit of the fee
-        other_units (list): Other units that can help to split the pair
-
-    Returns:
-        list: (INPUT, OUTPUT) or (PAIR, PAIR) if not guessed
-    """
-    unit1 = None
-
-    # Trying to gess the unit
-    units = [fee_u]
-    units.extend(other_units)
-    for unit in units:
-        if str(pair).startswith(unit):
-            unit1 = unit
-            break
-        if str(pair).endswith(unit):
-            unit1 = unit
-            break
-
-    # Unit guessed
-    if unit1 is not None:
-        unit2 = str(pair).replace(unit1, "")  # Removing unit guessed to get other unit
-
-        if way == "BUY" and str(pair).startswith(unit1) or way == "SELL" and str(pair).startswith(unit2):
-            return [unit2, unit1]
-        elif way == "BUY" and str(pair).startswith(unit2) or way == "SELL" and str(pair).startswith(unit1):
-            return [unit1, unit2]
-
-    # Not guessed
-    return [pair, pair]
-
-
-def pair_guesser(account: str, unit: str):
-    """Analyses all the transactions of an account to find the pair generally used with a specified unit.
-    If an account unit is gaven, it will give another account unit in return (the one detected or the first in the account list).
-
-    Args:
-        account (str): Transactions from this account are used
-        unit (str): The unit we want to guess the pair
-
-    Returns:
-        str: The guessed unit
-    """
-    global TRANSACTIONS
-    account_units = Account.objects.all().get(unique__exact=account).unit
-
-    if TRANSACTIONS is None:
-        TRANSACTIONS = Transaction.objects.all().filter(account__exact=account)
-
-    opposites = []
-    for transaction in TRANSACTIONS.all().filter(Q(input__exact=unit) | Q(output__exact=unit)):
-        if transaction.input == unit:
-            opposites.append(transaction.output)
-        else:
-            opposites.append(transaction.input)
-
-    if len(opposites) > 0:
-        guess = Counter(opposites).most_common(1)[0][0]
-        if unit in account_units and guess in account_units:
-            return guess
-        if unit not in account_units:
-            return guess
-
-    return account_units.split(",")[0]
-
-
 def acc_gaver(table: str, direction: str, acc_linked: str, manual_val: str, account: str):
-    """_summary_
+    """Gives one of the accounts for a transfer depending on different settings.
 
     Args:
         table (str): The table selected for the import (ends with Withdrawal or Deposit)
         direction (str): You need the source account ("s") or the destination ("d")
-        acc_linked (str): Manual or the selected account (one set in the HTML form)
-        manual_val (str): If Manual use this account (one in the CSV)
+        acc_linked (str): Manual or the selected account (set in the HTML form)
+        manual_val (str): If acc_linked=Manual: use this account (from the CSV)
         account (str): The account in which the data is imported
 
     Returns:
         Account: The account needed
     """
-    # Source needed for a deposit
-    if str(table).endswith("Deposit") and direction == "s":
+    # Source needed for a deposit / Destination needed for a withdrawal
+    if (table.endswith("Deposit") and direction == "s") or (table.endswith("Withdrawal") and direction == "d"):
         if acc_linked == "Manual":
             return Account.objects.all().get(unique__exact=manual_val).unique
         else:
             return Account.objects.all().get(unique__exact=acc_linked).unique
 
-    # Destination needed for a withdrdepositawal
-    elif str(table).endswith("Deposit") and direction == "d":
-        return Account.objects.all().get(unique__exact=account).unique
-
-    # Destination needed for a withdrawal
-    elif str(table).endswith("Withdrawal") and direction == "d":
-        if acc_linked == "Manual":
-            return Account.objects.all().get(unique__exact=manual_val).unique
-        else:
-            return Account.objects.all().get(unique__exact=acc_linked).unique
-
-    # Source needed for a withdrawal
-    elif str(table).endswith("Withdrawal") and direction == "s":
+    # Destination needed for a deposit / Source needed for a withdrawal
+    elif (table.endswith("Deposit") and direction == "d") or (table.endswith("Withdrawal") and direction == "s"):
         return Account.objects.all().get(unique__exact=account).unique

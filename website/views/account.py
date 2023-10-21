@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect
 from django.db.models import Q
 from website.models import Transfer, Transaction, Account
 from website.views.functions.authentication import authorized
+from website.views.functions.data_functions import float_limiter, all_acc_units
 
 
 def account_view(request: HttpRequest, name: str):
@@ -56,7 +57,7 @@ def assets_calculations(account: Account, transfers: Transfer, transactions: Tra
         [the_unit: str, total_amount: float, tt_tr_in: float, tt_tr_out: float, tt_tf_in: float, tt_tf_out: float, tt_fee: float, is_acc_unit: bool]
     """
     volume_overview = []
-    all_units = get_all_units(account.unique)
+    all_units = all_acc_units(account.unique)
     acc_units = str(account.unit).split(",")
 
     # Getting all the volume for each unit and the total amount in the account
@@ -89,7 +90,7 @@ def assets_calculations(account: Account, transfers: Transfer, transactions: Tra
             table[0] = table[0] - transaction.fee
             table[5] = table[5] + transaction.fee
         # Saving results
-        table = [unit] + [float_remover(float(t)) for t in table] + [1 if unit in acc_units else 0]
+        table = [unit] + [float_limiter(float(t), 0) for t in table] + [1 if unit in acc_units else 0]
         volume_overview.append(table)
 
     # Sorting the results
@@ -165,64 +166,22 @@ def pairs_calculations(account: Account, transactions: Transaction):
     for pair in pairs_summ:
         # Account unit on the right, so the left element is the one we 'buy' and 'sell'
         try:
-            avg_buy = float_remover(pair[3] / pair[4])
+            avg_buy = float_limiter(pair[3] / pair[4], 0)
         except ZeroDivisionError:
             avg_buy = 0
         try:
-            avg_sell = float_remover(pair[2] / pair[1])
+            avg_sell = float_limiter(pair[2] / pair[1], 0)
         except ZeroDivisionError:
             avg_sell = 0
-        pnl = float_remover(pair[2] - pair[3])
+        pnl = float_limiter(pair[2] - pair[3], 0)
         try:
             perf = round(((pair[2] / pair[3]) - 1) * 100, 2)
         except ZeroDivisionError:
             perf = 0
-        fee = float_remover(pair[6])
+        fee = float_limiter(pair[6], 0)
 
         pairs_overview.append([pair[0], perf, pnl, avg_buy, avg_sell, fee])
 
     # Sorting the results
     pairs_overview.sort(key=lambda x: x[0])
     return pairs_overview
-
-
-def get_all_units(account: str):
-    """Returns the list of all the existing units used in an account.
-
-    Args:
-        account (str): The account targeted
-
-    Returns:
-        list: The list of units
-    """
-    all_units = []
-    transfers = Transfer.objects.all().filter(Q(source__exact=account) | Q(destination__exact=account))
-    transactions = Transaction.objects.all().filter(account__exact=account)
-
-    for transfer in transfers.values('unit').order_by('unit').distinct():
-        all_units.append(transfer.get('unit'))
-    for transaction in transactions.values('input').order_by('input').distinct():
-        all_units.append(transaction.get('input'))
-    for transaction in transactions.values('output').order_by('output').distinct():
-        all_units.append(transaction.get('output'))
-    return list(set(all_units))
-
-
-def float_remover(number: float):
-    """Depending on the size of the number, limits the number of digits after the decimal point
-
-    Args:
-        number (float): The number to clean
-
-    Returns:
-        float: The cleaned number
-    """
-    if number > 1000:
-        return round(number, 1)
-    if number > 100:
-        return round(number, 2)
-    if number > 10:
-        return round(number, 2)
-    if number > 1:
-        return round(number, 4)
-    return round(number, 8)

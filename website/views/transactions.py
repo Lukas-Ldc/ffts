@@ -1,5 +1,4 @@
 from csv import writer as csvwriter
-from decimal import Decimal
 from datetime import datetime
 from zoneinfo import ZoneInfo, available_timezones
 from django.shortcuts import render, redirect
@@ -8,6 +7,7 @@ from django.http import HttpResponse, HttpRequest
 from django.contrib.auth.models import User
 from website.models import Transaction, Account, Standard
 from website.views.functions.authentication import authorized
+from website.views.functions.data_functions import float_0_cleaner
 from website.views.functions.dbinterface import add_transaction, mod_transaction, del_transaction
 
 
@@ -133,29 +133,13 @@ def transactions_export(account: Account, request: HttpRequest):
             str(trans.date.astimezone(ZoneInfo(User.objects.get(username=request.user.username).last_name))),
             trans.input,
             trans.output,
-            exp_num(trans.amount_in),
-            exp_num(trans.amount_out),
-            exp_num(trans.price),
-            exp_num(trans.fee),
+            float_0_cleaner(trans.amount_in),
+            float_0_cleaner(trans.amount_out),
+            float_0_cleaner(trans.price),
+            float_0_cleaner(trans.fee),
             trans.fee_unit,
             trans.comment
         ])
 
     # Returning the file to download
     return response
-
-
-def exp_num(number: float):
-    """Clean any number given:
-    '140.93000000' -> '140.93',
-    '140.0000' -> '140'
-
-    Args:
-        number (float): The number to clean
-
-    Returns:
-        float or int: The cleaned number
-    """
-    if number is not None:
-        return number.quantize(Decimal(1)) if number == number.to_integral() else number.normalize()
-    return ""

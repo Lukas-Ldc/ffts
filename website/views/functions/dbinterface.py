@@ -2,13 +2,11 @@
 The is the database module.
 Use the functions in this module to create, modify or delete accounts, transfers and transactions.
 """
-from zoneinfo import ZoneInfo, available_timezones
-from dateutil import parser
 from datetime import datetime
 from django.db.models import Q
 from django.http import HttpRequest
-from django.utils.timezone import is_aware
-from website.models import Transaction, Transfer, Account, Standard
+from website.models import Transaction, Transfer, Account
+from website.views.functions.data_functions import strn, date_checker, acc_type_checker
 
 
 def add_account(request: HttpRequest, dayfirst: bool, name: str, tyype: str, group: str, unit: str, utc: str, open_d: str, close_d: str, comment: str):
@@ -31,15 +29,15 @@ def add_account(request: HttpRequest, dayfirst: bool, name: str, tyype: str, gro
     """
     new_acc = Account.objects.create(
         unique=None,
-        name=normal_data(name),
+        name=strn(name),
         type=acc_type_checker(tyype),
         user=request.user,
-        group=normal_data(group),
-        unit=normal_data(unit),
-        utc=normal_data(utc),
+        group=strn(group),
+        unit=strn(unit),
+        utc=strn(utc),
         open_date=date_checker(open_d, utc, dayfirst),
         close_date=date_checker(close_d, utc, dayfirst),
-        comment=normal_data(comment)
+        comment=strn(comment)
     )
     return new_acc
 
@@ -79,10 +77,10 @@ def add_transaction(request: HttpRequest, antidup: bool, dayfirst: bool, utc: st
         old_tr = Transaction.objects.all().filter(
             account__exact=the_account,
             date__exact=date_checker(date, utc, dayfirst),
-            input__exact=normal_data(iinput),
-            output__exact=normal_data(output),
-            amount_in__exact=correct_number(amount_in),
-            amount_out__exact=correct_number(amount_out)
+            input__exact=strn(iinput),
+            output__exact=strn(output),
+            amount_in__exact=strn(amount_in, ".", True),
+            amount_out__exact=strn(amount_out, ".", True)
         )[0]
     except IndexError:
         old_tr = False
@@ -95,17 +93,17 @@ def add_transaction(request: HttpRequest, antidup: bool, dayfirst: bool, utc: st
     else:
         new_tf = Transaction.objects.create(
             account=the_account,
-            market=normal_data(market),
-            type=normal_data(tyype),
+            market=strn(market),
+            type=strn(tyype),
             date=date_checker(date, utc, dayfirst),
-            input=normal_data(iinput),
-            output=normal_data(output),
-            amount_in=correct_number(amount_in),
-            amount_out=correct_number(amount_out),
-            price=correct_number(price),
-            fee=correct_number(fee),
-            fee_unit=normal_data(fee_unit),
-            comment=normal_data(comment)
+            input=strn(iinput),
+            output=strn(output),
+            amount_in=strn(amount_in, "."),
+            amount_out=strn(amount_out, "."),
+            price=strn(price, "."),
+            fee=strn(fee, "."),
+            fee_unit=strn(fee_unit),
+            comment=strn(comment)
         )
         return new_tf
 
@@ -150,8 +148,8 @@ def add_transfer(request: HttpRequest, antidup: bool, dayfirst: bool, utc: str, 
             source__exact=the_source,
             destination__exact=the_destination,
             date__exact=date_checker(date, utc, dayfirst),
-            unit__exact=normal_data(unit),
-            amount__exact=correct_number(amount)
+            unit__exact=strn(unit),
+            amount__exact=strn(amount, ".", True)
         )[0]
     except IndexError:
         old_tf = False
@@ -166,11 +164,11 @@ def add_transfer(request: HttpRequest, antidup: bool, dayfirst: bool, utc: str, 
             source=the_source,
             destination=the_destination,
             date=date_checker(date, utc, dayfirst),
-            unit=normal_data(unit),
-            amount=correct_number(amount),
-            fee=correct_number(fee),
-            fee_unit=normal_data(fee_unit),
-            comment=normal_data(comment)
+            unit=strn(unit),
+            amount=strn(amount, "."),
+            fee=strn(fee, "."),
+            fee_unit=strn(fee_unit),
+            comment=strn(comment)
         )
         return new_tr
 
@@ -199,12 +197,12 @@ def mod_account(request: HttpRequest, dayfirst: bool, name: str, tyype: str, gro
 
     # Modification of the account
     the_acc.type = empty_or_value(the_acc.type, acc_type_checker(tyype), True)
-    the_acc.group = empty_or_value(the_acc.group, normal_data(group), True)
-    the_acc.unit = empty_or_value(the_acc.unit, normal_data(unit), False)
-    the_acc.utc = empty_or_value(the_acc.utc, normal_data(utc), False)
+    the_acc.group = empty_or_value(the_acc.group, strn(group), True)
+    the_acc.unit = empty_or_value(the_acc.unit, strn(unit), False)
+    the_acc.utc = empty_or_value(the_acc.utc, strn(utc), False)
     the_acc.open_date = empty_or_value(the_acc.open_date, date_checker(open_d, utc, dayfirst), True)
     the_acc.close_date = empty_or_value(the_acc.close_date, date_checker(close_d, utc, dayfirst), True)
-    the_acc.comment = empty_or_value(the_acc.comment, normal_data(comment), True)
+    the_acc.comment = empty_or_value(the_acc.comment, strn(comment), True)
     the_acc.save()
     return the_acc
 
@@ -245,17 +243,17 @@ def mod_transaction(request: HttpRequest, dayfirst: bool, utc: str, iid: int, ma
         return False
 
     # Modification of the transaction
-    the_tr.market = empty_or_value(the_tr.market, normal_data(market), True)
-    the_tr.type = empty_or_value(the_tr.type, normal_data(tyype), True)
+    the_tr.market = empty_or_value(the_tr.market, strn(market), True)
+    the_tr.type = empty_or_value(the_tr.type, strn(tyype), True)
     the_tr.date = empty_or_value(the_tr.date, date_checker(date, utc, dayfirst), False)
-    the_tr.input = empty_or_value(the_tr.input, normal_data(iinput), False)
-    the_tr.output = empty_or_value(the_tr.output, normal_data(output), False)
-    the_tr.amount_in = empty_or_value(the_tr.amount_in, correct_number(amount_in), False)
-    the_tr.amount_out = empty_or_value(the_tr.amount_out, correct_number(amount_out), False)
-    the_tr.price = empty_or_value(the_tr.price, correct_number(price), False)
-    the_tr.fee = empty_or_value(the_tr.fee, correct_number(fee), True)
-    the_tr.fee_unit = empty_or_value(the_tr.fee_unit, normal_data(fee_unit), True)
-    the_tr.comment = empty_or_value(the_tr.comment, normal_data(comment), True)
+    the_tr.input = empty_or_value(the_tr.input, strn(iinput), False)
+    the_tr.output = empty_or_value(the_tr.output, strn(output), False)
+    the_tr.amount_in = empty_or_value(the_tr.amount_in, strn(amount_in, ".", True), False)
+    the_tr.amount_out = empty_or_value(the_tr.amount_out, strn(amount_out, ".", True), False)
+    the_tr.price = empty_or_value(the_tr.price, strn(price, ".", True), False)
+    the_tr.fee = empty_or_value(the_tr.fee, strn(fee, ".", True), True)
+    the_tr.fee_unit = empty_or_value(the_tr.fee_unit, strn(fee_unit), True)
+    the_tr.comment = empty_or_value(the_tr.comment, strn(comment), True)
     the_tr.save()
     return the_tr
 
@@ -301,7 +299,7 @@ def mod_transfer(request: HttpRequest, dayfirst: bool, utc: str, iid: int, sourc
         return False
 
     # Verifying if with the news accounts one of them still belongs to the user
-    if not str_empty(source):
+    if source is not None and len(source) > 0:
         try:
             new_source = Account.objects.all().get(unique__exact=source)
         except Account.DoesNotExist:
@@ -309,7 +307,7 @@ def mod_transfer(request: HttpRequest, dayfirst: bool, utc: str, iid: int, sourc
     else:
         new_source = the_source
 
-    if not str_empty(destination):
+    if destination is not None and len(destination) > 0:
         try:
             new_destination = Account.objects.all().get(unique__exact=destination)
         except Account.DoesNotExist:
@@ -324,11 +322,11 @@ def mod_transfer(request: HttpRequest, dayfirst: bool, utc: str, iid: int, sourc
     the_tf.source = empty_or_value(the_tf.source, new_source, False)
     the_tf.destination = empty_or_value(the_tf.destination, new_destination, False)
     the_tf.date = empty_or_value(the_tf.date, date_checker(date, utc, dayfirst), False)
-    the_tf.unit = empty_or_value(the_tf.unit, correct_number(unit), False)
-    the_tf.amount = empty_or_value(the_tf.amount, correct_number(amount), False)
-    the_tf.fee = empty_or_value(the_tf.fee, correct_number(fee), True)
-    the_tf.fee_unit = empty_or_value(the_tf.fee_unit, normal_data(fee_unit), True)
-    the_tf.comment = empty_or_value(the_tf.comment, normal_data(comment), True)
+    the_tf.unit = empty_or_value(the_tf.unit, strn(unit, ".", True), False)
+    the_tf.amount = empty_or_value(the_tf.amount, strn(amount, ".", True), False)
+    the_tf.fee = empty_or_value(the_tf.fee, strn(fee, ".", True), True)
+    the_tf.fee_unit = empty_or_value(the_tf.fee_unit, strn(fee_unit), True)
+    the_tf.comment = empty_or_value(the_tf.comment, strn(comment), True)
     the_tf.save()
     return the_tf
 
@@ -423,95 +421,10 @@ def empty_or_value(old_value, new_value, can_none: bool):
     """
     if can_none:
         if str(new_value) == "0" and isinstance(old_value, str):
-            return ""  # "0" is the value cleaner for a string
+            return None  # "0" is the value cleaner for a string
         elif isinstance(new_value, datetime) and new_value.year == 1:
             return None  # Year = 0001 is the value cleaner for a date
 
-    if not str_empty(new_value):
+    if new_value is not None and len(new_value) > 0:
         return new_value
     return old_value
-
-
-def str_empty(string: str):
-    """Verify if a string is empty
-
-    Args:
-        string (str): The string to check
-
-    Returns:
-        bool: True if not empty
-    """
-    if string is not None:
-        if len(str(string)) > 0:
-            return False
-    return True
-
-
-def acc_type_checker(tyype: str):
-    """Checks if a type is valid for an account
-
-    Args:
-        type (str): The type to set for the account
-
-    Returns:
-        str: The type if it exists or an empty string
-    """
-    if Standard.objects.all().filter(type__exact='AccountType', name__exact=tyype).exists():
-        return tyype
-    return str("")
-
-
-def date_checker(date: str, utc: str, dayf: bool):
-    """Transforms any date in a datetime object
-
-    Args:
-        date (str): Any date to save
-        utc (str): Name of account: its UTC. available_timezones from ZoneInfo: specific UTC. If date is aware: date UTC prevails.
-        dayf (bool): Day or month first (if True: 03 is day in 03-02-2020 or 2020-03-02)
-
-    Returns:
-        str: The ISO date
-    """
-    if str_empty(date):
-        return None
-    date = parser.parse(date, dayfirst=dayf)
-
-    # Date is aware of UTC or none given
-    if utc is None or is_aware(date):
-        return date
-    # UTC is a time zone
-    if utc in available_timezones():
-        return date.replace(tzinfo=ZoneInfo(utc))
-    # UTC is from an account
-    if Account.objects.all().filter(unique__exact=utc):
-        return date.replace(tzinfo=ZoneInfo(Account.objects.all().get(unique__exact=utc).utc))
-
-    return date
-
-
-def correct_number(number: str):
-    """Transforms a string in a number (absolute and replace ',' by '.')
-
-    Args:
-        number (str): The string to convert
-
-    Returns:
-        float: Returns the number or None
-    """
-    if not str_empty(number):
-        return abs(float(str(number).replace(",", ".")))
-    return None
-
-
-def normal_data(data):
-    """Return a string from anything and removes any comma.
-
-    Args:
-        data: The data to convert
-
-    Returns:
-        str: The data converted to a string or None
-    """
-    if not str_empty(data):
-        return str(data)
-    return None

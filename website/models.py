@@ -42,11 +42,11 @@ class Transfer(models.Model):
     comment = models.CharField(max_length=255, null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        self.amount = abs(self.amount)
-        if str_empty(self.fee):
+        self.amount = abs(float(self.amount))
+        if self.fee is None:
             self.fee = 0
         else:
-            self.fee = abs(self.fee)
+            self.fee = abs(float(self.fee))
         super().save(*args, **kwargs)
 
 
@@ -65,19 +65,19 @@ class Transaction(models.Model):
     comment = models.CharField(max_length=255, null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        self.amount_in = abs(self.amount_in)
-        self.amount_out = abs(self.amount_out)
-        if str_empty(self.price):
+        self.amount_in = abs(float(self.amount_in))
+        self.amount_out = abs(float(self.amount_out))
+        if self.price is None:
             if self.amount_out != 0:
-                self.price = float_limiter(self.amount_in / self.amount_out)
+                self.price = float_limiter(float(self.amount_in) / float(self.amount_out))
             else:
                 self.price = 0
         else:
-            self.price = abs(self.price)
-        if str_empty(self.fee):
+            self.price = abs(float(self.price))
+        if self.fee is None:
             self.fee = 0
         else:
-            self.fee = abs(self.fee)
+            self.fee = abs(float(self.fee))
         super().save(*args, **kwargs)
 
 
@@ -95,25 +95,12 @@ def float_limiter(number: float):
     Returns:
         float: The cleaned number
     """
+    if number > 1000:
+        return round(number, 1)
+    if number > 100:
+        return round(number, 2)
     if number > 10:
         return round(number, 3)
     if number > 1:
         return round(number, 4)
-    if number > 0.1:
-        return round(number, 6)
-    return round(number, 10)
-
-
-def str_empty(string: str):
-    """Verify if a string is empty
-
-    Args:
-        string (str): The string to check
-
-    Returns:
-        bool: True if not empty
-    """
-    if string is not None:
-        if len(str(string)) > 0:
-            return False
-    return True
+    return round(number, 8)

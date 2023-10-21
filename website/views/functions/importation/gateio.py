@@ -1,5 +1,6 @@
 from io import StringIO
 from csv import reader as csvreader
+from website.views.functions.data_functions import float_limiter
 from website.views.functions.dbinterface import add_transaction, add_transfer
 
 
@@ -90,31 +91,10 @@ def gateio_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, r
                             "GT",
                             amount,
                             gtt,
-                            float_remover(float(amount) / float(gtt)),
+                            float_limiter(float(amount) / float(gtt), 1),
                             0,
                             "",
                             "Dust",
                         )
                     except IndexError:
                         pass
-
-
-def float_remover(number: float):
-    """Depending on the size of the number, limits the number of digits after the decimal point
-
-    Args:
-        number (float): The number to clean
-
-    Returns:
-        float: The cleaned number
-    """
-    if number > 1000:
-        return round(number, 2)
-    elif number > 100:
-        return round(number, 4)
-    elif number > 10:
-        return round(number, 6)
-    elif number > 1:
-        return round(number, 8)
-    else:
-        return round(number, 10)

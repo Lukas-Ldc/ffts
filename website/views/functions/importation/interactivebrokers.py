@@ -1,6 +1,7 @@
 from io import StringIO
 from csv import reader as csvreader
 from website.views.functions.dbinterface import add_transaction, add_transfer
+from website.views.functions.data_functions import strn
 
 
 def ib_importer(file, tr_type: str, bank_acc: str, ib_acc: str, acc: str, request, utc: str):
@@ -33,12 +34,12 @@ def ib_importer(file, tr_type: str, bank_acc: str, ib_acc: str, acc: str, reques
                     "",
                     tr_type,
                     str(column[6]).replace(",", ""),
-                    str(column[5]).split(".")[1] if float_gaver(column[7]) > 0 else str(column[5]).split(".")[0],
-                    str(column[5]).split(".")[0] if float_gaver(column[7]) > 0 else str(column[5]).split(".")[1],
-                    float_gaver(column[10]) if float_gaver(column[7]) > 0 else float_gaver(column[7]),
-                    float_gaver(column[7]) if float_gaver(column[7]) > 0 else float_gaver(column[10]),
-                    float_gaver(1 / float(column[8])) if float_gaver(column[7]) > 0 else float_gaver(column[8]),
-                    float_gaver(column[11]),
+                    str(column[5]).split(".")[1] if float(column[7]) > 0 else str(column[5]).split(".")[0],
+                    str(column[5]).split(".")[0] if float(column[7]) > 0 else str(column[5]).split(".")[1],
+                    strn(column[10], "") if float(column[7]) > 0 else strn(column[7], ""),
+                    strn(column[7], "") if float(column[7]) > 0 else strn(column[10], ""),
+                    round(1 / strn(column[8], ""), 4) if float(column[7]) > 0 else strn(column[8], ""),
+                    strn(column[11], ""),
                     str(column[5]).split(".")[0] if forex_fee_unit is None else forex_fee_unit,
                     column[3]
                 )
@@ -54,12 +55,12 @@ def ib_importer(file, tr_type: str, bank_acc: str, ib_acc: str, acc: str, reques
                     "",
                     tr_type,
                     str(column[6]).replace(",", ""),
-                    column[4] if float_gaver(column[7]) > 0 else column[5],
-                    column[5] if float_gaver(column[7]) > 0 else column[4],
-                    float_gaver(column[10]) if float_gaver(column[7]) > 0 else float_gaver(column[7]),
-                    float_gaver(column[7]) if float_gaver(column[7]) > 0 else float_gaver(column[10]),
-                    float_gaver(column[8]),
-                    float_gaver(column[11]),
+                    column[4] if float(column[7]) > 0 else column[5],
+                    column[5] if float(column[7]) > 0 else column[4],
+                    strn(column[10], "") if float(column[7]) > 0 else strn(column[7], ""),
+                    strn(column[7], "") if float(column[7]) > 0 else strn(column[10], ""),
+                    strn(column[8], ""),
+                    strn(column[11], ""),
                     column[4] if len(column[4]) > 0 else "",
                     column[3]
                 )
@@ -72,11 +73,11 @@ def ib_importer(file, tr_type: str, bank_acc: str, ib_acc: str, acc: str, reques
                     True,
                     False,
                     utc,
-                    acc_temp if float_gaver(column[5]) > 0 else acc,
-                    acc if float_gaver(column[5]) > 0 else acc_temp,
+                    acc_temp if float(column[5]) > 0 else acc,
+                    acc if float(column[5]) > 0 else acc_temp,
                     column[3],
                     column[2],
-                    float_gaver(column[5]),
+                    strn(column[5], ""),
                     0,
                     "",
                     column[4]
@@ -98,7 +99,7 @@ def ib_importer(file, tr_type: str, bank_acc: str, ib_acc: str, acc: str, reques
                     0,
                     0,
                     0,
-                    float_gaver(column[9]),
+                    strn(column[9], ""),
                     column[3] if len(column[3]) > 0 else "",
                     column[6]
                 )
@@ -110,15 +111,3 @@ def ib_importer(file, tr_type: str, bank_acc: str, ib_acc: str, acc: str, reques
             elif column[0] == "Trades" and column[1] == "Header":
                 if str(column[11])[:8] == "Comm in ":
                     forex_fee_unit = str(column[11])[8:]
-
-
-def float_gaver(number: str):
-    """Returns a float from a string with a limited precision.
-
-    Args:
-        number (str): The number to convert
-
-    Returns:
-        float: The correct number
-    """
-    return round(float(str(number).replace(",", "")), 4)
