@@ -97,7 +97,7 @@
                             <label for="floatingInput">Type</label>
                         </div>
                         <div class="form-floating mb-3">
-                            <input type="datetime-local" class="form-control" id="floatingInput" name="date" required value="2000-01-01T00:00">
+                            <input type="datetime-local" class="form-control" id="floatingInput" name="date" required step="1">
                             <label for="floatingInput">Date *</label>
                         </div>
                         <div class="form-floating mb-3">
@@ -133,7 +133,7 @@
                             <label for="floatingInput">Fee Unit</label>
                         </div>
                         <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="floatingInput" name="comment" autocomplete="off">
+                            <input type="text" class="form-control" id="floatingInput" name="comment">
                             <label for="floatingInput">Comment</label>
                         </div>
                 </div>
@@ -169,12 +169,12 @@
                         <label for="floatingInput">Type</label>
                     </div>
                     <div class="form-floating mb-3">
-                        <input type="datetime-local" class="form-control" id="floatingInput" name="date">
+                        <input type="datetime-local" class="form-control" id="floatingInput" name="date" step="1">
                         <label for="floatingInput">Date</label>
                     </div>
                     <div class="form-floating mb-3">
-                        <input type="text" class="form-control" id="floatingInput" name="timezone" required value="{{account.utc}}" list="tz-list">
-                        <label for="floatingInput">Time Zone *</label>
+                        <input type="text" class="form-control" id="floatingInput" name="timezone" list="tz-list">
+                        <label for="floatingInput">Time Zone</label>
                     </div>
                     <div class="form-floating mb-3">
                         <input type="text" class="form-control" id="floatingInput" name="input">
@@ -205,7 +205,7 @@
                         <label for="floatingInput">Fee Unit</label>
                     </div>
                     <div class="form-floating mb-3">
-                        <input type="text" class="form-control" id="floatingInput" name="comment" autocomplete="off">
+                        <input type="text" class="form-control" id="floatingInput" name="comment">
                         <label for="floatingInput">Comment</label>
                     </div>
                 </div>

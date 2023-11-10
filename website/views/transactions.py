@@ -39,7 +39,7 @@ def transactions_view(request: HttpRequest, account: str):
                 add_transaction(
                     request,
                     False,
-                    True,
+                    False,
                     request.POST['timezone'],
                     account,
                     request.POST['market'],
@@ -60,7 +60,7 @@ def transactions_view(request: HttpRequest, account: str):
                 for tr_id in str(request.POST['id']).split(','):
                     mod_transaction(
                         request,
-                        True,
+                        False,
                         request.POST['timezone'],
                         tr_id,
                         request.POST['market'],

@@ -40,7 +40,7 @@ def transfers_view(request: HttpRequest, account: str):
                 add_transfer(
                     request,
                     False,
-                    True,
+                    False,
                     request.POST['timezone'],
                     request.POST['source'],
                     request.POST['destination'],
@@ -57,7 +57,7 @@ def transfers_view(request: HttpRequest, account: str):
                 for tr_id in str(request.POST['id']).split(','):
                     mod_transfer(
                         request,
-                        True,
+                        False,
                         request.POST['timezone'],
                         tr_id,
                         request.POST['source'],
