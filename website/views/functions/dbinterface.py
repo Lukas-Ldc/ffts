@@ -299,7 +299,7 @@ def mod_transfer(request: HttpRequest, dayfirst: bool, utc: str, iid: int, sourc
         return False
 
     # Verifying if with the news accounts one of them still belongs to the user
-    if source is not None and len(source) > 0:
+    if source is not None and len(str(source)) > 0:
         try:
             new_source = Account.objects.all().get(unique__exact=source)
         except Account.DoesNotExist:
@@ -307,7 +307,7 @@ def mod_transfer(request: HttpRequest, dayfirst: bool, utc: str, iid: int, sourc
     else:
         new_source = the_source
 
-    if destination is not None and len(destination) > 0:
+    if destination is not None and len(str(destination)) > 0:
         try:
             new_destination = Account.objects.all().get(unique__exact=destination)
         except Account.DoesNotExist:
@@ -425,6 +425,6 @@ def empty_or_value(old_value, new_value, can_none: bool):
         elif isinstance(new_value, datetime) and new_value.year == 1:
             return None  # Year = 0001 is the value cleaner for a date
 
-    if new_value is not None and len(new_value) > 0:
+    if new_value is not None and len(str(new_value)) > 0:
         return new_value
     return old_value
