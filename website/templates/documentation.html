@@ -135,14 +135,15 @@
                 <p>These are the differents types of importation:</p>
                 <ul>
                     <li>Transactions : Orders > Spot Orders > Trade History > Export (only tested with spot)</li>
-                    <li>Crypto deposit : Wallet > Overview > Transaction History > Crypto > Deposit > Export Deposit History</li>
-                    <li>Crypto withdrawal : Wallet > Overview > Transaction History > Crypto > Withdrawal > Export Withdrawal History</li>
-                    <li>Fiat deposit : Wallet > Overview > Transaction History > Fiat > Withdrawal > Export Withdrawal History</li>
-                    <li>Fiat withdrawal : Wallet > Overview > Transaction History > Fiat > Withdrawal > Export Withdrawal History</li>
-                    <li>POS/Savings Interests & Small BNB Conversions : Wallet > Overview > Transaction History > Generate all statements</li>
-                    <li>POS/Savings Interests Only : Wallet > Overview > Transaction History > Generate all statements</li>
-                    <li>BNB Conversions (HTML Extract) : Wallet > Fiat & Spot > Convert Small Balance to BNB > Convert History, then copy the body of the page (source code) in a HTML file and import it (remove line breaks if not working).</li>
-                    <li>Binance C2C Transfer : Wallet > Overview > Transaction History > Generate all statements</li>
+                    <li>Crypto deposit : Wallet > Transaction History > Crypto > Deposit > Export Deposit History</li>
+                    <li>Crypto withdrawal : Wallet > Transaction History > Crypto > Withdrawal > Export Withdrawal History</li>
+                    <li>Fiat deposit : Wallet > Transaction History > Fiat > Withdrawal > Export Withdrawal History</li>
+                    <li>Fiat withdrawal : Wallet > Transaction History > Fiat > Withdrawal > Export Withdrawal History</li>
+                    <li>POS/Savings Interests & Small BNB Conversions : Wallet > Transaction History > Generate all statements</li>
+                    <li>POS/Savings Interests Only : Wallet > Transaction History > Generate all statements</li>
+                    <li>BNB Conversions (HTML Extract) : Wallet > Transaction History > BNB Convert (open the conversions you want to import), then copy the body of the page (source code) in an HTML file and import it.</li>
+                    <li>Binance C2C Transfer : Wallet > Transaction History > Generate all statements</li>
+                    <li>Crypto Buy: Orders > Buy Crypto History > Export</li>
                 </ul>
                 <p>Depending on the type of importation, you can have the followings parameters:</p>
                 <ul>
@@ -151,7 +152,9 @@
                 </ul>
                 <p>For the locked subscription (POS Interests) : will only import the interests after subscription + redemption detected in the same CSV.
                 If you have more than one stake for the same asset which overlap and one of them has been cancelled, the numbers won't be correct.
-                If you have for the same asset a flexible and a locked subscription, the numbers won't be correct. (Remove in "binance.py" : "Simple Earn Flexible Redemption" from "stacked_out")</p>
+                If you have for the same asset a flexible and a locked subscription, the numbers won't be correct.</p>
+                <p>When importing transfers between accounts, you can use "Manual (Crypto D/W only)" to automatically link the transfers with the right accounts.
+                    In order to work, you have to replace inside the CSV file the column containing the address with the unique ID of the FFTS account.</p>
                 <hr />
 
                 <!-- Importation : Degiro -->

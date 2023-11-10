@@ -3,7 +3,7 @@ from copy import deepcopy
 from csv import reader as csvreader
 from bs4 import BeautifulSoup
 from website.models import Account
-from website.views.functions.data_functions import float_limiter, float_str_cleaner, all_acc_units, pair_spliter, pair_guesser
+from website.views.functions.data_functions import float_limiter, float_str_cleaner, all_acc_units, pair_spliter, pair_guesser, letter_only
 from website.views.functions.dbinterface import add_transaction, add_transfer
 
 
@@ -28,7 +28,7 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
             for column in csvreader(StringIO(file.read().decode('UTF-8')), delimiter=','):
                 acc_unit = all_acc_units(acc)
 
-                if len(column) > 0 and not column[0].startswith("Date"):
+                if len(column) == 8 and not column[0].startswith("Date"):
                     add_transaction(
                         request,
                         True,
@@ -38,13 +38,37 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                         "",
                         tr_type,
                         column[0],
-                        pair_spliter(column[1], column[2], column[7], acc_unit)[0],
-                        pair_spliter(column[1], column[2], column[7], acc_unit)[1],
+                        pair_spliter(column[1], column[2], acc_unit.extend(column[7]))[0],
+                        pair_spliter(column[1], column[2], acc_unit.extend(column[7]))[1],
                         float_str_cleaner(column[5]) if column[2] == "BUY" else float_str_cleaner(column[4]),
                         float_str_cleaner(column[4]) if column[2] == "BUY" else float_str_cleaner(column[5]),
                         float_str_cleaner(column[3]),
                         float_str_cleaner(column[6]),
                         column[7],
+                        ""
+                    )
+
+                elif len(column) == 7 and not column[0].startswith("Date"):
+                    acc_unit.append(letter_only(column[4]))
+                    acc_unit.append(letter_only(column[5]))
+                    acc_unit.append(letter_only(column[6]))
+
+                    add_transaction(
+                        request,
+                        True,
+                        False,
+                        utc,
+                        acc,
+                        "",
+                        tr_type,
+                        column[0],
+                        pair_spliter(column[1], column[2], acc_unit)[0],
+                        pair_spliter(column[1], column[2], acc_unit)[1],
+                        float_str_cleaner(column[5]) if column[2] == "BUY" else float_str_cleaner(column[4]),
+                        float_str_cleaner(column[4]) if column[2] == "BUY" else float_str_cleaner(column[5]),
+                        str(column[3]),
+                        float_str_cleaner(column[6]),
+                        letter_only(column[6]),
                         ""
                     )
 
@@ -89,6 +113,45 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                             column[4]
                         )
 
+        # The user wants to import direct buy/sell : transfer (fiat) + transaction (crypto)
+        elif table == "CryptoBuyDeposit":
+            for column in csvreader(StringIO(file.read().decode('UTF-8')), delimiter=','):
+
+                if len(column) > 0 and not column[0].startswith("Date"):
+                    if column[6] == "Completed":
+                        add_transfer(
+                            request,
+                            True,
+                            False,
+                            utc,
+                            acc_gaver(table, "s", transf_acc, "", acc),
+                            acc_gaver(table, "d", transf_acc, "", acc),
+                            column[0],
+                            column[2].split(" ")[1],
+                            float_str_cleaner(column[2].split(" ")[0]) - float_str_cleaner(column[4].split(" ")[0]),
+                            float_str_cleaner(column[4].split(" ")[0]),
+                            column[4].split(" ")[1],
+                            "Crypto Buy"
+                        )
+                        add_transaction(
+                            request,
+                            True,
+                            False,
+                            utc,
+                            acc,
+                            None,
+                            tr_type,
+                            column[0],
+                            column[2].split(" ")[1],
+                            column[5].split(" ")[1],
+                            float_str_cleaner(column[2]) - float_str_cleaner(column[4]),
+                            column[5].split(" ")[0],
+                            None,
+                            None,
+                            None,
+                            "Crypto Buy"
+                        )
+
         elif table == "C2C":
             for column in csvreader(StringIO(file.read().decode('UTF-8')), delimiter=','):
                 if column[3] == "C2C Transfer":
@@ -113,12 +176,13 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
             stacked_in = ["Simple Earn Locked Subscription", "POS savings purchase", "Staking Purchase"]
             stacked_out = ["Simple Earn Locked Redemption", "POS savings redemption", "Staking Redemption", "Simple Earn Flexible Redemption"]
             stacked_interest = ["Simple Earn Locked Rewards", "POS savings interest", "Staking Rewards"]
+            simple_interests = ["Distribution", "Simple Earn Flexible Interest", "Savings Interest", "Commission Rebate", "Cashback Voucher", "Airdrop Assets", "Asset Recovery"]
 
             for column in csvreader(StringIO(file.read().decode('UTF-8')), delimiter=','):
                 if len(column) > 0 and not column[0].startswith("User_ID"):
 
                     # Simple interest (cancel anytime, what you've earned is earned) or distribution
-                    if column[3] == "Distribution" or column[3] == "Simple Earn Flexible Interest" or column[3] == "Savings Interest":
+                    if column[3] in simple_interests:
                         if not (len(column[4]) > 3 and str(column[4]).startswith('LD')):
                             add_transaction(
                                 request,
@@ -129,18 +193,18 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                                 "",
                                 tr_type,
                                 column[1],
-                                pair_guesser(acc, column[4]),
+                                pair_guesser(acc, column[4]) if column[3] != "Asset Recovery" else column[4],
                                 column[4],
-                                0,
-                                column[5],
+                                0 if column[3] != "Asset Recovery" else column[5],
+                                column[5] if column[3] != "Asset Recovery" else 0,
                                 0,
                                 0,
                                 "",
-                                column[3] if column[3] == "Distribution" else "Flexible Interest"
+                                column[3]
                             )
 
                     # Dust (not the best way: output and input separated in 2 transactions)
-                    elif column[3] == "Small assets exchange BNB" and table == "OtherBnb":
+                    elif column[3] == "Small Assets Exchange BNB" and table == "OtherBnb":
                         add_transaction(
                             request,
                             True,
@@ -222,8 +286,8 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
 
         # The user wants to import dust
         if table == "BnbHtml":
-            html_sae = BeautifulSoup(file, 'html.parser').find(class_="css-i0kxe").find_all(class_="css-18x6nki")[0]
-            for sae_group in html_sae.find_all(class_="css-18x6nki"):
+            html_sae = BeautifulSoup(file, 'html.parser').find_all(class_="css-g9v9ex")[0]
+            for sae_group in html_sae.find_all(class_="css-g9v9ex"):
                 for sae in sae_group.find_all(class_="css-1f50q6c"):
                     sae = sae.find_all(class_=True)
                     try:
@@ -240,7 +304,7 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                                 "BNB",
                                 sae[2].get_text(strip=True),
                                 sae[4].get_text(strip=True),
-                                float_limiter(float(sae[2].get_text(strip=True)) / float(sae[4].get_text(strip=True)), 1),
+                                None,
                                 sae[3].get_text(strip=True),
                                 "BNB",
                                 "SAE"

@@ -12,7 +12,10 @@ function binance(val) {
     if (val.target.value === "CryptoDeposit" | val.target.value === "CryptoWithdrawal" | val.target.value === "FiatDeposit" | val.target.value === "FiatWithdrawal" | val.target.value === "C2C") {
         document.querySelectorAll(".binanceTf").forEach(a=>a.style.display = "block");
         document.querySelectorAll(".binanceTa").forEach(a=>a.style.display = "none");
-    } else {
+    } else if (val.target.value === "CryptoBuyDeposit") {
+        document.querySelectorAll(".binanceTf").forEach(a=>a.style.display = "block");
+        document.querySelectorAll(".binanceTa").forEach(a=>a.style.display = "block");
+    }else {
         document.querySelectorAll(".binanceTf").forEach(a=>a.style.display = "none");
         document.querySelectorAll(".binanceTa").forEach(a=>a.style.display = "block");
     }

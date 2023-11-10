@@ -74,6 +74,20 @@ def float_limiter(number: float, setting: int):
     return None
 
 
+def letter_only(data):
+    """Return a string with all the numbers (and .&,) removed
+
+    Args:
+        data (str): The data to clean
+
+    Returns:
+        str: The data cleaned
+    """
+    if data is not None and len(data) > 0:
+        return resub(r'[0-9,.]', '', data)
+    return None
+
+
 def strn(data, comma = ",", flot = False):
     """Return a string from anything or None if string empty.
 
@@ -170,14 +184,13 @@ def date_checker(date: str, utc: str, dayf: bool):
     return date
 
 
-def pair_spliter(pair: str, way: str, fee_u: str, other_units: list = []):
+def pair_spliter(pair: str, way: str, other_units: list = []):
     """Separates a pair (BTCUSDT) into two different tickers (BTC, USDT) by comparing with given data.
 
     Args:
         pair (str): The pair to split (BTCUSDT)
         way (str): BUY or SELL
-        fee_u (str): The unit of the fee
-        other_units (list): Other units that can help to split the pair
+        other_units (list): Other units that can help to split the pair (account units, fee units, ...)
 
     Returns:
         list: (INPUT, OUTPUT) or (PAIR, PAIR) if not guessed
@@ -185,9 +198,7 @@ def pair_spliter(pair: str, way: str, fee_u: str, other_units: list = []):
     unit1 = None
 
     # Trying to gess the unit
-    units = [fee_u]
-    units.extend(other_units)
-    for unit in units:
+    for unit in other_units:
         if str(pair).startswith(unit):
             unit1 = unit
             break

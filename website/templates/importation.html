@@ -2,7 +2,7 @@
 {% load static %}
 
 <h1>Importations for <a href="{% url 'website-account' name=account.unique %}">{{account.name}}</a></h1>
-<em>Don't forget to read the documentation in order to import your data correctly.</em>
+<em>Don't forget to read the documentation in order to import your data correctly (CSV files only).</em>
 
 <div class="accordion" id="accordion">
 
@@ -62,6 +62,7 @@
                             <option value="Other">PoS/Savings Interests Only</option>
                             <option value="BnbHtml">BNB Conversions (HTML Extract)</option>
                             <option value="C2C">Binance C2C Transfer</option>
+                            <option value="CryptoBuyDeposit">Crypto Buy</option>
                         </select>
                         <label for="floatingSelect">Type</label>
                     </div>
