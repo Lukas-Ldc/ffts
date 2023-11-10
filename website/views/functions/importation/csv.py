@@ -22,7 +22,6 @@ def csv_importer(file, table: str, transf_acc: str, acc: str, request, utc: str)
             for column in csvreader(StringIO(file.read().decode('UTF-8')), delimiter=','):
 
                 if len(column) > 0 and column[0] != "Account":
-                    print(column[0])
                     add_transaction(
                         request,
                         True,
@@ -46,7 +45,7 @@ def csv_importer(file, table: str, transf_acc: str, acc: str, request, utc: str)
         elif table == "Transfers":
             for column in csvreader(StringIO(file.read().decode('UTF-8')), delimiter=','):
 
-                if len(column) > 0 and not column[0] != "Source":
+                if len(column) > 0 and column[0] != "Source":
                     add_transfer(
                         request,
                         True,
