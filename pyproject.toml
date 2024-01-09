@@ -7,20 +7,12 @@ license = "GNU Affero General Public License v3.0"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.8"
-django = "4.2.*"
+python = ">=3.10"
+django = "5.0.*"
 datetime = "5.*"
-pathlib = "1.0.*"
+pathlib = "1.*"
 python-dateutil = "2.8.*"
 beautifulsoup4 = "4.12.*"
-
-[tool.poetry.group.linters]
-optional = true
-
-[tool.poetry.group.linters.dependencies]
-bandit = "*"
-pylint = "*"
-pycodestyle = "*"
 
 [build-system]
 requires = ["poetry-core"]
