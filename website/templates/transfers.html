@@ -47,7 +47,7 @@
             <th scope="row">{{ t.id }}</th>
             <td>{{ t.source.unique }}</td>
             <td>{{ t.destination.unique }}</td>
-            <td>{{ t.date }}</td>
+            <td>{{ t.date|date:"Y/m/d H:i:s" }}</td>
             <td>{{ t.unit }}</td>
             <td>{{ t.amount.normalize }}</td>
             <td>{{ t.fee.normalize }}</td>

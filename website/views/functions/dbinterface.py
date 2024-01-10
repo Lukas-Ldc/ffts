@@ -79,8 +79,8 @@ def add_transaction(request: HttpRequest, antidup: bool, dayfirst: bool, utc: st
             date__exact=date_checker(date, utc, dayfirst),
             input__exact=strn(iinput),
             output__exact=strn(output),
-            amount_in__exact=strn(amount_in, ".", True),
-            amount_out__exact=strn(amount_out, ".", True)
+            amount_in__exact=abs(strn(amount_in, ".", True)),
+            amount_out__exact=abs(strn(amount_out, ".", True))
         )[0]
     except IndexError:
         old_tr = False
@@ -149,7 +149,7 @@ def add_transfer(request: HttpRequest, antidup: bool, dayfirst: bool, utc: str, 
             destination__exact=the_destination,
             date__exact=date_checker(date, utc, dayfirst),
             unit__exact=strn(unit),
-            amount__exact=strn(amount, ".", True)
+            amount__exact=abs(strn(amount, ".", True))
         )[0]
     except IndexError:
         old_tf = False

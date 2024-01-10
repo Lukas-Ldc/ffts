@@ -131,19 +131,20 @@
 
                 <!-- Importation : Binance -->
                 <h5>Binance</h5>
-                <p>For the XLSX files, from Excel or Libre Office you can save as CSV: sometimes the data is altered by the software (like the date) and the importation might not work. Protected against duplicates.</p>
+                <p>For the XLSX files, from Excel or Libre Office you can save as CSV: sometimes the data is altered by the software (like the date) and the importation might not work. Protected against duplicates.
+                    The export button is on the top right corner of the website.</p>
                 <p>These are the differents types of importation:</p>
                 <ul>
                     <li>Transactions : Orders > Spot Orders > Trade History > Export (only tested with spot)</li>
-                    <li>Crypto deposit : Wallet > Transaction History > Crypto > Deposit > Export Deposit History</li>
-                    <li>Crypto withdrawal : Wallet > Transaction History > Crypto > Withdrawal > Export Withdrawal History</li>
-                    <li>Fiat deposit : Wallet > Transaction History > Fiat > Withdrawal > Export Withdrawal History</li>
-                    <li>Fiat withdrawal : Wallet > Transaction History > Fiat > Withdrawal > Export Withdrawal History</li>
-                    <li>POS/Savings Interests & Small BNB Conversions : Wallet > Transaction History > Generate all statements</li>
-                    <li>POS/Savings Interests Only : Wallet > Transaction History > Generate all statements</li>
+                    <li>Crypto deposit : Orders > Transaction History > Crypto > Type: Deposit > Export Deposit History</li>
+                    <li>Crypto withdrawal : Orders > Transaction History > Crypto > Type: Withdrawal > Export Withdrawal History</li>
+                    <li>Crypto Buy: Orders > Fiat Order > Buy > Export</li>
+                    <li>Fiat deposit : Orders > Fiat Order > Fiat Deposit > Export</li>
+                    <li>Fiat withdrawal : Orders > Fiat Order > Fiat Withdrawal > Export</li>
+                    <li>POS/Savings Interests & Small BNB Conversions : Orders > Transaction History > Export Transaction Records</li>
+                    <li>POS/Savings Interests Only : Orders > Transaction History > Export Transaction Records</li>
                     <li>BNB Conversions (HTML Extract) : Wallet > Transaction History > BNB Convert (open the conversions you want to import), then copy the body of the page (source code) in an HTML file and import it.</li>
-                    <li>Binance C2C Transfer : Wallet > Transaction History > Generate all statements</li>
-                    <li>Crypto Buy: Orders > Buy Crypto History > Export</li>
+                    <li>Binance C2C Transfer : Orders > Transaction History > Export Transaction Records (read below)</li>
                 </ul>
                 <p>Depending on the type of importation, you can have the followings parameters:</p>
                 <ul>
@@ -153,7 +154,7 @@
                 <p>For the locked subscription (POS Interests) : will only import the interests after subscription + redemption detected in the same CSV.
                 If you have more than one stake for the same asset which overlap and one of them has been cancelled, the numbers won't be correct.
                 If you have for the same asset a flexible and a locked subscription, the numbers won't be correct.</p>
-                <p>When importing transfers between accounts, you can use "Manual (Crypto D/W only)" to automatically link the transfers with the right accounts.
+                <p>When importing transfers between accounts (C2C), you can use "Manual (Crypto D/W only)" to automatically link the transfers with the right accounts.
                     In order to work, you have to replace inside the CSV file the column containing the address with the unique ID of the FFTS account.</p>
                 <hr />
 

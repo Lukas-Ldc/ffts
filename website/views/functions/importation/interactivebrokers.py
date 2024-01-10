@@ -25,6 +25,8 @@ def ib_importer(file, tr_type: str, bank_acc: str, ib_acc: str, acc: str, reques
 
             # Importation of a change operation
             if column[0] == "Trades" and column[1] == "Data" and column[2] == "Order" and column[3] == "Forex":
+                column[7] = strn(column[7], "", True)
+
                 add_transaction(
                     request,
                     True,
@@ -33,12 +35,12 @@ def ib_importer(file, tr_type: str, bank_acc: str, ib_acc: str, acc: str, reques
                     acc,
                     "",
                     tr_type,
-                    str(column[6]).replace(",", ""),
-                    str(column[5]).split(".")[1] if float(column[7]) > 0 else str(column[5]).split(".")[0],
-                    str(column[5]).split(".")[0] if float(column[7]) > 0 else str(column[5]).split(".")[1],
-                    strn(column[10], "") if float(column[7]) > 0 else strn(column[7], ""),
-                    strn(column[7], "") if float(column[7]) > 0 else strn(column[10], ""),
-                    round(1 / strn(column[8], ""), 4) if float(column[7]) > 0 else strn(column[8], ""),
+                    strn(column[6], ""),
+                    str(column[5]).split(".")[1] if column[7] > 0 else str(column[5]).split(".")[0],
+                    str(column[5]).split(".")[0] if column[7] > 0 else str(column[5]).split(".")[1],
+                    strn(column[10], "") if column[7] > 0 else column[7],
+                    column[7] if column[7] > 0 else strn(column[10], ""),
+                    round(1 / strn(column[8], "", True), 4) if column[7] > 0 else strn(column[8], ""),
                     strn(column[11], ""),
                     str(column[5]).split(".")[0] if forex_fee_unit is None else forex_fee_unit,
                     column[3]
@@ -46,6 +48,8 @@ def ib_importer(file, tr_type: str, bank_acc: str, ib_acc: str, acc: str, reques
 
             # Importation of a transaction (not a change operation)
             elif column[0] == "Trades" and column[1] == "Data" and column[2] == "Order":
+                column[7] = strn(column[7], "", True)
+
                 add_transaction(
                     request,
                     True,
@@ -54,11 +58,11 @@ def ib_importer(file, tr_type: str, bank_acc: str, ib_acc: str, acc: str, reques
                     acc,
                     "",
                     tr_type,
-                    str(column[6]).replace(",", ""),
-                    column[4] if float(column[7]) > 0 else column[5],
-                    column[5] if float(column[7]) > 0 else column[4],
-                    strn(column[10], "") if float(column[7]) > 0 else strn(column[7], ""),
-                    strn(column[7], "") if float(column[7]) > 0 else strn(column[10], ""),
+                    strn(column[6], ""),
+                    column[4] if column[7] > 0 else column[5],
+                    column[5] if column[7] > 0 else column[4],
+                    strn(column[10], "") if column[7] > 0 else column[7],
+                    column[7] if column[7] > 0 else strn(column[10], ""),
                     strn(column[8], ""),
                     strn(column[11], ""),
                     column[4] if len(column[4]) > 0 else "",

@@ -50,7 +50,7 @@
             <th scope="row">{{ t.id }}</th>
             <td>{{ t.market|default:'' }}</td>
             <td>{{ t.type|default:'' }}</td>
-            <td>{{ t.date }}</td>
+            <td>{{ t.date|date:"Y/m/d H:i:s" }}</td>
             <td>{{ t.input }}</td>
             <td>{{ t.output }}</td>
             <td>{{ t.amount_in.normalize }}</td>

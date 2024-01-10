@@ -29,6 +29,9 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                 acc_unit = all_acc_units(acc)
 
                 if len(column) == 8 and not column[0].startswith("Date"):
+                    if column[7] not in acc_unit:
+                        acc_unit.append(column[7])
+
                     add_transaction(
                         request,
                         True,
@@ -38,8 +41,8 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                         "",
                         tr_type,
                         column[0],
-                        pair_spliter(column[1], column[2], acc_unit.extend(column[7]))[0],
-                        pair_spliter(column[1], column[2], acc_unit.extend(column[7]))[1],
+                        pair_spliter(column[1], column[2], acc_unit)[0],
+                        pair_spliter(column[1], column[2], acc_unit)[1],
                         float_str_cleaner(column[5]) if column[2] == "BUY" else float_str_cleaner(column[4]),
                         float_str_cleaner(column[4]) if column[2] == "BUY" else float_str_cleaner(column[5]),
                         float_str_cleaner(column[3]),
@@ -176,7 +179,7 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
             stacked_in = ["Simple Earn Locked Subscription", "POS savings purchase", "Staking Purchase"]
             stacked_out = ["Simple Earn Locked Redemption", "POS savings redemption", "Staking Redemption", "Simple Earn Flexible Redemption"]
             stacked_interest = ["Simple Earn Locked Rewards", "POS savings interest", "Staking Rewards"]
-            simple_interests = ["Distribution", "Simple Earn Flexible Interest", "Savings Interest", "Commission Rebate", "Cashback Voucher", "Airdrop Assets", "Asset Recovery"]
+            simple_interests = ["Distribution", "Simple Earn Flexible Interest", "Savings Interest", "Commission Rebate", "Cashback Voucher", "Airdrop Assets", "Asset Recovery", "Token Swap - Distribution"]
 
             for column in csvreader(StringIO(file.read().decode('UTF-8')), delimiter=','):
                 if len(column) > 0 and not column[0].startswith("User_ID"):
@@ -286,10 +289,10 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
 
         # The user wants to import dust
         if table == "BnbHtml":
-            html_sae = BeautifulSoup(file, 'html.parser').find_all(class_="css-g9v9ex")[0]
-            for sae_group in html_sae.find_all(class_="css-g9v9ex"):
-                for sae in sae_group.find_all(class_="css-1f50q6c"):
-                    sae = sae.find_all(class_=True)
+            html_sae = BeautifulSoup(file, 'html.parser')
+            for sae_group in html_sae.find_all(class_="bn-web-table-tbody")[1:]:
+                for sae in sae_group.find_all(class_="bn-web-table-row"):
+                    sae = sae.find_all(class_="bn-web-table-cell")
                     try:
                         add_transaction(
                                 request,
@@ -309,7 +312,7 @@ def binance_importer(file, table: str, tr_type: str, transf_acc: str, acc: str, 
                                 "BNB",
                                 "SAE"
                             )
-                    except KeyError:
+                    except (KeyError, IndexError):
                         pass
 
 

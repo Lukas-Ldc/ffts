@@ -36,7 +36,7 @@ def accounts_view(request: HttpRequest):
         if "add_account" in request.POST.keys():
             add_account(
                 request,
-                True,
+                False,
                 request.POST['name'],
                 request.POST['type'],
                 request.POST['group'],
@@ -51,7 +51,7 @@ def accounts_view(request: HttpRequest):
         if "modify_account" in request.POST.keys():
             mod_account(
                 request,
-                True,
+                False,
                 request.POST['name'],
                 request.POST['type'],
                 request.POST['group'],
