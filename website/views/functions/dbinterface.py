@@ -35,19 +35,19 @@ def add_account(request: HttpRequest, dayfirst: bool, name: str, tyype: str, gro
         group=strn(group),
         unit=strn(unit),
         utc=strn(utc),
-        open_date=date_checker(open_d, utc, dayfirst),
-        close_date=date_checker(close_d, utc, dayfirst),
+        open_date=date_checker(open_d, utc, dayfirst, True),
+        close_date=date_checker(close_d, utc, dayfirst, True),
         comment=strn(comment)
     )
     return new_acc
 
 
-def add_transaction(request: HttpRequest, antidup: bool, dayfirst: bool, utc: str, account: str, market: str, tyype: str, date: str, iinput: str, output: str, amount_in: str, amount_out: str, price: str, fee: str, fee_unit: str, comment: str):
+def add_transaction(request: HttpRequest, antidup: bool, dayfirst: bool, utc: str, account: str, market: str, tyype: str, date: str, iinput: str, output: str, amount_in: str, amount_out: str, price: str, fee: str, fee_unit: str, comment: str, antidupcom: bool = False):
     """Add a new transaction
 
     Args:
         request (HttpRequest): The HTTP request made to create the transaction
-        antidup (bool): Check for duplicate in the database and update the existing if found
+        antidup (bool): Check for duplicate in the database and update the existing if found (account, date, in, out, amouts)
         dayfirst (bool): In the date the day is at the left of the month
         utc (str): Name of account: its UTC. available_timezones from ZoneInfo: specific UTC. If date is aware: date UTC prevails.
         account (str): The account which made the transaction
@@ -62,6 +62,7 @@ def add_transaction(request: HttpRequest, antidup: bool, dayfirst: bool, utc: st
         fee (str): The fee
         fee_unit (str): The unit of the fee
         comment (str): The comment
+        antidupcom (bool): Also use the comment to check for duplicate
 
     Returns:
         Transaction: False or the created transaction
@@ -74,14 +75,25 @@ def add_transaction(request: HttpRequest, antidup: bool, dayfirst: bool, utc: st
 
     # Getting a possible duplicate transaction (account, date, input, output and amounts: rows that make a transaction unique)
     try:
-        old_tr = Transaction.objects.all().filter(
-            account__exact=the_account,
-            date__exact=date_checker(date, utc, dayfirst),
-            input__exact=strn(iinput),
-            output__exact=strn(output),
-            amount_in__exact=abs(strn(amount_in, ".", True)),
-            amount_out__exact=abs(strn(amount_out, ".", True))
-        )[0]
+        if not antidupcom:
+            old_tr = Transaction.objects.all().filter(
+                account__exact=the_account,
+                date__exact=date_checker(date, utc, dayfirst),
+                input__exact=strn(iinput),
+                output__exact=strn(output),
+                amount_in__exact=abs(strn(amount_in, ".", True)),
+                amount_out__exact=abs(strn(amount_out, ".", True))
+            )[0]
+        else:
+            old_tr = Transaction.objects.all().filter(
+                account__exact=the_account,
+                date__exact=date_checker(date, utc, dayfirst),
+                input__exact=strn(iinput),
+                output__exact=strn(output),
+                amount_in__exact=abs(strn(amount_in, ".", True)),
+                amount_out__exact=abs(strn(amount_out, ".", True)),
+                comment__exact=comment
+            )[0]
     except IndexError:
         old_tr = False
 
@@ -108,12 +120,12 @@ def add_transaction(request: HttpRequest, antidup: bool, dayfirst: bool, utc: st
         return new_tf
 
 
-def add_transfer(request: HttpRequest, antidup: bool, dayfirst: bool, utc: str, source: str, destination: str, date: str, unit: str, amount: str, fee: str, fee_unit: str, comment: str):
+def add_transfer(request: HttpRequest, antidup: bool, dayfirst: bool, utc: str, source: str, destination: str, date: str, unit: str, amount: str, fee: str, fee_unit: str, comment: str, antidupcom: bool = False):
     """Add a new transfer
 
     Args:
         request (HttpRequest): The HTTP request made to create the transfer
-        antidup (bool): Check for duplicate in the database and update the existing if found
+        antidup (bool): Check for duplicate in the database and update the existing if found (source, dest, date, unit, amount)
         dayfirst (bool): In the date the day is at the left of the month
         utc (str): Name of account: its UTC. available_timezones from ZoneInfo: specific UTC. If date is aware: date UTC prevails.
         source (str): The source
@@ -124,6 +136,7 @@ def add_transfer(request: HttpRequest, antidup: bool, dayfirst: bool, utc: str, 
         fee (str): The fee
         fee_unit (str): The unit of the fee
         comment (str): The comment
+        antidupcom (bool): Also use the comment to check for duplicate
 
     Returns:
         Transfer: False or the created transfer
@@ -144,13 +157,23 @@ def add_transfer(request: HttpRequest, antidup: bool, dayfirst: bool, utc: str, 
 
     # Getting a possible duplicate transfer (source, destination, date, unit, amount: rows that make a transfer unique)
     try:
-        old_tf = Transfer.objects.all().filter(
-            source__exact=the_source,
-            destination__exact=the_destination,
-            date__exact=date_checker(date, utc, dayfirst),
-            unit__exact=strn(unit),
-            amount__exact=abs(strn(amount, ".", True))
-        )[0]
+        if not antidupcom:
+            old_tf = Transfer.objects.all().filter(
+                source__exact=the_source,
+                destination__exact=the_destination,
+                date__exact=date_checker(date, utc, dayfirst),
+                unit__exact=strn(unit),
+                amount__exact=abs(strn(amount, ".", True))
+            )[0]
+        else:
+            old_tf = Transfer.objects.all().filter(
+                source__exact=the_source,
+                destination__exact=the_destination,
+                date__exact=date_checker(date, utc, dayfirst),
+                unit__exact=strn(unit),
+                amount__exact=abs(strn(amount, ".", True)),
+                comment__exact=comment
+            )[0]
     except IndexError:
         old_tf = False
 
@@ -200,8 +223,8 @@ def mod_account(request: HttpRequest, dayfirst: bool, name: str, tyype: str, gro
     the_acc.group = empty_or_value(the_acc.group, strn(group), True)
     the_acc.unit = empty_or_value(the_acc.unit, strn(unit), False)
     the_acc.utc = empty_or_value(the_acc.utc, strn(utc), False)
-    the_acc.open_date = empty_or_value(the_acc.open_date, date_checker(open_d, utc, dayfirst), True)
-    the_acc.close_date = empty_or_value(the_acc.close_date, date_checker(close_d, utc, dayfirst), True)
+    the_acc.open_date = empty_or_value(the_acc.open_date, date_checker(open_d, utc, dayfirst, True), True)
+    the_acc.close_date = empty_or_value(the_acc.close_date, date_checker(close_d, utc, dayfirst, True), True)
     the_acc.comment = empty_or_value(the_acc.comment, strn(comment), True)
     the_acc.save()
     return the_acc

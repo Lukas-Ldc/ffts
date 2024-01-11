@@ -231,7 +231,7 @@
                     </div>
                     <div class="form-floating mb-3">
                         <input type="text" class="form-control" id="floatingInput" name="tr_type" list="type-list">
-                        <label for="floatingInput">Transaction Type (Change operations for Transfers)</label>
+                        <label for="floatingInput">Transaction Type</label>
                     </div>
                     <div class="form-floating mb-3">
                         <select class="form-select" id="floatingSelect" name="bank_acc">
@@ -260,6 +260,44 @@
                     </div>
                     {% csrf_token %}
                     <button type="submit" class="btn btn-primary" name="import_ib">Import</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mintos Importation -->
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="h_mint">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c_mint" aria-expanded="true" aria-controls="c_mint">
+                Mintos
+            </button>
+        </h2>
+        <div id="c_mint" class="accordion-collapse collapse" aria-labelledby="h_mint" data-bs-parent="#accordion">
+            <div class="accordion-body">
+                <form action="{% url 'website-importation' account=account.unique %}" method="POST" enctype="multipart/form-data">
+                    <div class="form-floating mb-3">
+                        <select class="form-select" id="floatingSelect" name="type" required>
+                            <option value="TT">Transactions + Transfers</option>
+                        </select>
+                        <label for="floatingSelect">Type</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <select class="form-select" id="floatingSelect" name="bank_acc">
+                            {% for a in accounts %}
+                                <option value="{{a.unique}}">{{a.name}}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="floatingSelect">Bank Account</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" name="timezone" required value="{{account.utc}}" list="tz-list">
+                        <label for="floatingInput">File Time Zone</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="file" name="file" required>
+                    </div>
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary" name="import_mintos">Import</button>
                 </form>
             </div>
         </div>

@@ -109,7 +109,7 @@
             <div class="accordion-body">
                 <p>From the account page, click on the importation button to access the importation page.</p>
                 <p>Select the importation model you want to use and follow the instructions. Don't hesitate to add your own model.</p>
-                <p>When importing a file, you choose an UTC. For each line, if the date is aware of the UTC (e.g. "2022-11-15 03:00:00+01:00"), it will prevail, else the selected UTC is used.</p>
+                <p>When importing a file, you choose an UTC. For each line, if the date is aware of the UTC (e.g. "2022-11-15 03:00:00+01:00"), it will prevail, else the selected UTC is used (also, Etc/GMT-1 = UTC+1).</p>
                 <hr />
 
                 <!-- Importation : FFTS -->
@@ -200,6 +200,19 @@
                     <li>Bank account : assuming that every transfer is coming/going to this account (tagged "Electronic Fund Transfer").</li>
                     <li>Internal account (IB account) : assuming that every transfer is coming/going to this account (tagged "Internal Transfer").</li>
                 </ul>
+                <hr />
+
+                <!-- Importation : Mintos -->
+                <h5>Mintos</h5>
+                <p>Protected against duplicates. There is only one type of importation : "Transactons + Transfers" : Your profile (top right corner) > Account Statment > Download list of selected items (.*csv)</p>
+                <p>You have the following parameter:</p>
+                <ul>
+                    <li>Bank account : assuming that every transfer is coming/going to this account.</li>
+                </ul>
+                <p>Every export is in your own language. In order to automate the importation correctly, replace in the last column of your file what is written with one of the following keywords:
+                    "Deposit", "Withdrawal", "Interest", "Investment", "Principal" (the money you invested is returned), "Tax", "Fee".</p>
+                <p>Some transactions have the same date, units and amounts. In order to import them even with the anti-duplicates safety, the ID of the loan is also used and stored in the comment of the transaction.
+                    If you want the anti-duplicates safety to work correctly, do not modify the comment of the transactions.</p>
             </div>
         </div>
     </div>

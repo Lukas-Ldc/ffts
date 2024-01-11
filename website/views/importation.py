@@ -9,6 +9,7 @@ from website.views.functions.importation.degiro import degiro_importer
 from website.views.functions.importation.estateguru import estateguru_importer
 from website.views.functions.importation.gateio import gateio_importer
 from website.views.functions.importation.interactivebrokers import ib_importer
+from website.views.functions.importation.mintos import mintos_importer
 
 
 def importation_view(request: HttpRequest, account: str):
@@ -94,6 +95,16 @@ def importation_view(request: HttpRequest, account: str):
                     request.POST['tr_type'],
                     request.POST['bank_acc'],
                     request.POST['ib_acc'],
+                    account,
+                    request,
+                    request.POST['timezone'],
+                )
+
+            # The user wants to import data from Mintos
+            elif "import_mintos" in request.POST.keys():
+                mintos_importer(
+                    request.FILES['file'],
+                    request.POST['bank_acc'],
                     account,
                     request,
                     request.POST['timezone'],

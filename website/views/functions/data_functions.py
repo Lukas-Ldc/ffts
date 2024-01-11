@@ -40,7 +40,7 @@ def float_str_cleaner(number: str):
 
 
 def float_limiter(number: float, setting: int):
-    """Depending on the size of the number, limits the number of digits after the decimal point
+    """Depending on the size of the number, limits the number of digits after the decimal point (absolute)
 
     Args:
         number (float): The number to clean
@@ -49,6 +49,8 @@ def float_limiter(number: float, setting: int):
     Returns:
         float: The cleaned number
     """
+    number = abs(float(number))
+
     if setting == 0:
         if number > 1000:
             return round(number, 1)
@@ -156,13 +158,14 @@ def acc_type_checker(tyype: str):
     return None
 
 
-def date_checker(date: str, utc: str, dayf: bool):
+def date_checker(date: str, utc: str, dayf: bool, skiputc: bool = False):
     """Transforms any date in a datetime object with the correct UTC
 
     Args:
         date (str): Any date to save
         utc (str): (1) Name of account: its UTC. (2) available_timezones from ZoneInfo: specific UTC. (!) If date is aware: date UTC prevails.
         dayf (bool): Day or month first (if True: 03 is day in 03-02-2020 or 2020-03-02)
+        skiputc (bool): Only parse the date, do not involve UTC change
 
     Returns:
         str: The ISO date
@@ -170,6 +173,8 @@ def date_checker(date: str, utc: str, dayf: bool):
     if date is None or len(date) == 0:
         return None
     date = parser.parse(date, dayfirst=dayf)
+    if skiputc:
+        return date
 
     # Date is aware of UTC or none given
     if utc is None or is_aware(date):
